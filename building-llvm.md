@@ -8,6 +8,11 @@ sudo apt install libxml2-dev
 sudo apt install libedit-dev
 sudo apt install curl
 sudo apt install swig
+sudo apt install doxygen
+sudo apt install gccgo
+sudo apt install libz3-dev
+sudo apt install ocaml opam libz3-ocaml-dev
+sudo apt install python python-dev python-pip
 
 # Create top level directory  
 mkdir -p ~/closure
@@ -23,12 +28,12 @@ git clone https://github.com/gaps-closure/llvm-project.git
 cd llvm-project
 mkdir build
 cd build
-cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libc;libclc;libcxx;libcxxabi;libunwind;lld;lldb;llvm;openmp;parallel-libs;polly;pstl' ../llvm
+cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libc;libclc;libcxx;libcxxabi;libunwind;lld;lldb;llvm;openmp;parallel-libs;polly;pstl' -DCMAKE_BUILD_TYPE=Release ../llvm
 make -j8
 
 # Optionally install under default prefix /usr/local
 # XXX: you can always go to build/bin and invoke tools from there
-sudo make -j8 install
+sudo make install
 
 # Create and test sample program
 cd ..
