@@ -36,8 +36,9 @@ dotty pdgragh.main.dot
 ```
 
 # Building on cuurent LLVM version on our fork
-Folow the same instructions as above, but make changes to two files as
-below before building.
+Folow the same instructions as above, but do not install llvm-5.0 or clang-5.0,
+and make changes to two files as below before building. Also use clang++,
+llvm-as and opt, instead of clang++-5.0, llvm-as-5.0, and opt-5.0.
 
 In CMakeLists.txt, comment two lines at bottom, and add a new line as
 follows.
