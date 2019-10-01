@@ -35,7 +35,7 @@ opt-5.0 -load ./build/libpdg.so -dot-pdg helloworldmars.bc
 dotty pdgragh.main.dot
 ```
 
-# Building on prescribed LLVM5 version
+# Building on cuurent LLVM version on our fork
 Folow the same instructions as above, but make changes to two files as
 below before building.
 
