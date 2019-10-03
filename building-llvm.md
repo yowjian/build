@@ -42,7 +42,9 @@ mkdir build
 cd build
 # For a full build
 # cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS=all -DCLANG_PYTHON_BINDINGS_VERSIONS=2.7 -DCMAKE_BUILD_TYPE=Release ../llvm
-# For a more minimal and faster build
+# Or choose a subset
+# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libclc;libcxx;libcxxabi;libunwind;lld;lldb;llgo;openmp;parallel-libs;polly;pstl' -DCLANG_PYTHON_BINDINGS_VERSIONS=2.7 -DCMAKE_BUILD_TYPE=Release ../llvm
+# For a minimal, faster build
 cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;libclc;libcxx;libcxxabi;lld' -DCLANG_PYTHON_BINDINGS_VERSIONS=2.7 -DLLVM_TARGETS_TO_BUILD="X86" -DCMAKE_BUILD_TYPE=Release ../llvm
 make -j24
 
