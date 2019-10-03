@@ -28,7 +28,7 @@ git clone https://github.com/Z3Prover/z3
 cd z3
 python scripts/mk_make.py
 cd build
-make 
+make -j24
 sudo checkinstall 
 
 # Fetch latest LLVM sources from our fork
