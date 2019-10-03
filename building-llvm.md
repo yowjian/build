@@ -41,11 +41,11 @@ cd llvm-project
 mkdir build
 cd build
 # For a full build
-# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS=all -DCLANG_PYTHON_BINDINGS_VERSIONS=2.7 -DCMAKE_BUILD_TYPE=Release ../llvm
-# Or choose a subset
-# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libclc;libcxx;libcxxabi;libunwind;lld;lldb;llgo;openmp;parallel-libs;polly;pstl' -DCLANG_PYTHON_BINDINGS_VERSIONS=2.7 -DCMAKE_BUILD_TYPE=Release ../llvm
+# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS=all -DCLANG_PYTHON_BINDINGS_VERSIONS='2.7;3.5' -DCMAKE_BUILD_TYPE=Release ../llvm
+# Or choose a subset from the full list below
+# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libclc;libcxx;libcxxabi;libunwind;lld;lldb;llgo;openmp;parallel-libs;polly;pstl' -DCLANG_PYTHON_BINDINGS_VERSIONS='2.7;3.5' -DCMAKE_BUILD_TYPE=Release ../llvm
 # For a minimal, faster build
-cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;libclc;libcxx;libcxxabi;lld' -DCLANG_PYTHON_BINDINGS_VERSIONS=2.7 -DLLVM_TARGETS_TO_BUILD="X86" -DCMAKE_BUILD_TYPE=Release ../llvm
+cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;libclc;libcxx;libcxxabi;lld' -DCLANG_PYTHON_BINDINGS_VERSIONS='2.7;3.5' -DLLVM_TARGETS_TO_BUILD='X86' -DCMAKE_BUILD_TYPE=Release ../llvm
 make -j24
 
 # Optionally install under default prefix /usr/local
