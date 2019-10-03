@@ -57,18 +57,16 @@ cat << EOF > helloworldmars.cpp
 
 using namespace std;
 
-#pragma cle def HIGH_1 \
-   { \
-       "var": "foo", \
-       "arr": [{"bar": "a2ltuae"}, {"baz": 42} \
-   }
+string prt() 
+{
+  string __attribute__((annotate("HIGH_1"))) str = "Hello World, Mars!";
+  return str;
+}
 
 int main()
 {
-    #pragma cle HIGH_1
-    string str = "Hello World, Mars!";
-    cout << str << endl;
-    return 0;
+  cout << prt() << endl;
+  return 0;
 }
 EOF
 
