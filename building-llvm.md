@@ -24,16 +24,22 @@ cd closure
 git clone https://github.com/gaps-closure/llvm-project.git
 
 # Build LLVM projects
-# XXX: llgo fails to build, building without llgo for now, needs to be added
 cd llvm-project
 mkdir build
 cd build
-cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libc;libclc;libcxx;libcxxabi;libunwind;lld;lldb;llvm;openmp;parallel-libs;polly;pstl' -DCMAKE_BUILD_TYPE=Release ../llvm
-make -j8
+# For a full build
+# XXX: llgo fails to build, building without llgo for now, needs to be added
+# XXX: also need to identify other missing libraries and fix:
+# XXX:   Z3, Ocaml, sphinx-build, LIBOMPTARGET_DEP_LIBFFI, CUDA, LLVM FileCheck
+# XXX: may want to switch to python 3.x
+# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libclc;libcxx;libcxxabi;libunwind;lld;lldb;llgo;openmp;parallel-libs;polly;pstl' -DCLANG_PYTHON_BINDINGS_VERSIONS=2.7 -DCMAKE_BUILD_TYPE=Release ../llvm
+# For a more minimal and faster build
+cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;libclc;libcxx;libcxxabi;lld' -DCLANG_PYTHON_BINDINGS_VERSIONS=2.7 -DCMAKE_BUILD_TYPE=Release ../llvm
+make -j24
 
 # Optionally install under default prefix /usr/local
 # XXX: you can always go to build/bin and invoke tools from there
-sudo make install
+# sudo make install
 
 # Create and test sample program
 cd ..
