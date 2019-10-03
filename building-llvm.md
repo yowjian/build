@@ -40,17 +40,23 @@ git clone https://github.com/gaps-closure/llvm-project.git
 cd llvm-project
 mkdir build
 cd build
-# For a full build
-# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS=all -DCLANG_PYTHON_BINDINGS_VERSIONS='2.7;3.5' -DCMAKE_BUILD_TYPE=Release ../llvm
-# Or choose a subset from the full list below
-# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libclc;libcxx;libcxxabi;libunwind;lld;lldb;llgo;openmp;parallel-libs;polly;pstl' -DCLANG_PYTHON_BINDINGS_VERSIONS='2.7;3.5' -DCMAKE_BUILD_TYPE=Release ../llvm
-# For a minimal, faster build
+# For a full-featured build (fails on workhorse)
+# Note: Can use 'all' instead of list of projects
+# XXX: Likely symptoms we need a newer GNU toolchain
+# XXX: -- build fails on some lldb plugins for gdb-remote
+# XXX: -- build also fails on llgo, particularly llgoi on cmath
+# XXX: -- numerous CMake errors related to std-cxx-17
+# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libclc;libcxx;libcxxabi;libunwind;lld;lldb;llgo;openmp;parallel-libs;polly;pstl' ../llvm
+#
+# Following works on workhorse server
+# cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;compiler-rt;debuginfo-tests;libclc;libcxx;libcxxabi;libunwind;lld;openmp;parallel-libs;polly;pstl' -DCLANG_PYTHON_BINDINGS_VERSIONS='2.7;3.5' -DLLVM_TARGETS_TO_BUILD='X86' -DCMAKE_BUILD_TYPE=Release ../llvm
+# Alternatively, build a smaller subset (quicker)
 cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;libclc;libcxx;libcxxabi;lld' -DCLANG_PYTHON_BINDINGS_VERSIONS='2.7;3.5' -DLLVM_TARGETS_TO_BUILD='X86' -DCMAKE_BUILD_TYPE=Release ../llvm
 make -j24
 
 # Optionally install under default prefix /usr/local
 # XXX: you can always go to build/bin and invoke tools from there
-# sudo make install
+sudo make install
 
 # Create and test sample program
 cd ..
