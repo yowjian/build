@@ -8,9 +8,10 @@ sudo apt update
 # sudo apt upgrade
 sudo apt install cmake gcc g++ build-essential checkinstall 
 sudo apt install python python-pip python-dev python-pygments python-yaml 
+sudo apt install python3 python3-pip python3-dev python3-pygments python3-yaml 
 sudo apt install llvm ocaml opam 
 opam init
-opam config env
+eval `opam config env`
 opam install ctypes ctypes-foreign 
 opam depext conf-llvm.6.0.0
 opam depext conf-m4.1
