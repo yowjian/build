@@ -80,11 +80,11 @@ int main()
 EOF
 
 # Compile and run program
-clang++ helloworldmars.cpp
+clang++ helloworldmars.cpp -stdlib=libc++
 ./a.out
 
 # Compile and generate LLVM IR
-clang -S -emit-llvm helloworldmars.cpp
+clang -S -emit-llvm helloworldmars.cpp -stdlib=libc++
 
 # Clean up the build 
 rm -rf build
