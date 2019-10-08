@@ -39,6 +39,11 @@ git clone https://github.com/gaps-closure/llvm-project.git
 
 # Build LLVM projects
 cd llvm-project
+
+# Optionally switch to qualatypes branch which has type annotation mods
+# master branch mostly tracks the upstream repo
+git checkout qualatypes
+
 mkdir build
 cd build
 # For a full-featured build (fails on workhorse)
@@ -54,6 +59,8 @@ cd build
 # Alternatively, build a smaller subset (quicker)
 cmake -G 'Unix Makefiles' -DLLVM_ENABLE_PROJECTS='clang;libclc;libcxx;libcxxabi;lld' -DCLANG_PYTHON_BINDINGS_VERSIONS='2.7;3.5' -DLLVM_TARGETS_TO_BUILD='X86' -DCMAKE_BUILD_TYPE=Release ../llvm
 make -j24
+# For some reason ocaml_doc does not get built
+make ocaml_doc 
 
 # Optionally install under default prefix /usr/local
 # XXX: you can always go to build/bin and invoke tools from there
