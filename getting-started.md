@@ -12,4 +12,4 @@ All repositories will be switched to <b>develop</b> branch. LLVM is a large repo
 
 `cd gaps`
 
-`gits clone http://github.com/gaps-closure`
+`gits clone http://github.com/gaps-closure/top-level.git`
