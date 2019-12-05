@@ -22,16 +22,19 @@ using namespace std;
   
 int main()
 {
-  #pragma cle HIGH_1
+  #pragma cle begin HIGH_1
   string str = "Hello World, Mars!";
+  #pragma cle end HIGH_1
   cout << str << endl;
   return 0;
 }
 EOF
 
-clang++-5.0 -S -emit-llvm helloworldmars.cpp
-llvm-as-5.0 helloworldmars.ll 
-opt-5.0 -load ./build/libpdg.so -dot-pdg helloworldmars.bc
+# XXX: Use CLE preprocessor to apply annotations to generate helloworldmars-mod.cpp
+
+clang++-5.0 -S -emit-llvm helloworldmars-mod.cpp
+llvm-as-5.0 helloworldmars-mod.ll 
+opt-5.0 -load ./build/libpdg.so -dot-pdg helloworldmars-mod.bc
 dotty pdgragh.main.dot
 ```
 
