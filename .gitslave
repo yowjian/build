@@ -4,3 +4,4 @@
 "../llvm-project.git" "llvm"
 "../pdg.git" "pdg"
 "../team-instructions.git" "instructions"
+"../hal.git" "hal"
