@@ -1,5 +1,4 @@
 "../emu.git" "emu"
-"../hal.git" "hal"
 "../mules.git" "mules"
 "../mbig.git" "src/mbig"
 "../capo.git" "src/capo"
