@@ -3,3 +3,4 @@
 "../cvi.git" "src/cvi"
 "../hal.git" "src/hal"
 "../mules.git" "src/mules"
+"../emu.git" "src/emu"
