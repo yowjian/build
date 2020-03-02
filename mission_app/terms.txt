@@ -1,0 +1,3 @@
+EO/IR Electro-Optical/Infra-Red : EO/IR systems are imaging systems used for military or law enforcement applications which include both visible and infrared sensors. Because they span both visible and infrared wavelengths, EO/IR systems provide total situational awareness both day and night and in low light conditions.
+
+PNT Positioning, Navigation and Timing: PNT is a combination of three distinct, constituent capabilities: Positioning, the ability to accurately and precisely determine one's location and orientation two-dimensionally (or three-dimensionally when required) referenced to a standard geodetic system (such as World Geodetic System 1984, or WGS84);

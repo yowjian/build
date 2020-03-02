@@ -1,10 +1,7 @@
-cle/
-emulator/
-instructions/
-llvm/
-pdg//src/mbig/
+/src/mbig/
 /src/capo/
 /src/cvi/
 /src/hal/
 /src/mules/
 /src/emu/
+*~
