@@ -37,16 +37,27 @@ track_data_t *produce_target_track()
 
 rf_mti_t *produce_rf_mti()
 {
+	rf_mti.mti = 1.0;
+
 	return &rf_mti;
 }
 
 rf_track_t *produce_rf_track()
 {
+	rf_track.track.lat = 44.123456;
+	rf_track.track.lon = -123.345678;
+	rf_track.track.hae = 1010;
+	rf_track.track.speed = 1011;
+	rf_track.track.course = 1012;
+	time(NULL);
+
 	return &rf_track;
 }
 
 eo_ir_video_t *produce_eo_ir_video()
 {
+	snprintf((char *) eo_ir_video.data, sizeof(eo_ir_video_t), "a");
+
 	return &eo_ir_video;
 }
 
@@ -70,11 +81,21 @@ global_fix_t *produce_global_fix() //eo_ir_track_t *track)
 
 rf_sensor_t *produce_rf_sensor()
 {
+	rf_sensor_data.azimuth = 123;
+	rf_sensor_data.range = 456;
+
 	return &rf_sensor_data;
 }
 
 eo_ir_track_t *produce_eo_ir_track() //track_data_t *target_track, eo_ir_video_t *eo_ir)
 {
+	eo_ir_track.track.lat = 40;
+	eo_ir_track.track.lon = -207;
+	eo_ir_track.track.hae = 2100;
+	eo_ir_track.track.speed = 2101;
+	eo_ir_track.track.course = 2102;
+	eo_ir_track.track.timestamp = time(NULL);
+
 	return &eo_ir_track;
 }
 
@@ -92,5 +113,9 @@ track_data_t *produce_target_track_pos_velocity()
 
 pnt_position_t *produce_pnt_position_data()
 {
+	pnt_position_data.position_fix.x = 500;
+	pnt_position_data.position_fix.y = 501;
+	pnt_position_data.position_fix.z = 502;
+
 	return &pnt_position_data;
 }

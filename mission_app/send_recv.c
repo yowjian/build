@@ -16,6 +16,11 @@ void write_gaps(char *msg, char *data)
 	// TODO: send data
 }
 
+void read_gaps(char *buf)
+{
+
+}
+
 void write_local(char *msg, char *data)
 {
 	printf("%s\n", msg);

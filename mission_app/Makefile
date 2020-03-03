@@ -8,7 +8,6 @@ CFLAGS = -Wall -g $(INCLUDE_DIRS)
 LIBPDG=../../pdg/build/libpdg.so
 
 MISSION_OBJ = \
-	mission.o \
 	produce.o \
 	send_recv.o
 
@@ -33,18 +32,20 @@ dot: $(PROG).mod.bc
 clang_$(PROG): lib$(PROG).a $(PROG).mod.c
 	clang -g $^ -o $@ -L. -l$(PROG)
 
-$(PROG): $(MISSION_OBJ)
-	gcc $(CFLAGS) $(MISSION_OBJ) -o $(PROG) -L. 
+$(PROG): lib$(PROG).a $(PROG).o
+	gcc $(CFLAGS) $(PROG).o -o $(PROG) -L. -l$(PROG)
 
-lib$(PROG).a: $(PROG)_libs.c
-	gcc $(CFLAGS) -c $(PROG)_libs.c
-	ar rcs lib$(PROG).a $(PROG)_libs.o
+lib$(PROG).a: $(MISSION_OBJ)
+	ar rcs lib$(PROG).a $(MISSION_OBJ)
 
 $(PROG)_$(ENC1): lib$(PROG).a
 	gcc $(CFLAGS) $@.mod.c -o $@ -L. -l$(PROG) -L../src -lpartitioner
 $(PROG)_$(ENC2): lib$(PROG).a
 	gcc $(CFLAGS) $@.mod.c -o $@ -L. -l$(PROG) -L../src -lpartitioner
 $(PROG)_parts: $(PROG)_$(ENC1) $(PROG)_$(ENC2)
+
+.c.o:  
+	$(CC) $(CFLAGS) $< -o $@ -c
 
 packages:
 	tar cf $(PROG)_$(ENC1)-enclave-gw-P.tar $(PROG)_$(ENC1)
