@@ -1,4 +1,4 @@
-# Development Server HW/SW Configuration
+# CLOSURE Development Server HW/SW Configuration
 CLOSURE utilizes a number of open-source libraries, tools, and sources to support the various sub-modules. We do not have strict version dependencies (other than LLVM as described below). Standard install processes are employed (apt install, pip3 install, etc.). Main, Restricted, Universe, and Multiverse Ubuntu repositories are required.
 
 ## Hardware
