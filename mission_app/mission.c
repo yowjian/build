@@ -9,16 +9,20 @@
 #define OK 0
 #define NOTOK -1
 
-/*
-#pragma cle def PURPLE_1 {"level":"purple"}
+#pragma cle def GREEN_1 {"level":"green",\
+  "cdf": [\
+    {"remotelevel":"==orange", \
+     "direction": "egress", \
+     "guardhint": { "oneway": "true"}}\
+  ] }}
 
 #pragma cle def ORANGE_1 {"level":"orange",\
   "cdf": [\
-    {"remotelevel":"==purple", \
+    {"remotelevel":"==green", \
      "direction": "egress", \
      "guardhint": { "oneway": "true"}}\
   ] }
-*/
+
 
 void* correlation(void *arg)
 {
@@ -36,7 +40,9 @@ void *own_ship_loc(void *arg)
 	global_fix_t *position_fix = recv_position_fix();
 	output("own_ship_loc: recv position fix", (char *) position_fix);
 
+#pragma cle begin ORANGE_1
 	track_data_t *target_track = produce_target_track_pos_velocity(position_fix);
+#pragma cle end ORANGE_1
 	write_gaps("own_ship_loc: send target track (pos, velocity)", (char *) target_track);
 
 	return NULL;
@@ -60,7 +66,9 @@ void *rf_sensor(void *arg)
 	rf_mti_t *rf_mti = produce_rf_mti();
 	write_local("rf_sensor: send MTI", (char *) rf_mti);
 
+#pragma cle begin GREEN_1
 	rf_sensor_t *rf_sensor = produce_rf_sensor();
+#pragma cle end GREEN_1
 	write_gaps("rf_sensor: send Azimuth/range", (char *) rf_sensor);
 
 	return NULL;
@@ -90,7 +98,9 @@ void *position_processing(void *arg)
 	pnt_position_t *pnt_position_data = recv_pnt_position_data();
 	output("position_processing: recv PNT position data", (char *) pnt_position_data);
 
+#pragma cle begin GREEN_1
 	global_fix_t *position_fix = produce_position_fix();
+#pragma cle end GREEN_1
 	write_gaps("position_processing: send position fix", (char *) position_fix);
 
 	return NULL;
@@ -111,8 +121,9 @@ void *tracking_eo_ir(void *arg)
 	eo_ir_track_t *eo_ir_track = recv_eo_ir_track();
 	output("tracking_eo_ir: recv EO/IR Track", (char *) eo_ir_track);
 
-
+#pragma cle begin GREEN_1
 	global_fix_t *global_fix = produce_global_fix();
+#pragma cle end GREEN_1
 	write_gaps("tracking_eo_ir: send Global Fix", (char *) global_fix);
 
 	return NULL;
@@ -135,8 +146,9 @@ void *target_loc(void *arg)
 	eo_ir_track_t *eo_ir_track = produce_eo_ir_track();
 	write_local("target_loc: send EO/IR Track", (char *) eo_ir_track);
 
-
+#pragma cle begin GREEN_1
 	track_data_t *target_track = produce_target_track_pos_velocity();
+#pragma cle begin GREEN_1
 	write_gaps("target_loc: send target track", (char *) target_track);
 
 	return NULL;
