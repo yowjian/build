@@ -33,8 +33,8 @@ dot: $(PROG).mod.bc
 clang_$(PROG): lib$(PROG).a $(PROG).mod.c
 	clang -g $^ -o $@ -L. -l$(PROG)
 
-$(PROG): lib$(PROG).a $(MISSION_OBJ)
-	gcc $(CFLAGS) $(MISSION_OBJ) -o $(PROG) -L. -l$(PROG)
+$(PROG): $(MISSION_OBJ)
+	gcc $(CFLAGS) $(MISSION_OBJ) -o $(PROG) -L. 
 
 lib$(PROG).a: $(PROG)_libs.c
 	gcc $(CFLAGS) -c $(PROG)_libs.c

@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "imaging.h"
-#include "gps_lib.h"
-#include "targeting.h"
 #include "track.h"
 #include "produce.h"
 #include "send_recv.h"
