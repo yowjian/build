@@ -20,7 +20,7 @@ CLOSURE will keep current with the latest LLVM and Clang releases, periodically 
 | LLVM/Clang    | 10.0    |
 
 ### Debian Packages (apt install)
-(Note that the [EMU install procedure](https://github.com/gaps-closure/emu#installing-external-dependencies) automatically retreives the majority of these packages)
+(Note that the [EMU install procedure](https://github.com/gaps-closure/emu#installing-external-dependencies) automatically retrieves the majority of these packages)
 
 | Package       | Version | 
 |:--------------|:---------------|
