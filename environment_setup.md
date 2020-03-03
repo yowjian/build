@@ -61,8 +61,7 @@ CLOSURE will keep current with the latest LLVM and Clang releases, periodically 
 ### Python3 packages (pip3 install)
 | Package       | Version | 
 |:--------------|:--------------|
-| lark-parser | 0.7.8 |
-| pydot       | 1.4.1 |
 | decorator   | 4.4.1 |
+| lark-parser | 0.7.8 |
 | pexpect     | 4.7.0 |
-
+| pydot       | 1.4.1 |
