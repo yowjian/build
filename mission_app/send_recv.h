@@ -1,7 +1,16 @@
 #ifndef _SEND_RECV_H
 #define _SEND_RECV_H
 
+#include <netinet/in.h>
+
 #include "track.h"
+
+typedef struct _UdpEndPoint {
+	char name[64];
+    int sock;
+    struct sockaddr_in dst;             // destination address
+    struct _UdpEndPoint *next;
+} UdpEndPoint;
 
 void output(char *msg, char *data);
 void write_gaps(char *msg, char *data);
@@ -18,5 +27,10 @@ global_fix_t *recv_global_fix();
 rf_sensor_t *recv_rf_sensor();
 eo_ir_track_t *recv_eo_ir_track();
 pnt_position_t *recv_pnt_position_data();
+UdpEndPoint *create_udp_endpoint(char *name, char *local_ip, int local_port); //, char *remote_ip, int remote_port);
+void init_fd();
+UdpEndPoint *findEndpoint(char *name);
+void udp_send(UdpEndPoint *sender, UdpEndPoint *recipient, char *data, int data_len);
+void udp_recv(UdpEndPoint *uep, char *buf, int buf_len);
 
 #endif
