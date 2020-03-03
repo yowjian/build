@@ -75,7 +75,7 @@ void write_gaps(char *msg, char *data)
 	// TODO: send data
 }
 
-track_data_t *read_own_ship_track(global_fix_t *position_fix)
+track_data_t *recv_own_ship_track(global_fix_t *position_fix)
 {
 	track_data_t *track = malloc(sizeof(track_data_t));
 	track->lat = 32.673169;
@@ -153,7 +153,7 @@ void write_target_global_fix(global_fix_t *target_global_fix)
 {
 }
 
-global_fix_t *get_position_fix()
+global_fix_t *recv_position_fix()
 {
 	time(&pnt_src.time);
 
@@ -163,22 +163,17 @@ global_fix_t *get_position_fix()
 	return &pnt_src.position_fix;
 }
 
-void write_position_fix(global_fix_t *position_fix)
-{
-	write_gaps("position processing sends position fix", (char *) position_fix);
-}
-
 void target_loc_processing()
 {
-	global_fix_t *position_fix = get_position_fix();
-	write_position_fix(position_fix);
+	global_fix_t *position_fix = recv_position_fix();
+	write_gaps("send position fix", (char *) position_fix);
 	long time = read_time();
 
 	rf_sensor_t *rf_sensor;
 	eo_ir_t *eo_ir;
 
-	track_data_t *own_ship_track = read_own_ship_track(position_fix);
-	write_gaps("send own ship location", (char *) own_ship_track);
+	track_data_t *own_ship_track = recv_own_ship_track(position_fix);
+	write_gaps("send own ship track", (char *) own_ship_track);
 
 	rf_sensor = read_rf_sensor();  // azimuth and range
 	eo_ir = read_eo_ir();

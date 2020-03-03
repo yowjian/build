@@ -1,3 +1,6 @@
+mission
+*.a
+*.o
 *.dot
 *.bc
 *.ll
