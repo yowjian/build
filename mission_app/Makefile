@@ -7,6 +7,10 @@ INCLUDE_DIRS = -I../src
 CFLAGS = -Wall -g $(INCLUDE_DIRS)
 LIBPDG=../../pdg/build/libpdg.so
 
+MISSION_OBJ = \
+	mission.o \
+	produce.o \
+	send_recv.o
 
 all: dot
 
@@ -29,8 +33,8 @@ dot: $(PROG).mod.bc
 clang_$(PROG): lib$(PROG).a $(PROG).mod.c
 	clang -g $^ -o $@ -L. -l$(PROG)
 
-$(PROG): lib$(PROG).a $(PROG).o
-	gcc $(CFLAGS) $(PROG).o -o $(PROG) -L. -l$(PROG)
+$(PROG): lib$(PROG).a $(MISSION_OBJ)
+	gcc $(CFLAGS) $(MISSION_OBJ) -o $(PROG) -L. -l$(PROG)
 
 lib$(PROG).a: $(PROG)_libs.c
 	gcc $(CFLAGS) -c $(PROG)_libs.c

@@ -16,6 +16,10 @@ typedef struct _rf_mti {
     double mti;
 } rf_mti_t;
 
+typedef struct _rf_track {
+	track_data_t track;
+} rf_track_t;
+
 typedef struct _rf_sensor {
     double azimuth;
     double range;
@@ -27,9 +31,9 @@ typedef struct _global_fix {
     double z;
 } global_fix_t;
 
-typedef struct _eo_ir {
+typedef struct _eo_ir_video {
 	double data[16];
-} eo_ir_t;
+} eo_ir_video_t;
 
 typedef struct _eo_ir_track {
 	track_data_t track;
@@ -38,7 +42,7 @@ typedef struct _eo_ir_track {
 typedef struct _pnt_src {
 	global_fix_t position_fix;
 	long time;
-} pnt_src_t;
+} pnt_position_t;
 
 track_data_t *get_track_data();
 
