@@ -7,9 +7,12 @@ INCLUDE_DIRS = -I../src
 CFLAGS = -Wall -g $(INCLUDE_DIRS)
 LIBPDG=../../pdg/build/libpdg.so
 
+LIBS=-lpthread
+
 MISSION_OBJ = \
 	produce.o \
-	send_recv.o
+	send_recv.o \
+	log.o
 
 all: dot
 
@@ -33,15 +36,15 @@ clang_$(PROG): lib$(PROG).a $(PROG).mod.c
 	clang -g $^ -o $@ -L. -l$(PROG)
 
 $(PROG): lib$(PROG).a $(PROG).o
-	gcc $(CFLAGS) $(PROG).o -o $(PROG) -L. -l$(PROG)
+	gcc $(CFLAGS) $(PROG).o -o $(PROG) -L. -l$(PROG) $(LIBS)
 
 lib$(PROG).a: $(MISSION_OBJ)
 	ar rcs lib$(PROG).a $(MISSION_OBJ)
 
 $(PROG)_$(ENC1): lib$(PROG).a
-	gcc $(CFLAGS) $@.mod.c -o $@ -L. -l$(PROG) -L../src -lpartitioner
+	gcc $(CFLAGS) $@.mod.c -o $@ -L. -l$(PROG) -L../src -lpartitioner $(LIBS)
 $(PROG)_$(ENC2): lib$(PROG).a
-	gcc $(CFLAGS) $@.mod.c -o $@ -L. -l$(PROG) -L../src -lpartitioner
+	gcc $(CFLAGS) $@.mod.c -o $@ -L. -l$(PROG) -L../src -lpartitioner $(LIBS)
 $(PROG)_parts: $(PROG)_$(ENC1) $(PROG)_$(ENC2)
 
 .c.o:  
