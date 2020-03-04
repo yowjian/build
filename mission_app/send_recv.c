@@ -65,7 +65,7 @@ void udp_send(UdpEndPoint *sender, UdpEndPoint *recipient, char *data, int data_
         mc_log(LOG_ERR, "failed to send from %s to %s", sender->name, recipient->name, strerror(errno));
     }
     else {
-        mc_log(LOG_INFO, "sent %4d bytes (%s -> %s)", sent_bytes, sender->name, recipient->name);
+        mc_log(LOG_INFO, "%s -> %s (%d)", sender->name, recipient->name, sent_bytes);
     }
 }
 
@@ -81,7 +81,7 @@ int udp_recv(UdpEndPoint *uep, char *buf, int buf_len)
     }
     //buf[recv_len] = '\0';
 
-    mc_log(LOG_INFO, "recv %4d bytes -> %s",  recv_len, uep->name);
+    mc_log(LOG_INFO, "\t%s recv (%d)", uep->name, recv_len);
 
     return recv_len;
 }

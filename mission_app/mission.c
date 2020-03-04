@@ -10,8 +10,6 @@
 #include "send_recv.h"
 #include "log.h"
 
-#define PRODUCE_DELAY 5
-
 #define PNT_SRC 			"pnt_src"
 #define POSITION_PROCESSING "position_processing"
 #define TIME_PROCESSING 	"time_processing"
@@ -40,6 +38,8 @@
      "guardhint": { "oneway": "true"}}\
   ] }
 
+static int produce_delay = 5;
+
 void die(char *s)
 {
 	perror(s);
@@ -55,7 +55,7 @@ void* correlation(void *arg)
 
     int larger = sizeof(global_fix_t) > sizeof(rf_track);
     char *buf = larger ? (char *) &global_fix : (char *) &rf_track;
-    int buf_size = larger ? sizeof(global_fix_t) : sizeof(rf_track);
+    int buf_size = larger ? sizeof(global_fix_t) : sizeof(rf_track_t);
 
     global_fix_t *data_ptr = (global_fix_t *) buf;
 
@@ -84,6 +84,14 @@ void *own_ship_loc(void *arg)
     while (1) {
         udp_recv(me, (char *) &position_fix, sizeof(global_fix_t));
 
+        if (position_fix.type == TYPE_GLOBAL_FIX) {
+        	mc_log(LOG_DEBUG, "%s receives position fix", __FUNCTION__);
+        }
+        else {
+        	mc_log(LOG_ERR, "%s receives data type: %d", __FUNCTION__, position_fix.type);
+        	continue;
+        }
+
 #pragma cle begin ORANGE_1
         track_data_t *target_track = produce_target_track_pos_velocity(position_fix);
 #pragma cle end ORANGE_1
@@ -99,9 +107,32 @@ void *tracking_rf_mti(void *arg)
     track_data_t target_track;
     rf_mti_t rf_mti;
 
+    int larger = sizeof(track_data_t) > sizeof(rf_mti_t);
+    char *buf = larger ? (char *) &target_track : (char *) &rf_mti;
+    int buf_size = larger ? sizeof(track_data_t) : sizeof(rf_mti_t);
+
+    track_data_t *data_ptr = (track_data_t *) buf;
+
+    int bits = 0;
+
     while (1) {
-        udp_recv(me, (char *) &target_track, sizeof(track_data_t));
-        udp_recv(me, (char *) &rf_mti, sizeof(rf_mti_t));
+        udp_recv(me, (char *) buf, buf_size);
+
+        if (data_ptr->type == TYPE_TRACK_DATA) {
+        	mc_log(LOG_DEBUG, "%s receives target track", __FUNCTION__);
+        	bits |= 0x1;
+        }
+        else if (data_ptr->type == TYPE_RF_MTI) {
+        	mc_log(LOG_DEBUG, "%s receives rf mti", __FUNCTION__);
+        	bits |= 0x2;
+        }
+        else {
+        	mc_log(LOG_ERR, "%s receives data type: %d", __FUNCTION__, data_ptr->type);
+        	continue;
+        }
+
+        if (bits != 0x3)
+        	continue;
 
         rf_track_t *rf_track = produce_rf_track(target_track, rf_mti);
         udp_send(me, correlation, (char *) rf_track, sizeof(rf_track_t));
@@ -124,7 +155,7 @@ void *rf_sensor(void *arg)
 
         udp_send(me, target_loc, (char *) rf_sensor, sizeof(rf_sensor_t));
 
-        sleep(PRODUCE_DELAY);
+        sleep(produce_delay);
     }
 }
 
@@ -137,7 +168,7 @@ void *eo_ir_sensor(void *arg)
         eo_ir_video_t *eo_ir_video = produce_eo_ir_video();
         udp_send(me, target_loc, (char *) eo_ir_video, sizeof(eo_ir_video_t));
 
-        sleep(PRODUCE_DELAY);
+        sleep(produce_delay);
     }
 }
 
@@ -153,9 +184,9 @@ void *pnt_src(void *arg)
 		udp_send(me, position_processing, (char *) pnt_position_data, sizeof(pnt_position_t));
 
 		pnt_time_t *timestamp = produce_pnt_time();
-		udp_send(me, time_processing, (char *) &timestamp, sizeof(pnt_time_t));
+		udp_send(me, time_processing, (char *) timestamp, sizeof(pnt_time_t));
 
-		sleep(PRODUCE_DELAY);
+		sleep(produce_delay);
 	}
 }
 
@@ -168,6 +199,14 @@ void *position_processing(void *arg)
 
 	while (1) {
 		udp_recv(me, (char *) &pnt_position_data, sizeof(pnt_position_t));
+
+        if (pnt_position_data.type == TYPE_PNT_POSITION) {
+        	mc_log(LOG_DEBUG, "%s receives pnt position", __FUNCTION__);
+        }
+        else {
+        	mc_log(LOG_ERR, "%s receives data type: %d", __FUNCTION__, pnt_position_data.type);
+        	continue;
+        }
 
 #pragma cle begin GREEN_1
 		global_fix_t *position_fix = produce_position_fix();
@@ -182,11 +221,20 @@ void *time_processing(void *arg)
 	UdpEndPoint *me = (UdpEndPoint *) arg;
 	UdpEndPoint *target_loc = findEndpoint(TARGET_LOC);
 
-	long timestamp;
+	pnt_time_t pnt_time;
 
 	while (1) {
-		udp_recv(me, (char *) &timestamp, sizeof(long));
-		udp_send(me, target_loc, (char *) &timestamp, sizeof(long));
+        udp_recv(me, (char *) &pnt_time, sizeof(pnt_time_t));
+
+        if (pnt_time.type == TYPE_PNT_TIME) {
+        	mc_log(LOG_DEBUG, "%s receives pnt_time", __FUNCTION__);
+        }
+        else {
+        	mc_log(LOG_ERR, "%s receives data type: %d", __FUNCTION__, pnt_time.type);
+        	continue;
+        }
+
+		udp_send(me, target_loc, (char *) &pnt_time, sizeof(pnt_time_t));
 	}
 }
 
@@ -221,16 +269,54 @@ void *target_loc(void *arg)
     UdpEndPoint *tracking_rf_mti = findEndpoint(TRACKING_RF_MTI);
     UdpEndPoint *tracking_eo_ir = findEndpoint(TRACKING_EO_IR);
 
-    long timestamp;
+    pnt_time_t pnt_time;
     eo_ir_video_t eo_ir_video;
     track_data_t target_track_pos_velocity;
     rf_sensor_t rf_sensor;
 
+    int larger = sizeof(pnt_time_t) > sizeof(eo_ir_video_t);
+    char *buf = larger ? (char *) &pnt_time : (char *) &eo_ir_video;
+    int buf_size = larger ? sizeof(pnt_time_t) : sizeof(eo_ir_video_t);
+
+    if (sizeof(track_data_t) > larger) {
+    	buf = (char *) &target_track_pos_velocity;
+    	buf_size = sizeof(track_data_t);
+    }
+    if (sizeof(rf_sensor_t) > larger) {
+    	buf = (char *) &rf_sensor;
+    	buf_size = sizeof(rf_sensor_t);
+    }
+
+    track_data_t *data_ptr = (track_data_t *) buf;
+
+    int bits = 0;
+
     while (1) {
-        udp_recv(me, (char *) &timestamp, sizeof(long));
-        udp_recv(me, (char *) &eo_ir_video, sizeof(eo_ir_video_t));
-        udp_recv(me, (char *) &target_track_pos_velocity, sizeof(track_data_t));
-        udp_recv(me, (char *) &rf_sensor, sizeof(rf_sensor_t));
+        udp_recv(me, (char *) buf, buf_size);
+
+        if (data_ptr->type == TYPE_PNT_TIME) {
+        	mc_log(LOG_DEBUG, "%s receives time", __FUNCTION__);
+        	bits |= 0x1;
+        }
+        else if (data_ptr->type == TYPE_EO_IR_VIDEO) {
+        	mc_log(LOG_DEBUG, "%s receives eo/ir video", __FUNCTION__);
+        	bits |= 0x2;
+        }
+        else if (data_ptr->type == TYPE_TRACK_DATA) {
+        	mc_log(LOG_DEBUG, "%s receives target track(pos, velocity)", __FUNCTION__);
+        	bits |= 0x4;
+        }
+        else if (data_ptr->type == TYPE_RF_SENSOR) {
+        	mc_log(LOG_DEBUG, "%s receives rf sensor", __FUNCTION__);
+        	bits |= 0x8;
+        }
+        else {
+        	mc_log(LOG_ERR, "%s receives data type: %d", __FUNCTION__, data_ptr->type);
+        	continue;
+        }
+
+        if (bits != 0xf)
+        	continue;
 
         eo_ir_track_t *eo_ir_track = produce_eo_ir_track();
         udp_send(me, tracking_eo_ir, (char *) eo_ir_track, sizeof(eo_ir_track_t));
@@ -238,7 +324,7 @@ void *target_loc(void *arg)
 #pragma cle begin GREEN_1
         track_data_t *target_track = produce_target_track();
 #pragma cle begin GREEN_1
-        udp_send(me, tracking_rf_mti, (char *) &target_track, sizeof(track_data_t));
+        udp_send(me, tracking_rf_mti, (char *) target_track, sizeof(track_data_t));
     }
 }
 
@@ -285,7 +371,8 @@ static void read_config_file(char* config_filename)
 static void print_usage()
 {
     printf("Options:\n");
-    printf("  -f     \t config file\n");
+    printf("  -f <file>  \t config file\n");
+    printf("  -d <delay> \t delay in seconds between producing data\n");
     printf("  -h     \t print this message and exit\n");
 
     exit(0);
@@ -297,17 +384,21 @@ static void parse_cmdline(int argc, char *argv[])
 
     struct option long_options[] = {
         {"file",    required_argument, 0, 'f'},
+		{"delay",   required_argument, 0, 'd'},
         {"help",    no_argument,       0, 'h'},
         {0, 0, 0, 0}
     };
 
     int option_index = 0;
     int specified = 0;
-    while ((c = getopt_long(argc, argv, "hf:", long_options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "hd:f:", long_options, &option_index)) != -1) {
         switch (c) {
         case 'f':
             read_config_file(optarg);
             specified = 1;
+            break;
+        case 'd':
+            produce_delay = strtol(optarg, NULL, 10);
             break;
         case 'h':
             print_usage();
