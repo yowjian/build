@@ -48,60 +48,82 @@ void die(char *s)
 
 void* correlation(void *arg)
 {
-	global_fix_t *global_fix = recv_global_fix();
-	mc_log(LOG_INFO, "correlation: recv global fix", (char *) global_fix);
+    UdpEndPoint *me = (UdpEndPoint *) arg;
 
-	rf_track_t *rf_track = recv_rf_track();
-	mc_log(LOG_INFO, "correlation: recv RF Track", (char *) rf_track);
+    global_fix_t global_fix;   // from tracking_eo_ir
+    rf_track_t rf_track;       // from tracking_rf_mti
 
-	return NULL;
+    while (1) {
+        udp_recv(me, (char *) &global_fix, sizeof(global_fix_t));
+        udp_recv(me, (char *) &rf_track, sizeof(rf_track_t));
+    }
 }
 
 void *own_ship_loc(void *arg)
 {
-	global_fix_t *position_fix = recv_position_fix();
-	mc_log(LOG_INFO, "own_ship_loc: recv position fix", (char *) position_fix);
+    UdpEndPoint *me = (UdpEndPoint *) arg;
+    UdpEndPoint *target_loc = findEndpoint(TARGET_LOC);
+
+    global_fix_t position_fix;
+
+    while (1) {
+        udp_recv(me, (char *) &position_fix, sizeof(global_fix_t));
 
 #pragma cle begin ORANGE_1
-	track_data_t *target_track = produce_target_track_pos_velocity(position_fix);
+        track_data_t *target_track = produce_target_track_pos_velocity(position_fix);
 #pragma cle end ORANGE_1
-	write_gaps("own_ship_loc: send target track (pos, velocity)", (char *) target_track);
-
-	return NULL;
+        udp_send(me, target_loc, (char *) target_track, sizeof(track_data_t));
+    }
 }
 
 void *tracking_rf_mti(void *arg)
 {
-	track_data_t *target_track = recv_target_track();
-	mc_log(LOG_INFO, "tracking: recv target track", (char *) target_track);
+    UdpEndPoint *me = (UdpEndPoint *) arg;
+    UdpEndPoint *correlation = findEndpoint(CORRELATION);
 
-	rf_mti_t *rf_mti = recv_rf_mti();
+    track_data_t target_track;
+    rf_mti_t rf_mti;
 
-	rf_track_t *tf_track = produce_rf_track(target_track, rf_mti);
-	write_local("tracking: send RF Track", (char *) tf_track);
+    while (1) {
+        udp_recv(me, (char *) &target_track, sizeof(track_data_t));
+        udp_recv(me, (char *) &rf_mti, sizeof(rf_mti_t));
 
-	return NULL;
+        rf_track_t *tf_track = produce_rf_track(target_track, rf_mti);
+        udp_send(me, correlation, (char *) tf_track, sizeof(rf_track_t));
+    }
 }
 
 void *rf_sensor(void *arg)
 {
-	rf_mti_t *rf_mti = produce_rf_mti();
-	write_local("rf_sensor: send MTI", (char *) rf_mti);
+    UdpEndPoint *me = (UdpEndPoint *) arg;
+    UdpEndPoint *tracking_rf_mti = findEndpoint(TRACKING_RF_MTI);
+    UdpEndPoint *target_loc = findEndpoint(TARGET_LOC);
+
+    while (1) {
+        rf_mti_t *rf_mti = produce_rf_mti();
+        udp_send(me, tracking_rf_mti, (char *) rf_mti, sizeof(rf_mti_t));
 
 #pragma cle begin GREEN_1
-	rf_sensor_t *rf_sensor = produce_rf_sensor();
+        rf_sensor_t *rf_sensor = produce_rf_sensor();
 #pragma cle end GREEN_1
-	write_gaps("rf_sensor: send Azimuth/range", (char *) rf_sensor);
 
-	return NULL;
+        udp_send(me, target_loc, (char *) rf_sensor, sizeof(rf_sensor_t));
+
+        sleep(PRODUCE_DELAY);
+    }
 }
 
 void *eo_ir_sensor(void *arg)
 {
-	eo_ir_video_t *eo_ir_video = produce_eo_ir_video();
-	write_local("eo_ir_sensor: send EO/IR video", (char *) eo_ir_video);
+    UdpEndPoint *me = (UdpEndPoint *) arg;
+    UdpEndPoint *target_loc = findEndpoint(TARGET_LOC);
 
-	return NULL;
+    while (1) {
+        eo_ir_video_t *eo_ir_video = produce_eo_ir_video();
+        udp_send(me, target_loc, (char *) eo_ir_video, sizeof(eo_ir_video_t));
+
+        sleep(PRODUCE_DELAY);
+    }
 }
 
 void *pnt_src(void *arg)
@@ -155,40 +177,45 @@ void *time_processing(void *arg)
 
 void *tracking_eo_ir(void *arg)
 {
-	eo_ir_track_t *eo_ir_track = recv_eo_ir_track();
-	mc_log(LOG_INFO, "tracking_eo_ir: recv EO/IR Track", (char *) eo_ir_track);
+    UdpEndPoint *me = (UdpEndPoint *) arg;
+    UdpEndPoint *correlation = findEndpoint(CORRELATION);
+
+    eo_ir_track_t eo_ir_track;
+
+    while (1) {
+        udp_recv(me, (char *) &eo_ir_track, sizeof(eo_ir_track_t));
 
 #pragma cle begin GREEN_1
-	global_fix_t *global_fix = produce_global_fix();
+        global_fix_t *global_fix = produce_global_fix();
 #pragma cle end GREEN_1
-	write_gaps("tracking_eo_ir: send Global Fix", (char *) global_fix);
 
-	return NULL;
+        udp_send(me, correlation, (char *) &global_fix, sizeof(global_fix_t));
+    }
 }
 
 void *target_loc(void *arg)
 {
-	long timestamp = recv_timestamp();
-	mc_log(LOG_INFO, "target_loc: recv timestamp", (char *) &timestamp);
+    UdpEndPoint *me = (UdpEndPoint *) arg;
+    UdpEndPoint *correlation = findEndpoint(CORRELATION);
 
-	eo_ir_video_t *eo_ir_video = recv_eo_ir_video();
-	mc_log(LOG_INFO, "target_loc: recv EO/IR video", (char *) eo_ir_video);
+    long timestamp;
+    eo_ir_video_t eo_ir_video;
+    track_data_t target_track_pos_velocity;
+    rf_sensor_t rf_sensor;
+    eo_ir_track_t eo_ir_track;
 
-	track_data_t *target_track_pos_velocity = recv_target_track_pos_velocity();
-	mc_log(LOG_INFO, "target_loc: recv target  (pos, velocity)", (char *) target_track_pos_velocity);
-
-	rf_sensor_t *rf_sensor = recv_rf_sensor();
-	mc_log(LOG_INFO, "target_loc: recv Azimuth/range", (char *) rf_sensor);
-
-	eo_ir_track_t *eo_ir_track = produce_eo_ir_track();
-	write_local("target_loc: send EO/IR Track", (char *) eo_ir_track);
+    while (1) {
+        udp_recv(me, (char *) &timestamp, sizeof(long));
+        udp_recv(me, (char *) &eo_ir_video, sizeof(eo_ir_video_t));
+        udp_recv(me, (char *) &target_track_pos_velocity, sizeof(track_data_t));
+        udp_recv(me, (char *) &rf_sensor, sizeof(rf_sensor_t));
+        udp_recv(me, (char *) &eo_ir_track, sizeof(eo_ir_track_t));
 
 #pragma cle begin GREEN_1
-	track_data_t *target_track = produce_target_track_pos_velocity();
+        track_data_t *target_track = produce_target_track();
 #pragma cle begin GREEN_1
-	write_gaps("target_loc: send target track", (char *) target_track);
-
-	return NULL;
+        udp_send(me, correlation, (char *) &target_track, sizeof(track_data_t));  // TODO
+    }
 }
 
 void start_thread(void *(*func)(void *), char *name)
