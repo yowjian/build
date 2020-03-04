@@ -31,6 +31,6 @@ UdpEndPoint *create_udp_endpoint(char *name, char *local_ip, int local_port); //
 void init_fd();
 UdpEndPoint *findEndpoint(char *name);
 void udp_send(UdpEndPoint *sender, UdpEndPoint *recipient, char *data, int data_len);
-void udp_recv(UdpEndPoint *uep, char *buf, int buf_len);
+int udp_recv(UdpEndPoint *uep, char *buf, int buf_len);
 
 #endif

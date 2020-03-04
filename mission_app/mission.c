@@ -17,7 +17,7 @@
 #define TIME_PROCESSING 	"time_processing"
 #define TARGET_LOC		 	"target_loc"
 #define TRACKING_EO_IR 		"tracking_eo_ir"
-#define EO_OR_SENSOR 		"eo_ir_sensor"
+#define EO_IR_SENSOR 		"eo_ir_sensor"
 #define RF_SENSOR 			"rf_sensor"
 #define TRACKING_RF_MTI 	"tracking_rf_mti"
 #define OWN_SHIP_LOC 		"own_ship_loc"
@@ -53,9 +53,24 @@ void* correlation(void *arg)
     global_fix_t global_fix;   // from tracking_eo_ir
     rf_track_t rf_track;       // from tracking_rf_mti
 
+    int larger = sizeof(global_fix_t) > sizeof(rf_track);
+    char *buf = larger ? (char *) &global_fix : (char *) &rf_track;
+    int buf_size = larger ? sizeof(global_fix_t) : sizeof(rf_track);
+
+    global_fix_t *data_ptr = (global_fix_t *) buf;
+
     while (1) {
-        udp_recv(me, (char *) &global_fix, sizeof(global_fix_t));
-        udp_recv(me, (char *) &rf_track, sizeof(rf_track_t));
+        udp_recv(me, (char *) buf, buf_size);
+
+        if (data_ptr->type == TYPE_GLOBAL_FIX) {
+        	mc_log(LOG_DEBUG, "%s receives global fix", __FUNCTION__);
+        }
+        else if (data_ptr->type == TYPE_RF_TRACK) {
+        	mc_log(LOG_DEBUG, "%s receives rf track", __FUNCTION__);
+        }
+        else {
+        	mc_log(LOG_ERR, "%s receives data type: %d", __FUNCTION__, data_ptr->type);
+        }
     }
 }
 
@@ -88,8 +103,8 @@ void *tracking_rf_mti(void *arg)
         udp_recv(me, (char *) &target_track, sizeof(track_data_t));
         udp_recv(me, (char *) &rf_mti, sizeof(rf_mti_t));
 
-        rf_track_t *tf_track = produce_rf_track(target_track, rf_mti);
-        udp_send(me, correlation, (char *) tf_track, sizeof(rf_track_t));
+        rf_track_t *rf_track = produce_rf_track(target_track, rf_mti);
+        udp_send(me, correlation, (char *) rf_track, sizeof(rf_track_t));
     }
 }
 
@@ -137,8 +152,8 @@ void *pnt_src(void *arg)
 		pnt_position_t *pnt_position_data = produce_pnt_position_data();
 		udp_send(me, position_processing, (char *) pnt_position_data, sizeof(pnt_position_t));
 
-		long timestamp = produce_time();
-		udp_send(me, time_processing, (char *) &timestamp, sizeof(long));
+		pnt_time_t *timestamp = produce_pnt_time();
+		udp_send(me, time_processing, (char *) &timestamp, sizeof(pnt_time_t));
 
 		sleep(PRODUCE_DELAY);
 	}
@@ -185,36 +200,45 @@ void *tracking_eo_ir(void *arg)
     while (1) {
         udp_recv(me, (char *) &eo_ir_track, sizeof(eo_ir_track_t));
 
+        if (eo_ir_track.type == TYPE_EO_IR_TRACK) {
+        	mc_log(LOG_DEBUG, "%s receives eo_ir_track", __FUNCTION__);
+        }
+        else {
+        	mc_log(LOG_ERR, "%s receives data type: %d", __FUNCTION__, eo_ir_track.type);
+        	continue;
+        }
+
 #pragma cle begin GREEN_1
         global_fix_t *global_fix = produce_global_fix();
 #pragma cle end GREEN_1
-
-        udp_send(me, correlation, (char *) &global_fix, sizeof(global_fix_t));
+        udp_send(me, correlation, (char *) global_fix, sizeof(global_fix_t));
     }
 }
 
 void *target_loc(void *arg)
 {
     UdpEndPoint *me = (UdpEndPoint *) arg;
-    UdpEndPoint *correlation = findEndpoint(CORRELATION);
+    UdpEndPoint *tracking_rf_mti = findEndpoint(TRACKING_RF_MTI);
+    UdpEndPoint *tracking_eo_ir = findEndpoint(TRACKING_EO_IR);
 
     long timestamp;
     eo_ir_video_t eo_ir_video;
     track_data_t target_track_pos_velocity;
     rf_sensor_t rf_sensor;
-    eo_ir_track_t eo_ir_track;
 
     while (1) {
         udp_recv(me, (char *) &timestamp, sizeof(long));
         udp_recv(me, (char *) &eo_ir_video, sizeof(eo_ir_video_t));
         udp_recv(me, (char *) &target_track_pos_velocity, sizeof(track_data_t));
         udp_recv(me, (char *) &rf_sensor, sizeof(rf_sensor_t));
-        udp_recv(me, (char *) &eo_ir_track, sizeof(eo_ir_track_t));
+
+        eo_ir_track_t *eo_ir_track = produce_eo_ir_track();
+        udp_send(me, tracking_eo_ir, (char *) eo_ir_track, sizeof(eo_ir_track_t));
 
 #pragma cle begin GREEN_1
         track_data_t *target_track = produce_target_track();
 #pragma cle begin GREEN_1
-        udp_send(me, correlation, (char *) &target_track, sizeof(track_data_t));  // TODO
+        udp_send(me, tracking_rf_mti, (char *) &target_track, sizeof(track_data_t));
     }
 }
 
@@ -302,19 +326,19 @@ int main(int argc, char * argv[])
     init_fd();
     parse_cmdline(argc, argv);
 
-	start_thread(pnt_src, "pnt_src");
-	start_thread(eo_ir_sensor, "eo_ir_sensor");
-	start_thread(rf_sensor, "rf_sensor");
+	start_thread(pnt_src, PNT_SRC);
+	start_thread(eo_ir_sensor, EO_IR_SENSOR);
+	start_thread(rf_sensor, RF_SENSOR);
 
-	start_thread(time_processing, "time_processing");  			// depends on pnt_src
-	start_thread(position_processing, "position_processing");  	// depends on pnt_src
-	start_thread(own_ship_loc, "own_ship_loc");					// depends on position_processing
+	start_thread(time_processing, TIME_PROCESSING);  			// depends on pnt_src
+	start_thread(position_processing, POSITION_PROCESSING);  	// depends on pnt_src
+	start_thread(own_ship_loc, OWN_SHIP_LOC);					// depends on position_processing
 
-	start_thread(target_loc, "target_loc");   // depends on rf_sensor, eo_ir_sensor, time_processing, own_sihp_loc
+	start_thread(target_loc, TARGET_LOC);   // depends on rf_sensor, eo_ir_sensor, time_processing, own_sihp_loc
 
-	start_thread(tracking_rf_mti, "tracking_rf_mti");  	// depends on rf_sensor, target_loc
-	start_thread(tracking_eo_ir, "tracking_eo_ir");		// depends on target_loc
-	start_thread(correlation, "correlation"); 			// depends on tracking_rf_mti, tracking_eo_ir
+	start_thread(tracking_rf_mti, TRACKING_RF_MTI);  	// depends on rf_sensor, target_loc
+	start_thread(tracking_eo_ir, TRACKING_EO_IR);		// depends on target_loc
+	start_thread(correlation, CORRELATION); 			// depends on tracking_rf_mti, tracking_eo_ir
 
 	sleep(1000);
 }

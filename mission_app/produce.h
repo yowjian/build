@@ -1,8 +1,6 @@
 #ifndef _PRODUCE_H
 #define _PRODUCE_H
 
-extern pnt_position_t pnt_src_data;
-extern long timestamp;
 extern global_fix_t global_fix;
 extern rf_track_t rf_track;
 extern global_fix_t position_fix;
@@ -13,8 +11,9 @@ extern eo_ir_video_t eo_ir_video;
 extern rf_sensor_t rf_sensor_data;
 extern eo_ir_track_t eo_ir_track;
 extern pnt_position_t pnt_position_data;
+extern pnt_time_t pnt_time_data;
 
-long produce_time();
+pnt_time_t *produce_pnt_time();
 track_data_t *produce_own_ship_track(global_fix_t *position_fix);
 rf_mti_t *produce_rf_mti();
 rf_track_t *produce_rf_track();

@@ -4,23 +4,24 @@
 
 #include "track.h"
 
-pnt_position_t pnt_src_data = { .position_fix = { .x = 100, .y = 200, .z = 300}, .time = 1980 };
 long timestamp;
-global_fix_t global_fix;
-rf_track_t rf_track;
-global_fix_t position_fix;
-track_data_t target_track_pos_velocity;
-track_data_t target_track;
-rf_mti_t rf_mti;
-eo_ir_video_t eo_ir_video;
-rf_sensor_t rf_sensor_data;
-eo_ir_track_t eo_ir_track;
-pnt_position_t pnt_position_data;
+global_fix_t global_fix 				= { .type = TYPE_GLOBAL_FIX };
+rf_track_t rf_track 					= { .type = TYPE_RF_TRACK };
+global_fix_t position_fix 				= { .type = TYPE_GLOBAL_FIX };
+track_data_t target_track_pos_velocity 	= { .type = TYPE_TRACK_DATA };
+track_data_t target_track 				= { .type = TYPE_TRACK_DATA };
+rf_mti_t rf_mti 						= { .type = TYPE_RF_MTI };
+eo_ir_video_t eo_ir_video 				= { .type = TYPE_EO_IR_VIDEO };
+rf_sensor_t rf_sensor_data 				= { .type = TYPE_RF_SENSOR };
+eo_ir_track_t eo_ir_track 				= { .type = TYPE_EO_IR_TRACK };
+pnt_position_t pnt_position_data 		= { .type = TYPE_PNT_POSITION };
+pnt_time_t pnt_time_data 				= { .type = TYPE_PNT_TIME };
 
-long produce_time()
+pnt_time_t *produce_pnt_time()
 {
-	timestamp = time(NULL);
-	return timestamp;
+	pnt_time_data.time = time(NULL);
+
+	return &pnt_time_data;
 }
 
 track_data_t *produce_target_track()

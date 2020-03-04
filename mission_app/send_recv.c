@@ -59,9 +59,8 @@ void udp_send(UdpEndPoint *sender, UdpEndPoint *recipient, char *data, int data_
 		mc_log(LOG_ERR, "null endpoint %x -> %x , data not sent", sender, recipient);
 		return;
 	}
-
-	int sent_bytes = sendto(sender->sock, data, data_len,
-						    0, (struct sockaddr *)&recipient->dst, sizeof(recipient->dst));
+	int sent_bytes = sendto(sender->sock, data, data_len, 0,
+						    (struct sockaddr *)&recipient->dst, sizeof(recipient->dst));
     if (sent_bytes == -1) {
         mc_log(LOG_ERR, "failed to send from %s to %s", sender->name, recipient->name, strerror(errno));
     }
@@ -70,7 +69,7 @@ void udp_send(UdpEndPoint *sender, UdpEndPoint *recipient, char *data, int data_
     }
 }
 
-void udp_recv(UdpEndPoint *uep, char *buf, int buf_len)
+int udp_recv(UdpEndPoint *uep, char *buf, int buf_len)
 {
     struct sockaddr_in si_other;
     int recv_len;
@@ -78,11 +77,13 @@ void udp_recv(UdpEndPoint *uep, char *buf, int buf_len)
 
     if ((recv_len = recvfrom(uep->sock, buf, buf_len, 0, (struct sockaddr *) &si_other, &slen)) == -1) {
         mc_log(LOG_ERR, "%s failed to receive: %s", uep->name, strerror(errno));
-        return;
+        return -1;
     }
     //buf[recv_len] = '\0';
 
     mc_log(LOG_INFO, "recv %4d bytes -> %s",  recv_len, uep->name);
+
+    return recv_len;
 }
 
 UdpEndPoint *create_udp_endpoint(char *name, char *local_ip, int local_port) //, char *remote_ip, int remote_port)
@@ -166,7 +167,7 @@ rf_sensor_t *read_rf_sensor()
 
 long recv_timestamp()
 {
-	return timestamp;
+	return 0; // timestamp;
 }
 
 track_data_t *recv_target_track()
