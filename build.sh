@@ -9,27 +9,31 @@ BIN=bin
 usage_exit() {
   [[ -n "$1" ]] && echo $1
   echo "Usage: $0 [ -bcdhs ] "
-  echo "-h        Help"
-  echo "-c        Clean up"
-  echo "-d        Dry run"
-  echo "-b        Pull releases from all components"
-  echo "-s        Populate component source and build"
+  echo "-b LLVM_BRANCH  llvm branch to be built"
+  echo "-c              Clean up"
+  echo "-d              Dry run"
+  echo "-n              Exclude LLVM in the build"
+  echo "-s              Populate component source and build"
+  echo "-h              Help"
   exit 1
 }
 
 handle_opts() {
   local OPTIND
-  while getopts "bcdhs" options; do
+  while getopts "b:cdhns" options; do
     case "${options}" in
+      b) LLVM_BRANCH=${OPTARG}  ;;
       c) CLEAN=1                ;;
       d) DRY_RUN="--dry-run"    ;;
-      b) BINARY=1               ;;
+      n) EXCLUDE_LLVM=1         ;;
       s) SOURCE=1               ;;
       h) usage_exit             ;;
       :) usage_exit "Error: -${OPTARG} requires an argument." ;;
-      *) usage_exit             ;;
     esac
   done
+  
+  shift $((OPTIND -1))
+  components=($@)
 }
 
 down_releases () {
@@ -53,6 +57,51 @@ get_latest_release() {
 
 handle_opts "$@"
 
-if [[ $BINARY ]]; then
-    down_releases
+DRY_RUN=-d
+
+#if [[ $BINARY ]]; then
+#    down_releases
+#fi
+
+if [ "${#components[@]}" -eq 0 ]; then   # build all
+    if [ ! -d src ]; then
+        echo "directory does not exist: src"
+        exit
+    fi
+
+    cd src
+    for d in */ ; do
+        d=${d::-1}
+        components+=("$d")
+    done
+    cd ..
 fi
+
+echo ${components[@]}
+
+for c in "${components[@]}"
+do
+    case $c in
+        llvm)
+            if [[ $EXCLUDE_LLVM ]]; then
+                echo "-n (exclude llvm) and the llvm component should not be both specified."
+                exit
+            fi
+            
+            if [[ ! $LLVM_BRANCH ]]; then
+                LLVM_BRANCH="qualatypes"
+            fi
+            echo "Build llvm $LLVM_BRANCH branch................"
+            pushd src/capo
+            ./build.sh $DRY_RUN -b $LLVM_BRANCH
+            popd
+            ;;
+        cvi | capo | mules | mbig)
+            echo "Building $c ........................."
+            pushd src/$c
+            ./build.sh $DRY_RUN
+            popd
+            ;;       
+    esac
+done
+
