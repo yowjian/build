@@ -3,7 +3,7 @@ This repository hosts references to all CLOSURE components and the scripts to bu
 
 This repository is maintained by Perspecta Labs.
 
-A prerequisite of building CLOSURE from its components is git slave. Download and install git slave as follows, if it is not already installed on your system.
+A prerequisite of building CLOSURE from its components is git slave. Download and install [git slave](http://gitslave.sourceforge.net/) as follows, if it is not already installed on your system.
 ```
 set -ex
 wget https://sourceforge.net/projects/gitslave/files/gitslave-2.0.2.tar.gz
