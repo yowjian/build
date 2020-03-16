@@ -1,6 +1,7 @@
 #include "target.h"
 #include "ownship.h"
 #include "sensors.h"
+#include "rpc.h"
 
 void Target::update(Subject *s) {
   static int cnt = 0;
@@ -14,7 +15,13 @@ void Target::update(Subject *s) {
   } else if (gps) {
     tick = true; // yeah.. hackish
   } else if (rf) {
-    setDistance(rf->getDistance());
+    if (orange_enclave) {
+      setDistance(rf->getDistance());
+    }
+    else {
+      updateRemote(s);  // do an RPC call
+      return;
+    }
   }
 		
   if (tick && _cycle != 0 && 0 == ++cnt % _cycle) {

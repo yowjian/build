@@ -1,6 +1,7 @@
 #pragma once
 #include "pnt_data.h"
 #include "observer.h"
+#include "rpc.h"
 #include <chrono>
 
 using namespace std::chrono;
@@ -32,6 +33,9 @@ class GpsSensor : public Sensor
   Time getTimePoint() { return _now; }
 
   void read() override {
+    if (orange_enclave)
+        return;
+
     auto now = time_point_cast<msecs>(Clock::now());
     simulate(_v, now); // we simulate position using fixed initial velocity
     _now = now;
@@ -67,6 +71,9 @@ class RfSensor : public Sensor
   Distance getDistance() { return _d; };
 
   void read() override {
+    if (!orange_enclave)
+      return;
+
     auto now = time_point_cast<msecs>(Clock::now());
     simulate(_v, now);
     _now = now;

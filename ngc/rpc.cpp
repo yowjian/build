@@ -2,6 +2,11 @@
 #include "rpc/server.h"
 #include "rpc.h"
 
+#include "ownship.h"
+
+OwnShip* uav = NULL;
+Target* tgt = NULL;
+
 void foo() { std::cout << "foo was called!" << std::endl; }
 
 void bad(int x) {
@@ -22,7 +27,19 @@ void *rpc_server(void *args) {
 
     // Binding a lambda function to the name "add".
     srv.bind("position", [](double x, double y, double z) {
+        std::cout << "x = " << x
+                  << ", y = " << y
+                  << ", z = " << z << std::endl;
+
+        Position pos(x, y, z);
+        Velocity v(0, 0, 0);
+        GpsSensor* gps = new GpsSensor(pos, v);
+        uav->update(gps);
                             return "OK";
+                         });
+
+    srv.bind("distance", [](double x, double y, double z) {
+                            return "OKOK";
                          });
 
     // Throwing an exception will cause the server to write
@@ -39,8 +56,11 @@ void *rpc_server(void *args) {
     return 0;
 }
 
-void rpc_init()
+void rpc_init(OwnShip* u, Target* t)
 {
+   uav = u;
+   tgt = t;
+
    pthread_t rpcThread;
 
    int rpcThreadID = pthread_create(&rpcThread, NULL, &rpc_server, NULL);

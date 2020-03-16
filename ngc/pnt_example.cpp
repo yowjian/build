@@ -26,7 +26,6 @@ int main(int argc, char **argv)
          std::cout << "orange " << orange_enclave << std::endl;
       }
    }
-   rpc_init();
    
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
   // Touched on green side gpssensor constructor
@@ -40,6 +39,7 @@ int main(int argc, char **argv)
   #pragma cle begin GREEN
   GpsSensor* gps = new GpsSensor(p, v);
   #pragma cle end GREEN
+
   #pragma cle begin ORANGE
   RfSensor* rfs = new RfSensor(d, vtgt);
     
@@ -55,6 +55,8 @@ int main(int argc, char **argv)
   uav->attach(tgt); // cross domain 
   rfs->attach(tgt); // cross domain 
   // _observers may be tained; contains a mix of local and remote observers; kind of split TBD
+
+  rpc_init(uav, tgt);
 
   while (true)
     {
