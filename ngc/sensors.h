@@ -22,6 +22,7 @@ protected:
 
 class GpsSensor : public Sensor
 {
+  // autoinferred to be green based on gpssensor instance
   Position _p;
   Velocity _v; // only used for simulation
 
@@ -37,7 +38,7 @@ class GpsSensor : public Sensor
   }
   void notify() override {
     for (auto e : _observers)
-      e->update(this);
+      e->update(this); // if e and this is same color, process locally, else xd msg                      
   }
 
  private:
@@ -56,7 +57,9 @@ class GpsSensor : public Sensor
 
 class RfSensor : public Sensor
 {
+#pragma cle begin ORANGE_DISTANCE
   Distance _d;
+#pragma cle end ORANGE_DISTANCE
   Velocity _v; // only used for simulation
 
  public:
@@ -68,9 +71,9 @@ class RfSensor : public Sensor
     simulate(_v, now);
     _now = now;
   }
-  void notify() override {
+  void notify() override { // since _observers is tainted, update could be local or xd operation
     for (auto e : _observers)
-      e->update(this);
+      e->update(this);// if e and this is same color, process locally, else xd msg
   }
 
  private:

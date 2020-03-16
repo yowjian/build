@@ -5,7 +5,9 @@
 
 class OwnShip: public Observer, public Subject
 {
+#pragma cle begin ORANGE_POSITION
   Track _track;
+#pragma cle end ORANGE_POSITION
   int _frequency;
   int _cycle;
 
