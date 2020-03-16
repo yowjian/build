@@ -29,8 +29,6 @@ class Observer
 {
 public:
   virtual void update(Subject *) = 0;
-protected:
-  bool _orange = false;
 };
 
 class Subject

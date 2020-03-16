@@ -15,18 +15,18 @@
 
 #include "rpc.h"
 
+bool orange_enclave = false;
+
 int main(int argc, char **argv)
 {
-   bool orange = false;
    if (argc > 1) {
       if (!strcmp(argv[1], "orange")) {
-         orange = true;
+          orange_enclave = true;
 
-         std::cout << "orange " << orange << std::endl;
+         std::cout << "orange " << orange_enclave << std::endl;
       }
    }
-   
-  rpc_init(orange);
+   rpc_init();
    
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
   // Touched on green side gpssensor constructor
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
   #pragma cle begin ORANGE
   RfSensor* rfs = new RfSensor(d, vtgt);
     
-  OwnShip* uav = new OwnShip(100, orange); // updates at 100 Hz frequency
+  OwnShip* uav = new OwnShip(100); // updates at 100 Hz frequency
   #pragma cle end ORANGE
   #pragma cle begin GREEN
   Target* tgt = new Target (10); // updates at 10 Hz frequency

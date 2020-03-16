@@ -16,9 +16,8 @@ class OwnShip: public Observer, public Subject
   int _cycle;
 
 public:
-  OwnShip(int rate = 1, bool orange = false) : _frequency(rate) {
+  OwnShip(int rate = 1) : _frequency(rate) {
     _cycle = static_cast<int> (((1.0 / _frequency) / (sleep_msec / 1000)));
-    _orange = orange;
   };
   ~OwnShip() {};
 
@@ -45,19 +44,20 @@ protected:
   
 
   void updateRemote(Subject *s) {
-    rpc::client client("127.0.0.1", UAV_PORT);
-    auto result = client.call("position", _track._pos._x, _track._pos._y, _track._pos._z).as<std::string>();
-    std::cout << "The result is: " << result << std::endl;
-
-//    static int cnt = 0;
-//    GpsSensor *gps = dynamic_cast<GpsSensor *>(s);
-//    if (gps) {
-//      setPosition(gps->getPosition());
-//      //setVelocity(gps->getVelocity());
-//    }
-//    if(_cycle != 0 && 0 == ++cnt % _cycle) {
-//      print_track();
-//      notify();
-//    }
+    static int cnt = 0;
+    GpsSensor *gps = dynamic_cast<GpsSensor *>(s);
+    if (gps) {
+      //setPosition(gps->getPosition());
+      //setVelocity(gps->getVelocity());
+    }
+    if(_cycle != 0 && 0 == ++cnt % _cycle) {
+        Position position = gps->getPosition();
+        double x = position._x;
+        double y = position._y;
+        double z = position._z;
+        rpc::client client("127.0.0.1", UAV_PORT);
+        auto result = client.call("position", x, y, z).as<std::string>();
+        std::cout << "The result is: " << result << std::endl;
+    }
   }
 };

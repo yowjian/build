@@ -1,15 +1,16 @@
 #include "ownship.h"
 #include "sensors.h"
+#include "rpc.h"
 
 // Depending on whether the subject is same or diff color, update may be local or xd
 void OwnShip::update(Subject *s) {
-  if (!_orange) {
-      updateRemote(s);
-      return;
-  }
   static int cnt = 0;
   GpsSensor *gps = dynamic_cast<GpsSensor *>(s);
   if (gps) {
+    if (!orange_enclave) { // if not the orange enclave,
+       updateRemote(s);  // do an RPC call
+       return;
+    }
     setPosition(gps->getPosition());
     //setVelocity(gps->getVelocity());
   }

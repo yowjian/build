@@ -11,10 +11,8 @@ void bad(int x) {
 }
 
 void *rpc_server(void *args) {
-    bool orange = *reinterpret_cast<bool*>(args);
-    std::cout << "orange = " << orange << std::endl;
-    int port = orange ? UAV_PORT : TARGET_PORT;
-
+    int port = orange_enclave ? UAV_PORT : TARGET_PORT;
+    std::cout << "port = " << port << std::endl;
     // Create a server that listens on port 8080, or whatever the user selected
     rpc::server srv("0.0.0.0", port);
 
@@ -41,11 +39,11 @@ void *rpc_server(void *args) {
     return 0;
 }
 
-void rpc_init(bool orange)
+void rpc_init()
 {
    pthread_t rpcThread;
 
-   int rpcThreadID = pthread_create(&rpcThread, NULL, &rpc_server, &orange);
+   int rpcThreadID = pthread_create(&rpcThread, NULL, &rpc_server, NULL);
    if (rpcThreadID != 0) {
         throw std::runtime_error("RPC thrad create failed.");
    }
