@@ -30,16 +30,16 @@ public:
     for (auto e : _observers)
       e->update(this);
   }
-
+int count = 0;
   void print_track()
   {
-    std::cout << "---UAV TRACK ---" << std::endl
+    std::cout << ++count << " ---UAV TRACK ---" << std::endl
 	      << " x=" << _track._pos._x << std::endl
 	      << " y=" << _track._pos._y << std::endl
 	      << " z=" << _track._pos._z << std::endl << std::endl;
   }
-protected:
   void setPosition(Position const& p) { _track._pos = p; }
+protected:
   void setVelocity(Velocity const& v) { _track._v = v; }
   
   void updateRemote(Subject *s) {

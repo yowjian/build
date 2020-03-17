@@ -8,7 +8,7 @@ void OwnShip::update(Subject *s) {
   GpsSensor *gps = dynamic_cast<GpsSensor *>(s);
   if (gps) {
     if (!orange_enclave) { // if not the orange enclave,
-       updateRemote(s);  // do an RPC call
+       updateRemote(s);  // push the position to orange via an RPC
        return;
     }
     setPosition(gps->getPosition());

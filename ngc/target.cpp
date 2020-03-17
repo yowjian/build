@@ -11,15 +11,24 @@ void Target::update(Subject *s) {
   GpsSensor *gps = dynamic_cast<GpsSensor *>(s);
   RfSensor *rf = dynamic_cast<RfSensor *>(s);
   if (uav) {
-    setUAVLocation(uav->getPosition());
+    if (!orange_enclave) {
+      setUAVLocation(uav->getPosition());
+    }
+    else {
+      // push UAV position to green via RPC
+      updateRemote(s);
+      return;
+    }
   } else if (gps) {
     tick = true; // yeah.. hackish
   } else if (rf) {
     if (!orange_enclave) {
+      // should not happen as rf is in the orange enclave
       setDistance(rf->getDistance());
     }
     else {
-      updateRemote(s);  // do an RPC call
+      // push the distance to green via RPC
+      updateRemote(s);
       return;
     }
   }
@@ -28,6 +37,27 @@ void Target::update(Subject *s) {
     targetLocation();
     print_track();
     notify();
+  }
+}
+
+void Target::updateRemote(Subject *s) {
+  OwnShip *uav = dynamic_cast<OwnShip *>(s);
+  RfSensor *rf = dynamic_cast<RfSensor *>(s);
+  if (uav) {
+    Position position  = uav->getPosition();
+    double x = position._x;
+    double y = position._y;
+    double z = position._z;
+    rpc::client client("127.0.0.1", TARGET_PORT);
+    auto result = client.call("uav", x, y, z).as<std::string>();
+  }
+  else if (rf) {
+    Distance distance  = rf->getDistance();
+    double x = distance._dx;
+    double y = distance._dy;
+    double z = distance._dz;
+    rpc::client client("127.0.0.1", TARGET_PORT);
+    auto result = client.call("distance", x, y, z).as<std::string>();
   }
 }
 

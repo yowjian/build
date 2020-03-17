@@ -32,16 +32,22 @@ void *rpc_server(void *args) {
         Velocity v(0, 0, 0);  // don't care
         GpsSensor* gps = new GpsSensor(pos, v);
         uav->update(gps);
-                            return "OK";
-                         });
-
+        return "OK";
+    });
+    srv.bind("uav", [](double x, double y, double z) {
+        Position pos(x, y, z);
+        OwnShip* ownship = new OwnShip(100);
+        ownship->setPosition(pos);
+        tgt->update(ownship);
+        return "OK";
+    });
     srv.bind("distance", [](double x, double y, double z) {
         Distance distance(x, y, z);
         Velocity vtgt(0, 0, 0);  // don't care
         RfSensor* rfs = new RfSensor(distance, vtgt);
         tgt->update(rfs);
-                            return "OK";
-                         });
+        return "OK";
+    });
 
     // Throwing an exception will cause the server to write
     // an error response. This call will make it also
