@@ -54,6 +54,6 @@ protected:
     double z = position._z;
     rpc::client client("127.0.0.1", UAV_PORT);
     auto result = client.call("position", x, y, z).as<std::string>();
-    std::cout << "update UAV position result is: " << result << std::endl;
+    // std::cout << "update UAV position result is: " << result << std::endl;
   }
 };

@@ -15,7 +15,7 @@ void Target::update(Subject *s) {
   } else if (gps) {
     tick = true; // yeah.. hackish
   } else if (rf) {
-    if (orange_enclave) {
+    if (!orange_enclave) {
       setDistance(rf->getDistance());
     }
     else {

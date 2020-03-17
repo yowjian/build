@@ -3,6 +3,7 @@
 #include "rpc.h"
 
 #include "ownship.h"
+#include "target.h"
 
 OwnShip* uav = NULL;
 Target* tgt = NULL;
@@ -27,19 +28,19 @@ void *rpc_server(void *args) {
 
     // Binding a lambda function to the name "add".
     srv.bind("position", [](double x, double y, double z) {
-        std::cout << "x = " << x
-                  << ", y = " << y
-                  << ", z = " << z << std::endl;
-
         Position pos(x, y, z);
-        Velocity v(0, 0, 0);
+        Velocity v(0, 0, 0);  // don't care
         GpsSensor* gps = new GpsSensor(pos, v);
         uav->update(gps);
                             return "OK";
                          });
 
     srv.bind("distance", [](double x, double y, double z) {
-                            return "OKOK";
+        Distance distance(x, y, z);
+        Velocity vtgt(0, 0, 0);  // don't care
+        RfSensor* rfs = new RfSensor(distance, vtgt);
+        tgt->update(rfs);
+                            return "OK";
                          });
 
     // Throwing an exception will cause the server to write

@@ -22,10 +22,9 @@ int main(int argc, char **argv)
    if (argc > 1) {
       if (!strcmp(argv[1], "orange")) {
           orange_enclave = true;
-
-         std::cout << "orange " << orange_enclave << std::endl;
       }
    }
+   std::cout << ((orange_enclave) ? "orange " : "green") << std::endl;
    
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
   // Touched on green side gpssensor constructor
@@ -57,6 +56,8 @@ int main(int argc, char **argv)
   // _observers may be tained; contains a mix of local and remote observers; kind of split TBD
 
   rpc_init(uav, tgt);
+  std::cout << "waiting for remote to be ready " << std::endl;
+  sleep(10);  // wait for remote end to be ready
 
   while (true)
     {

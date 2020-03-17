@@ -53,7 +53,7 @@ protected:
     double z = distance._dz;
     rpc::client client("127.0.0.1", TARGET_PORT);
     auto result = client.call("distance", x, y, z).as<std::string>();
-    std::cout << "update TARGET result is: " << result << std::endl;
+    // std::cout << "update TARGET result is: " << result << std::endl;
   }
 
 private:
