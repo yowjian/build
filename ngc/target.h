@@ -14,6 +14,7 @@ public:
   Track _track;
   int _frequency;
   int _cycle;
+  int _count = 0;
 
 public:
   Target(int rate = 1) : _frequency(rate) {
@@ -25,16 +26,14 @@ public:
   
   void update(Subject* s) override;
   void updateRemote(Subject* s) override;
-  void setUAV(Position const& p) {
-      setUAVLocation(p);
-  }
+
   void notify() override {
     for (auto e : _observers)
       e->update(this);
   }
-int count = 0;
+
   void print_track() {
-    std::cout << ++count << "\t\t--- Target TRACK ---" << std::endl
+    std::cout << ++_count << "\t\t--- Target TRACK ---" << std::endl
 	      << "\t\t x=" << _track._pos._x << std::endl
 	      << "\t\t y=" << _track._pos._y << std::endl
 	      << "\t\t z=" << _track._pos._z << std::endl << std::endl;

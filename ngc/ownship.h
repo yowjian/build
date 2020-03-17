@@ -14,6 +14,7 @@ class OwnShip: public Observer, public Subject
 #pragma cle end ORANGE_POSITION
   int _frequency;
   int _cycle;
+  int _count = 0;
 
 public:
   OwnShip(int rate = 1) : _frequency(rate) {
@@ -25,35 +26,22 @@ public:
   Track getTracking() { return _track; }
 
   virtual void update(Subject *s) override;
+  void updateRemote(Subject* s) override;
   
   void notify() override {
     for (auto e : _observers)
       e->update(this);
   }
-int count = 0;
+
   void print_track()
   {
-    std::cout << ++count << " ---UAV TRACK ---" << std::endl
+    std::cout << ++_count << " ---UAV TRACK ---" << std::endl
 	      << " x=" << _track._pos._x << std::endl
 	      << " y=" << _track._pos._y << std::endl
 	      << " z=" << _track._pos._z << std::endl << std::endl;
   }
+  // CHANGE: from protected
   void setPosition(Position const& p) { _track._pos = p; }
 protected:
   void setVelocity(Velocity const& v) { _track._v = v; }
-  
-  void updateRemote(Subject *s) {
-    GpsSensor *gps = dynamic_cast<GpsSensor *>(s);
-    if (!gps) {
-        return;
-    }
-
-    Position position = gps->getPosition();
-    double x = position._x;
-    double y = position._y;
-    double z = position._z;
-    rpc::client client("127.0.0.1", UAV_PORT);
-    auto result = client.call("position", x, y, z).as<std::string>();
-    // std::cout << "update UAV position result is: " << result << std::endl;
-  }
 };
