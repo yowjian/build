@@ -14,14 +14,29 @@ OBJ = \
 	target.o \
 	rpc.o
 
-NDN_OBJ = \
-	ndn_proxy.o
+ORANGE_OBJ = \
+	orange.o \
+	orange_ownship.o \
+	orange_target.o \
+	orange_rpc.o
+
+GREEN_OBJ = \
+	green.o \
+	green_ownship.o \
+	green_target.o \
+	green_rpc.o
 
 default: all
 
-all: pnt
+all: pnt orange green
 
 pnt: $(OBJ)
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+orange: $(ORANGE_OBJ)
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+green: $(GREEN_OBJ)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 .PHONY : force-rebuild $(MGRS) $(TEST_UDT) # $(UDT)
@@ -30,5 +45,5 @@ pnt: $(OBJ)
 	$(CC) $(CFLAGS) $< -o $@ -c
 
 clean:
-	-rm -f *.o *~ pnt 
+	-rm -f *.o *~ pnt orange
 
