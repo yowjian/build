@@ -15,8 +15,6 @@
 
 #include "rpc.h"
 
-bool orange_enclave = false;
-
 int main(int argc, char **argv)
 {
    std::cout << "green" << std::endl;
@@ -58,7 +56,7 @@ int main(int argc, char **argv)
     {
       // here we simulate sensor data streams
       gps->read();
-      rfs->read();
+//      rfs->read();
       
 #ifdef _WIN32	  
       Sleep(sleep_msec); // 100 Hz

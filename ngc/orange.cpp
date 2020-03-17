@@ -15,8 +15,6 @@
 
 #include "rpc.h"
 
-bool orange_enclave = true;
-
 int main(int argc, char **argv)
 {
    std::cout << "orange" << std::endl;
@@ -57,7 +55,7 @@ int main(int argc, char **argv)
   while (true)
     {
       // here we simulate sensor data streams
-      gps->read();
+//      gps->read();
       rfs->read();
       
 #ifdef _WIN32	  

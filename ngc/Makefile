@@ -45,5 +45,5 @@ green: $(GREEN_OBJ)
 	$(CC) $(CFLAGS) $< -o $@ -c
 
 clean:
-	-rm -f *.o *~ pnt orange
+	-rm -f *.o *~ pnt orange green
 

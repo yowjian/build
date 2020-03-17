@@ -62,8 +62,10 @@ int main(int argc, char **argv)
   while (true)
     {
       // here we simulate sensor data streams
-      gps->read();
-      rfs->read();
+      if (!orange_enclave)
+          gps->read();
+      else
+          rfs->read();
       
 #ifdef _WIN32	  
       Sleep(sleep_msec); // 100 Hz
