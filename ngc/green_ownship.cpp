@@ -2,6 +2,9 @@
 #include "sensors.h"
 #include "rpc.h"
 
+#include "xdcomms.h"
+#include "gma.h"
+
 // Depending on whether the subject is same or diff color, update may be local or xd
 void OwnShip::update(Subject *s) {
   static int cnt = 0;
@@ -19,6 +22,8 @@ void OwnShip::update(Subject *s) {
   }
 }
 
+#ifdef USE_REAL_RPC
+
 void OwnShip::updateRemote(Subject *s) {
   GpsSensor *gps = dynamic_cast<GpsSensor *>(s);
   if (!gps) {
@@ -34,3 +39,20 @@ void OwnShip::updateRemote(Subject *s) {
   // std::cout << "update UAV position result is: " << result << std::endl;
 }
 
+#else // USE_REAL_RPC
+
+void OwnShip::updateRemote(Subject *s) {
+  GpsSensor *gps = dynamic_cast<GpsSensor *>(s);
+  if (!gps) {
+    return;
+  }
+  Position position  = gps->getPosition();
+
+  gaps_tag  t_tag, r_tag;
+  uint32_t  t_mux = 1, t_sec = 1, type = DATA_TYP_POSITION;
+
+  tag_write(&t_tag, t_mux, t_sec, type);
+  xdc_asyn_send((uint8_t *) &position, sizeof(double) * 8,  t_tag);
+}
+
+#endif

@@ -17,17 +17,4 @@ void OwnShip::update(Subject *s) {
 }
 
 void OwnShip::updateRemote(Subject *s) {
-  GpsSensor *gps = dynamic_cast<GpsSensor *>(s);
-  if (!gps) {
-      return;
-  }
-
-  Position position = gps->getPosition();
-  double x = position._x;
-  double y = position._y;
-  double z = position._z;
-  rpc::client client("127.0.0.1", UAV_PORT);
-  auto result = client.call("position", x, y, z).as<std::string>();
-  // std::cout << "update UAV position result is: " << result << std::endl;
 }
-

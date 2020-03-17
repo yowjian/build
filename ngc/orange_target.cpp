@@ -3,6 +3,9 @@
 #include "sensors.h"
 #include "rpc.h"
 
+#include "xdcomms.h"
+#include "gma.h"
+
 void Target::update(Subject *s) {
   static int cnt = 0;
   bool tick = false;
@@ -29,6 +32,8 @@ void Target::update(Subject *s) {
   }
 }
 
+#ifdef USE_REAL_RPC
+
 void Target::updateRemote(Subject *s) {
   OwnShip *uav = dynamic_cast<OwnShip *>(s);
   RfSensor *rf = dynamic_cast<RfSensor *>(s);
@@ -49,6 +54,32 @@ void Target::updateRemote(Subject *s) {
     auto result = client.call("distance", x, y, z).as<std::string>();
   }
 }
+#else // USE_REAL_RPC
+
+void Target::updateRemote(Subject *s) {
+  OwnShip *uav = dynamic_cast<OwnShip *>(s);
+  RfSensor *rf = dynamic_cast<RfSensor *>(s);
+  if (uav) {
+    Position position  = uav->getPosition();
+
+    gaps_tag  t_tag, r_tag;
+    uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_POSITION;
+
+    tag_write(&t_tag, t_mux, t_sec, type);
+    xdc_asyn_send((uint8_t *) &position, sizeof(double) * 8,  t_tag);
+  }
+  else if (rf) {
+    Distance distance  = rf->getDistance();
+
+    gaps_tag  t_tag, r_tag;
+    uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_DISTANCE;
+
+    tag_write(&t_tag, t_mux, t_sec, type);
+    xdc_asyn_send((uint8_t *) &distance, sizeof(double) * 8,  t_tag);
+  }
+}
+
+#endif
 
 void Target::targetLocation() {
   _track._pos._x = _uav_pos._x + _d._dx;

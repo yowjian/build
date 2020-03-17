@@ -4,7 +4,7 @@ HOST = $(shell cat /etc/machine-id)
 USER = $(shell whoami)
 DIRS =
 
-LDFLAGS += -lrpc -lpthread 
+LDFLAGS += -L. -lrpc -lpthread -lpnt -lxdcomms -lzmq
 #CFLAGS += -Wall -g $(XMLFLAGS) -I/dist/include $(DIRS)
 CPPFLAGS=-std=c++11
 
