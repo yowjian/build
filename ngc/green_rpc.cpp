@@ -27,13 +27,6 @@ void *rpc_server(void *args) {
     srv.bind("foo", &foo);
 
     // Binding a lambda function to the name "add".
-    srv.bind("position", [](double x, double y, double z) {
-        Position pos(x, y, z);
-        Velocity v(0, 0, 0);  // don't care
-        GpsSensor* gps = new GpsSensor(pos, v);
-        uav->update(gps);
-        return "OK";
-    });
     srv.bind("uav", [](double x, double y, double z) {
         Position pos(x, y, z);
         OwnShip* ownship = new OwnShip(100);
