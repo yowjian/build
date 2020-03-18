@@ -49,9 +49,10 @@ int main(int argc, char **argv)
   // _observers may be tained; contains a mix of local and remote observers; kind of split TBD
 
   rpc_init(uav, tgt);
+#ifdef USE_REAL_RPC
   std::cout << "waiting for remote to be ready " << std::endl;
   sleep(10);  // wait for remote end to be ready
-
+#endif
   while (true)
     {
       // here we simulate sensor data streams

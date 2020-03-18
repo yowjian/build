@@ -66,7 +66,7 @@ void Target::updateRemote(Subject *s) {
     uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_POSITION;
 
     tag_write(&t_tag, t_mux, t_sec, type);
-    xdc_asyn_send((uint8_t *) &position, sizeof(double) * 8,  t_tag);
+    xdc_asyn_send((uint8_t *) &position, sizeof(double) * 3,  t_tag);
   }
   else if (rf) {
     Distance distance  = rf->getDistance();
@@ -75,7 +75,7 @@ void Target::updateRemote(Subject *s) {
     uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_DISTANCE;
 
     tag_write(&t_tag, t_mux, t_sec, type);
-    xdc_asyn_send((uint8_t *) &distance, sizeof(double) * 8,  t_tag);
+    xdc_asyn_send((uint8_t *) &distance, sizeof(double) * 3,  t_tag);
   }
 }
 

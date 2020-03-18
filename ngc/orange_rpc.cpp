@@ -65,11 +65,11 @@ void *rpc_server(void *args)
         Position position  = uav->getPosition();
 
         gaps_tag  t_tag, r_tag;
-        uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_POSITION;
+        uint32_t  t_mux = 1, t_sec = 1, type = DATA_TYP_POSITION;
 
         tag_write(&t_tag, t_mux, t_sec, type);
 
-        size_t len = sizeof(double) * 8;
+        size_t len = sizeof(double) * 3;
         xdc_blocking_recv((uint8_t *) &position, &len, &t_tag);
 
         Velocity v(0, 0, 0);  // don't care

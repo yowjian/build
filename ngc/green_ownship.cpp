@@ -52,7 +52,7 @@ void OwnShip::updateRemote(Subject *s) {
   uint32_t  t_mux = 1, t_sec = 1, type = DATA_TYP_POSITION;
 
   tag_write(&t_tag, t_mux, t_sec, type);
-  xdc_asyn_send((uint8_t *) &position, sizeof(double) * 8,  t_tag);
+  xdc_asyn_send((uint8_t *) &position, sizeof(double) * 3,  t_tag);
 }
 
 #endif
