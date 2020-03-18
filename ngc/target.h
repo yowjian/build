@@ -46,7 +46,7 @@ private:
   void targetLocation();
 };
 
-class TargetShadow: public Target
+class TargetShadow: public Target, public Trailer
 {
 public:
   TargetShadow(int rate = 1) {

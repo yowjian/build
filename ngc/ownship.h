@@ -45,7 +45,7 @@ protected:
   void setVelocity(Velocity const& v) { _track._v = v; }
 };
 
-class OwnShipShadow: public OwnShip
+class OwnShipShadow: public OwnShip, public Trailer
 {
 public:
   OwnShipShadow(int rate = 1) {

@@ -28,7 +28,7 @@ GREEN_OBJ = \
 
 default: all
 
-all: pnt orange green
+all: orange green
 
 pnt: $(OBJ)
 	$(CXX) -o $@ $^ $(LDFLAGS)
@@ -39,7 +39,7 @@ orange: $(ORANGE_OBJ)
 green: $(GREEN_OBJ)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-.PHONY : force-rebuild $(MGRS) $(TEST_UDT) # $(UDT)
+.PHONY : force-rebuild 
 
 .c.o:  config.h
 	$(CC) $(CFLAGS) $< -o $@ -c

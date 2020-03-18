@@ -33,21 +33,39 @@ void TargetShadow::update(Subject *s) {
   RfSensor *rf = dynamic_cast<RfSensor *>(s);
   if (uav) {
     Position position  = uav->getPosition();
+    position_datatype pos;
+    pos.x = position._x;
+    pos.y = position._y;
+    pos.z = position._z;
+    pos.trailer.seq = seq;
+    pos.trailer.rqr = rqr;
+    pos.trailer.oid = oid;
+    pos.trailer.mid = mid;
+    pos.trailer.crc = crc;
 
     gaps_tag  t_tag, r_tag;
     uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_POSITION;
 
     tag_write(&t_tag, t_mux, t_sec, type);
-    xdc_asyn_send((uint8_t *) &position, sizeof(double) * 3,  t_tag);
+    xdc_asyn_send((uint8_t *) &pos, sizeof(position_datatype),  t_tag);
   }
   else if (rf) {
     Distance distance  = rf->getDistance();
+    position_datatype dis;
+    dis.x = distance._dx;
+    dis.y = distance._dy;
+    dis.z = distance._dz;
+    dis.trailer.seq = seq;
+    dis.trailer.rqr = rqr;
+    dis.trailer.oid = oid;
+    dis.trailer.mid = mid;
+    dis.trailer.crc = crc;
 
     gaps_tag  t_tag, r_tag;
     uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_DISTANCE;
 
     tag_write(&t_tag, t_mux, t_sec, type);
-    xdc_asyn_send((uint8_t *) &distance, sizeof(double) * 3,  t_tag);
+    xdc_asyn_send((uint8_t *) &dis, sizeof(position_datatype),  t_tag);
   }
 
   Target::update(s);
