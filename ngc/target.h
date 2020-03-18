@@ -25,7 +25,6 @@ public:
   Track getTracking() { return _track; }
   
   void update(Subject* s) override;
-  void updateRemote(Subject* s) override;
 
   void notify() override {
     for (auto e : _observers)
@@ -47,3 +46,17 @@ private:
   void targetLocation();
 };
 
+class TargetShadow: public Target
+{
+public:
+  TargetShadow(int rate = 1) {
+  };
+  ~TargetShadow() {};
+
+  void notify() override {
+      Target::notify();
+  }
+
+  virtual void update(Subject *s) override;
+
+};

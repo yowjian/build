@@ -26,7 +26,6 @@ public:
   Track getTracking() { return _track; }
 
   virtual void update(Subject *s) override;
-  void updateRemote(Subject* s) override;
   
   void notify() override {
     for (auto e : _observers)
@@ -44,4 +43,19 @@ public:
   void setPosition(Position const& p) { _track._pos = p; }
 protected:
   void setVelocity(Velocity const& v) { _track._v = v; }
+};
+
+class OwnShipShadow: public OwnShip
+{
+public:
+  OwnShipShadow(int rate = 1) {
+  };
+  ~OwnShipShadow() {};
+
+  void notify() override {
+      OwnShip::notify();
+  }
+
+  virtual void update(Subject *s) override;
+
 };

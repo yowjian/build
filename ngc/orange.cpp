@@ -29,7 +29,7 @@ int main(int argc, char **argv)
   // touched by orange side RFSensor constructor
   Velocity vtgt(35, 625, 18);
   #pragma cle begin GREEN
-  GpsSensor* gps = new GpsSensor(p, v);
+  GpsSensorShadow* gps = new GpsSensorShadow(p, v);
   #pragma cle end GREEN
 
   #pragma cle begin ORANGE
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
   OwnShip* uav = new OwnShip(100); // updates at 100 Hz frequency
   #pragma cle end ORANGE
   #pragma cle begin GREEN
-  Target* tgt = new Target (10); // updates at 10 Hz frequency
+  TargetShadow* tgt = new TargetShadow (10); // updates at 10 Hz frequency
   #pragma cle end GREEN
 
   // setup the dataflow relationships
@@ -49,14 +49,11 @@ int main(int argc, char **argv)
   // _observers may be tained; contains a mix of local and remote observers; kind of split TBD
 
   rpc_init(uav, tgt);
-#ifdef USE_REAL_RPC
-  std::cout << "waiting for remote to be ready " << std::endl;
-  sleep(10);  // wait for remote end to be ready
-#endif
+
   while (true)
     {
       // here we simulate sensor data streams
-//      gps->read();
+      gps->read();
       rfs->read();
       
 #ifdef _WIN32	  

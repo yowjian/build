@@ -91,3 +91,23 @@ class RfSensor : public Sensor
 
 };
 
+
+class GpsSensorShadow : public GpsSensor
+{
+public:
+    GpsSensorShadow(Position const& p, Velocity const& v) :  GpsSensor(p, v) {
+    }
+
+    void read() override {
+    }
+};
+
+class RfSensorShadow : public RfSensor
+{
+public:
+    RfSensorShadow(Distance const& d, Velocity const& v) :  RfSensor(d, v) {
+    }
+
+    void read() override {
+    }
+};

@@ -33,9 +33,9 @@ int main(int argc, char **argv)
   #pragma cle end GREEN
 
   #pragma cle begin ORANGE
-  RfSensor* rfs = new RfSensor(d, vtgt);
+  RfSensorShadow* rfs = new RfSensorShadow(d, vtgt);
     
-  OwnShip* uav = new OwnShip(100); // updates at 100 Hz frequency
+  OwnShipShadow* uav = new OwnShipShadow(100); // updates at 100 Hz frequency
   #pragma cle end ORANGE
   #pragma cle begin GREEN
   Target* tgt = new Target (10); // updates at 10 Hz frequency
@@ -49,15 +49,12 @@ int main(int argc, char **argv)
   // _observers may be tained; contains a mix of local and remote observers; kind of split TBD
 
   rpc_init(uav, tgt);
-#ifdef USE_REAL_RPC
-  std::cout << "waiting for remote to be ready " << std::endl;
-  sleep(10);  // wait for remote end to be ready
-#endif
+
   while (true)
     {
       // here we simulate sensor data streams
       gps->read();
-//      rfs->read();
+      rfs->read();
       
 #ifdef _WIN32	  
       Sleep(sleep_msec); // 100 Hz

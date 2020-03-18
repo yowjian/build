@@ -15,6 +15,3 @@ void OwnShip::update(Subject *s) {
     notify();
   }
 }
-
-void OwnShip::updateRemote(Subject *s) {
-}

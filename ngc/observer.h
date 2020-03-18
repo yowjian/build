@@ -29,7 +29,6 @@ class Observer
 {
 public:
   virtual void update(Subject *) = 0;
-  virtual void updateRemote(Subject *) = 0;
 };
 
 class Subject

@@ -11,51 +11,6 @@
 OwnShip* uav = NULL;
 Target* tgt = NULL;
 
-#ifdef USE_REAL_RPC
-
-void foo() { std::cout << "foo was called!" << std::endl; }
-
-void bad(int x) {
-    if (x == 5) {
-        throw std::runtime_error("x == 5. I really don't like 5.");
-    }
-}
-
-void *rpc_server(void *args) {
-    int port = UAV_PORT;
-    std::cout << "port = " << port << std::endl;
-    // Create a server that listens on port 8080, or whatever the user selected
-    rpc::server srv("0.0.0.0", port);
-
-    // Binding the name "foo" to free function foo.
-    // note: the signature is automatically captured
-    srv.bind("foo", &foo);
-
-    // Binding a lambda function to the name "add".
-    srv.bind("position", [](double x, double y, double z) {
-        Position pos(x, y, z);
-        Velocity v(0, 0, 0);  // don't care
-        GpsSensor* gps = new GpsSensor(pos, v);
-        uav->update(gps);
-        return "OK";
-    });
-
-    // Throwing an exception will cause the server to write
-    // an error response. This call will make it also
-    // suppress the exception (note that this is not default
-    // because this behavior might hide errors in the
-    // code).
-    srv.suppress_exceptions(true);
-    srv.bind("bad", &bad);
-
-    // Run the server loop.
-    srv.run();
-
-    return 0;
-}
-
-#else
-
 void *rpc_server(void *args)
 {
     xdc_register(position_data_encode, position_data_decode, DATA_TYP_POSITION);
@@ -79,8 +34,6 @@ void *rpc_server(void *args)
 
     return 0;
 }
-
-#endif
 
 void rpc_init(OwnShip* u, Target* t)
 {

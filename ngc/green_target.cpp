@@ -25,9 +25,6 @@ void Target::update(Subject *s) {
   }
 }
 
-void Target::updateRemote(Subject *s) {
-}
-
 void Target::targetLocation() {
   _track._pos._x = _uav_pos._x + _d._dx;
   _track._pos._y = _uav_pos._y + _d._dy;

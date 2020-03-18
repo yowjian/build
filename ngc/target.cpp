@@ -14,7 +14,7 @@ void Target::update(Subject *s) {
     setUAVLocation(uav->getPosition());
     if (orange_enclave) {
       // push UAV position to green via RPC
-      updateRemote(s);
+//      updateRemote(s);
     }
   } else if (gps) {
     tick = true; // yeah.. hackish
@@ -22,7 +22,7 @@ void Target::update(Subject *s) {
     setDistance(rf->getDistance());
     if (orange_enclave) {
       // push the distance to green via RPC
-      updateRemote(s);
+//      updateRemote(s);
     }
   }
 		
@@ -33,26 +33,26 @@ void Target::update(Subject *s) {
   }
 }
 
-void Target::updateRemote(Subject *s) {
-  OwnShip *uav = dynamic_cast<OwnShip *>(s);
-  RfSensor *rf = dynamic_cast<RfSensor *>(s);
-  if (uav) {
-    Position position  = uav->getPosition();
-    double x = position._x;
-    double y = position._y;
-    double z = position._z;
-    rpc::client client("127.0.0.1", TARGET_PORT);
-    auto result = client.call("uav", x, y, z).as<std::string>();
-  }
-  else if (rf) {
-    Distance distance  = rf->getDistance();
-    double x = distance._dx;
-    double y = distance._dy;
-    double z = distance._dz;
-    rpc::client client("127.0.0.1", TARGET_PORT);
-    auto result = client.call("distance", x, y, z).as<std::string>();
-  }
-}
+//void Target::updateRemote(Subject *s) {
+//  OwnShip *uav = dynamic_cast<OwnShip *>(s);
+//  RfSensor *rf = dynamic_cast<RfSensor *>(s);
+//  if (uav) {
+//    Position position  = uav->getPosition();
+//    double x = position._x;
+//    double y = position._y;
+//    double z = position._z;
+//    rpc::client client("127.0.0.1", TARGET_PORT);
+//    auto result = client.call("uav", x, y, z).as<std::string>();
+//  }
+//  else if (rf) {
+//    Distance distance  = rf->getDistance();
+//    double x = distance._dx;
+//    double y = distance._dy;
+//    double z = distance._dz;
+//    rpc::client client("127.0.0.1", TARGET_PORT);
+//    auto result = client.call("distance", x, y, z).as<std::string>();
+//  }
+//}
 
 void Target::targetLocation() {
   _track._pos._x = _uav_pos._x + _d._dx;

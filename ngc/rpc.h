@@ -7,4 +7,3 @@ extern bool orange_enclave;
 class OwnShip;
 class Target;
 void rpc_init(OwnShip* uav, Target* tgt);
-
