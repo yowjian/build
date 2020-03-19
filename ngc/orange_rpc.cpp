@@ -25,7 +25,7 @@ void *rpc_server(void *args)
         tag_write(&t_tag, t_mux, t_sec, type);
 
         size_t len = sizeof(double) * 3;
-        xdc_blocking_recv((uint8_t *) &position, &len, &t_tag);
+        xdc_blocking_recv((uint8_t *) &position, &t_tag);
 
         Velocity v(0, 0, 0);  // don't care
         GpsSensor* gps = new GpsSensor(position, v);

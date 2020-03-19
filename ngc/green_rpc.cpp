@@ -22,7 +22,7 @@ void *uav_server(void *args)
         tag_write(&t_tag, t_mux, t_sec, type);
 
         size_t len = sizeof(double) * 8;
-        xdc_blocking_recv((uint8_t *) &position, &len, &t_tag);
+        xdc_blocking_recv((uint8_t *) &position, &t_tag);
 
         Velocity v(0, 0, 0);  // don't care
         GpsSensor* gps = new GpsSensor(position, v);
@@ -43,7 +43,7 @@ void *rfs_server(void *args)
         tag_write(&t_tag, t_mux, t_sec, type);
 
         size_t len = sizeof(double) * 8;
-        xdc_blocking_recv((uint8_t *) &distance, &len, &t_tag);
+        xdc_blocking_recv((uint8_t *) &distance, &t_tag);
 
         Velocity vtgt(0, 0, 0);  // don't care
         RfSensor* rfs = new RfSensor(distance, vtgt);
