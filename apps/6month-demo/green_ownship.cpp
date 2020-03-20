@@ -2,8 +2,8 @@
 #include "sensors.h"
 #include "rpc.h"
 
-#include "xdcomms.h"
-#include "gma.h"
+#include "hal_xdcomms.h"
+#include "hal_gma.h"
 
 // Depending on whether the subject is same or diff color, update may be local or xd
 void OwnShip::update(Subject *s) {

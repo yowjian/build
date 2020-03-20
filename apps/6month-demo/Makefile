@@ -5,12 +5,14 @@ USER = $(shell whoami)
 DIRS =
 
 HAL=../../src/hal
-HAL_API=$HAL/api
-HAL_APPGEN=$HAL/appgen
+HAL_API_INCLUDE=-I${HAL}/api
+HAL_APPGEN_INCLUDE=-I${HAL}/appgen
+HAL_LIBS=-lpnt -lxdcomms
+HAL_LIB_PATH=-L${HAL}/api -L${HAL}/appgen
 
-LDFLAGS += -L. -lrpc -lpthread -lpnt -lxdcomms -lzmq
+LDFLAGS += $(HAL_LIB_PATH) -lrpc -lpthread $(HAL_LIBS) -lzmq 
 #CFLAGS += -Wall -g $(XMLFLAGS) -I/dist/include $(DIRS)
-CPPFLAGS=-std=c++11 -I${HAL_API} -I${HAL_APPGEN}
+CPPFLAGS=-std=c++11 ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 
 OBJ = \
 	pnt_example.o \

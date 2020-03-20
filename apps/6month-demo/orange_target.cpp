@@ -3,8 +3,8 @@
 #include "sensors.h"
 #include "rpc.h"
 
-#include "xdcomms.h"
-#include "gma.h"
+#include "hal_xdcomms.h"
+#include "hal_gma.h"
 
 void Target::update(Subject *s) {
   static int cnt = 0;

@@ -5,8 +5,8 @@
 #include "ownship.h"
 #include "target.h"
 
-#include "xdcomms.h"
-#include "gma.h"
+#include "hal_xdcomms.h"
+#include "hal_gma.h"
 
 OwnShip* uav = NULL;
 Target* tgt = NULL;
