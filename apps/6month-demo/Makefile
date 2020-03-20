@@ -4,9 +4,13 @@ HOST = $(shell cat /etc/machine-id)
 USER = $(shell whoami)
 DIRS =
 
+HAL=../../src/hal
+HAL_API=$HAL/api
+HAL_APPGEN=$HAL/appgen
+
 LDFLAGS += -L. -lrpc -lpthread -lpnt -lxdcomms -lzmq
 #CFLAGS += -Wall -g $(XMLFLAGS) -I/dist/include $(DIRS)
-CPPFLAGS=-std=c++11
+CPPFLAGS=-std=c++11 -I${HAL_API} -I${HAL_APPGEN}
 
 OBJ = \
 	pnt_example.o \
