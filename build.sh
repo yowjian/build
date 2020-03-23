@@ -57,8 +57,6 @@ get_latest_release() {
 
 handle_opts "$@"
 
-DRY_RUN=-d
-
 #if [[ $BINARY ]]; then
 #    down_releases
 #fi
@@ -96,7 +94,17 @@ do
             ./build.sh $DRY_RUN -b $LLVM_BRANCH
             popd
             ;;
-        cvi | capo | mules | mbig)
+	capo)
+            if [[ ! $EXCLUDE_LLVM ]]; then
+		BUILD_LLVM=-l
+	    fi
+
+            echo "Building $c ........................."
+            pushd src/capo
+            ./build.sh $DRY_RUN $BUILD_LLVM
+            popd
+            ;;       
+        cvi | mules | mbig)
             echo "Building $c ........................."
             pushd src/$c
             ./build.sh $DRY_RUN
