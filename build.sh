@@ -8,10 +8,10 @@ BIN=bin
 
 usage_exit() {
   [[ -n "$1" ]] && echo $1
-  echo "Usage: $0 [ -bcdhs ] "
-  echo "-b LLVM_BRANCH  llvm branch to be built"
+  echo "Usage: $0 [ -chl ] \\"
+  echo "          [ -b BRANCH ]"
+  echo "-b LLVM_BRANCH  Build LLVM from the BRANCH branch of the source"
   echo "-c              Clean up"
-  echo "-d              Dry run"
   echo "-l              Build LLVM from source"
   echo "-h              Help"
   exit 1
@@ -19,11 +19,10 @@ usage_exit() {
 
 handle_opts() {
   local OPTIND
-  while getopts "b:cdhls" options; do
+  while getopts "b:clh" options; do
     case "${options}" in
       b) LLVM_BRANCH=${OPTARG}  ;;
       c) CLEAN=1                ;;
-      d) DRY_RUN="--dry-run"    ;;
       l) INCLUDE_LLVM=1         ;;
       h) usage_exit             ;;
       :) usage_exit "Error: -${OPTARG} requires an argument." ;;
@@ -103,7 +102,7 @@ if [ $(contains "${components[@]}" "llvm") == "y" ]; then
     fi
     echo "Build llvm $LLVM_BRANCH branch................"
     pushd src/capo
-    ./build.sh $DRY_RUN -b $LLVM_BRANCH
+    ./build.sh -b $LLVM_BRANCH
     popd
 fi
 
@@ -111,17 +110,18 @@ for c in "${components[@]}"
 do
     case $c in
         llvm)
+            # built above
             ;;
 	    capo)
             echo "Building $c ........................."
             pushd src/capo
-            ./build.sh $DRY_RUN -l
+            ./build.sh -l
             popd
             ;;       
         cvi | mules | mbig)
             echo "Building $c ........................."
             pushd src/$c
-            ./build.sh $DRY_RUN
+            ./build.sh
             popd
             ;;       
     esac
