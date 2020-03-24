@@ -17,8 +17,8 @@ sudo make install
 
 ## Contents
 - [Cloning CLOSURE](#cloning-closure)
-- [Build All including LLVM](#build-all-from-source)
-- [Build All without LLVM](#build-all-from-source)
+- [Build All from source excluding LLVM](#build-all-from-source-excluding-llvm)
+- [Build All from source including LLVM](#build-all-from-source-including-llvm)
 - [LLVM Only](#build-llvm-only)
 - [Build A Subset of Components](#build-a-subset-of-components)
 
@@ -31,26 +31,26 @@ gits clone https://github.com/gaps-closure/build
 In the following, $BUILD refers to 
 
 
-## Build All including LLVM
-To build the entire CLOSURE including LLVM from source, do the following
-
-```
-$BUILD/build.sh [-b <llvm-branch>]
-```
-
-Note that the default LLVM branch is 'qualatypes'. If you need to build it from other branches, specified the branch name.
-
-
-## Build All without LLVM
+## Build All from source excluding LLVM
 To build the entire CLOSURE, except LLVM, from source, do the following
 
 ```
-$BUILD/build.sh -n
+$BUILD/build.sh
 ```
+
+Note that this will install LLVM from a pre-built binaries.
+
+## Build All from source including LLVM
+To build the entire CLOSURE including LLVM from source, do the following
+
+```
+$BUILD/build.sh -l [-b <llvm-branch>]
+```
+Note that the default LLVM branch is 'qualatypes'. If you need to build it from other branches, specified the branch name.
 
 ## LLVM Only
 ```
-$BUILD/build.sh llvm [-b <llvm-branch>]
+$BUILD/build.sh [-b <llvm-branch>] llvm
 ```
 Note that if the -b <llvm-branch> option is specified, then the 'qualatypes' branch will be checked out, regardless of whether the LLVM source is present in the capo directory.
 If the -b <llvm-branch> option is not specified, then the 'qualatypes' branch will be checked out, if the LLVM source is not already present. Otherwise, the current LLVM branch is used in the build.
@@ -59,6 +59,6 @@ If the -b <llvm-branch> option is not specified, then the 'qualatypes' branch wi
 To build a subset of components, specify them in the command line argument to the build script. (emu and hal are in progress)
 
 ```
-$BUILD/build.sh {capo cvi mules mbig emu hal}
+$BUILD/build.sh {capo cvi mules mbig emu hal llvm}
 ```
 

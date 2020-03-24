@@ -12,21 +12,19 @@ usage_exit() {
   echo "-b LLVM_BRANCH  llvm branch to be built"
   echo "-c              Clean up"
   echo "-d              Dry run"
-  echo "-n              Exclude LLVM in the build"
-  echo "-s              Populate component source and build"
+  echo "-l              Build LLVM from source"
   echo "-h              Help"
   exit 1
 }
 
 handle_opts() {
   local OPTIND
-  while getopts "b:cdhns" options; do
+  while getopts "b:cdhls" options; do
     case "${options}" in
       b) LLVM_BRANCH=${OPTARG}  ;;
       c) CLEAN=1                ;;
       d) DRY_RUN="--dry-run"    ;;
-      n) EXCLUDE_LLVM=1         ;;
-      s) SOURCE=1               ;;
+      l) INCLUDE_LLVM=1         ;;
       h) usage_exit             ;;
       :) usage_exit "Error: -${OPTARG} requires an argument." ;;
     esac
@@ -55,6 +53,19 @@ get_latest_release() {
         jq -r ".assets[] | select(.name | test(\"$2\")) | .browser_download_url"
 }
 
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+        if [ "${!i}" == "${value}" ]; then
+            echo "y"
+            return 0
+        fi
+    }
+    echo "n"
+    return 1
+}
+
 handle_opts "$@"
 
 #if [[ $BINARY ]]; then
@@ -75,33 +86,36 @@ if [ "${#components[@]}" -eq 0 ]; then   # build all
     cd ..
 fi
 
-echo ${components[@]}
+if [[ $INCLUDE_LLVM ]]; then
+    components=( "llvm" "${components[@]:0}" )
+fi
+
+components=($(echo "${components[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+
+echo Will build/install the following components: ${components[@]}
+
+
+# first, install llvm, which may not be the first item after sorting
+if [ $(contains "${components[@]}" "llvm") == "y" ]; then
+    echo "install llvm"
+    if [[ ! $LLVM_BRANCH ]]; then
+        LLVM_BRANCH="qualatypes"
+    fi
+    echo "Build llvm $LLVM_BRANCH branch................"
+    pushd src/capo
+    ./build.sh $DRY_RUN -b $LLVM_BRANCH
+    popd
+fi
 
 for c in "${components[@]}"
 do
     case $c in
         llvm)
-            if [[ $EXCLUDE_LLVM ]]; then
-                echo "-n (exclude llvm) and the llvm component should not be both specified."
-                exit
-            fi
-            
-            if [[ ! $LLVM_BRANCH ]]; then
-                LLVM_BRANCH="qualatypes"
-            fi
-            echo "Build llvm $LLVM_BRANCH branch................"
-            pushd src/capo
-            ./build.sh $DRY_RUN -b $LLVM_BRANCH
-            popd
             ;;
-	capo)
-            if [[ ! $EXCLUDE_LLVM ]]; then
-		BUILD_LLVM=-l
-	    fi
-
+	    capo)
             echo "Building $c ........................."
             pushd src/capo
-            ./build.sh $DRY_RUN $BUILD_LLVM
+            ./build.sh $DRY_RUN -l
             popd
             ;;       
         cvi | mules | mbig)
