@@ -27,6 +27,7 @@ CLOSURE will keep current with the latest LLVM and Clang releases, periodically 
 | bash          | 5.0-4ubuntu1 |
 | bridge-utils  | 1.6-2ubuntu1 |
 | build-essential |12.8ubuntu1 |
+| cmake | 3.13.4-1build1 |
 |[CORE](https://github.com/coreemu/core/releases/tag/release-5.5.2)| 5.5.2 | 
 | ebtables | 2.0.10.4+snapshot20181205-1ubuntu1|
 | ethtool |1:4.19-1 |
@@ -63,5 +64,6 @@ CLOSURE will keep current with the latest LLVM and Clang releases, periodically 
 |:--------------|:--------------|
 | decorator   | 4.4.1 |
 | lark-parser | 0.7.8 |
+| networkx    | 2.4   |
 | pexpect     | 4.7.0 |
 | pydot       | 1.4.1 |
