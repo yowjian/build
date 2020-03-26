@@ -24,9 +24,8 @@ void *uav_server(void *args)
         size_t len = sizeof(double) * 8;
         xdc_blocking_recv((uint8_t *) &position, &t_tag);
 
-        Velocity v(0, 0, 0);  // don't care
-        GpsSensor* gps = new GpsSensor(position, v);
-        uav->update(gps);
+        uav->setPosition(position);
+        tgt->update(uav);
     }
 
     return 0;
@@ -54,6 +53,9 @@ void *rfs_server(void *args)
 
 void rpc_init(OwnShip* u, Target* t)
 {
+  xdc_set_out((char *)"ipc:///tmp/halpubbwgreen");
+  xdc_set_in((char *)"ipc:///tmp/halsubbwgreen");
+    
   xdc_register(position_data_encode, position_data_decode, DATA_TYP_POSITION);
   xdc_register(distance_data_encode, distance_data_decode, DATA_TYP_DISTANCE);
 

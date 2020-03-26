@@ -13,6 +13,9 @@ Target* tgt = NULL;
 
 void *rpc_server(void *args)
 {
+   xdc_set_out((char *)"ipc:///tmp/halpubbworange");
+   xdc_set_in((char *)"ipc:///tmp/halsubbworange");
+    
     xdc_register(position_data_encode, position_data_decode, DATA_TYP_POSITION);
     xdc_register(distance_data_encode, distance_data_decode, DATA_TYP_DISTANCE);
 
