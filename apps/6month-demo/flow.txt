@@ -1,0 +1,35 @@
+Green
+	GpsSensor *gps
+	RfSensorShadow* rfs
+    OwnShipShadow* uav 
+    Target* tgt
+    Position position? tag=(1,1,1)
+
+Orange
+  GpsSensorShadow* gps
+  RfSensor* rfs
+  OwnShip* uav
+  TargetShadow* tgt
+  Distance tag=(2,2,2)
+  UAV.position tag=(2,2,1)
+ 	
+ 	
+Cut edge #1:  1,1,1 sent from green to orange       (other 2 cut edges similar, but reverse direction)   
+
+Initial unpartitioned code:
+       GpsSensor//gps is green -> X
+       OwnShip//uav is orange  -> Y
+          
+Ta's transformed code: 
+       // method is a data push method in this case, transform is general
+       Y->method(X) (where X,Y are different colors) from original is replaced by YShadow->method(X)
+       So now YShadow and X have same color green, and Y is on the other side
+       YShadow->method is overridden to call cross-domain send with pos,tag=1,1,1 using data from X ==> HAL
+       HAL ==> rpc server thread is running on Y's side/color to do cross-domain receive of pos,tag=1,1,1
+       Y and X* have same color orange // will be nice if X* was XShadow, and rpc server was part of XShadow
+       pos,tag=1,1,1 is passed on to X*
+       Y->method(X*) is invoked 
+                   
+ Transformed code has exactly three edges in cut, 1,1,1 shared in forward direction; 
+ 2,2,1 and 2,2,2 shared in reverse direction
+ Source and datatype of 1,1,1, 2,2,1 and 2,2,2 is traceable ...
