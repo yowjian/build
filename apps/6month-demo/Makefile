@@ -10,7 +10,7 @@ HAL_APPGEN_INCLUDE=-I${HAL}/appgen
 HAL_LIBS=-lpnt -lxdcomms
 HAL_LIB_PATH=-L${HAL}/api -L${HAL}/appgen
 
-LDFLAGS += $(HAL_LIB_PATH) -lrpc -lpthread $(HAL_LIBS) -lzmq 
+LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmq 
 #CFLAGS += -Wall -g $(XMLFLAGS) -I/dist/include $(DIRS)
 CPPFLAGS=-std=c++11 ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 

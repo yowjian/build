@@ -1,5 +1,5 @@
 #include <iostream>
-#include "rpc/server.h"
+
 #include "rpc.h"
 
 #include "ownship.h"

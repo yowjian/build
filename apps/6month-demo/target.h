@@ -4,7 +4,6 @@
 #include "sensors.h"
 #include <iostream> 
 #include "rpc.h"
-#include "rpc/client.h"
 
 class Target : public Observer, public Subject
 {

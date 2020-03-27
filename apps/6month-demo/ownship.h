@@ -3,7 +3,6 @@
 #include "observer.h"
 #include "sensors.h"
 #include "rpc.h"
-#include "rpc/client.h"
 
 #include <iostream>
 
