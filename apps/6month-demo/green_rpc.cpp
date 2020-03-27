@@ -23,7 +23,6 @@ void *uav_server(void *args)
 
         size_t len = sizeof(double) * 8;
         xdc_blocking_recv((uint8_t *) &position, &t_tag);
-
         uav->setPosition(position);
         tgt->update(uav);
     }
@@ -43,7 +42,6 @@ void *rfs_server(void *args)
 
         size_t len = sizeof(double) * 8;
         xdc_blocking_recv((uint8_t *) &distance, &t_tag);
-
         Velocity vtgt(0, 0, 0);  // don't care
         RfSensor* rfs = new RfSensor(distance, vtgt);
         tgt->update(rfs);

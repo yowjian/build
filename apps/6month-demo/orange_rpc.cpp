@@ -13,12 +13,6 @@ Target* tgt = NULL;
 
 void *rpc_server(void *args)
 {
-   xdc_set_out((char *)"ipc:///tmp/halpubbworange");
-   xdc_set_in((char *)"ipc:///tmp/halsubbworange");
-    
-    xdc_register(position_data_encode, position_data_decode, DATA_TYP_POSITION);
-    xdc_register(distance_data_encode, distance_data_decode, DATA_TYP_DISTANCE);
-
     while (1) {
         Position position  = uav->getPosition();
 
@@ -44,6 +38,12 @@ void rpc_init(OwnShip* u, Target* t)
    tgt = t;
 
    pthread_t rpcThread;
+
+   xdc_set_out((char *)"ipc:///tmp/halpubbworange");
+   xdc_set_in((char *)"ipc:///tmp/halsubbworange");
+
+   xdc_register(position_data_encode, position_data_decode, DATA_TYP_POSITION);
+   xdc_register(distance_data_encode, distance_data_decode, DATA_TYP_DISTANCE);
 
    int rpcThreadID = pthread_create(&rpcThread, NULL, &rpc_server, NULL);
    if (rpcThreadID != 0) {
