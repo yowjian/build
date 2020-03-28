@@ -3,6 +3,7 @@
 #include "observer.h"
 #include "rpc.h"
 #include <chrono>
+#include <thread>
 
 using namespace std::chrono;
 using Clock = system_clock;
@@ -30,6 +31,8 @@ class GpsSensor : public Sensor
  public:
   GpsSensor(Position const& p, Velocity const& v) : _p(p), _v(v) { }
   Position getPosition() { return _p; }
+// CHANGE: add
+void setPosition(Position const& p) { _p = p; }
   Time getTimePoint() { return _now; }
 
   void read() override {
@@ -66,6 +69,8 @@ class RfSensor : public Sensor
  public:
   RfSensor(Distance const& d, Velocity const& v) : _d(d), _v(v) { }
   Distance getDistance() { return _d; };
+// CHANGE: add
+void setDistance(Distance const& d) { _d = d; }
 
   void read() override {
     auto now = time_point_cast<msecs>(Clock::now());
@@ -91,12 +96,17 @@ class RfSensor : public Sensor
 
 };
 
-
 class GpsSensorShadow : public GpsSensor
 {
+private:
+    std::thread thread_;
+    void receive();
+
 public:
     GpsSensorShadow(Position const& p, Velocity const& v) :  GpsSensor(p, v) {
+      thread_ = std::thread(&GpsSensorShadow::receive, this);
     }
+    ~GpsSensorShadow() { thread_.join(); }
 
     void read() override {
     }
@@ -104,9 +114,15 @@ public:
 
 class RfSensorShadow : public RfSensor
 {
+private:
+    std::thread thread_;
+    void receive();
+
 public:
     RfSensorShadow(Distance const& d, Velocity const& v) :  RfSensor(d, v) {
+      thread_ = std::thread(&RfSensorShadow::receive, this);
     }
+    ~RfSensorShadow() { thread_.join(); }
 
     void read() override {
     }

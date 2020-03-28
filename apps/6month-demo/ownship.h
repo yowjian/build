@@ -46,10 +46,15 @@ protected:
 
 class OwnShipShadow: public OwnShip, public Trailer
 {
+private:
+    std::thread thread_;
+    void receive();
+
 public:
-  OwnShipShadow(int rate = 1) {
-  };
-  ~OwnShipShadow() {};
+    OwnShipShadow(int rate = 1) {
+    thread_ = std::thread(&OwnShipShadow::receive, this);
+  }
+  ~OwnShipShadow() { thread_.join(); }
 
   void notify() override {
       OwnShip::notify();

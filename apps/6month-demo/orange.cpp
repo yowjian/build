@@ -18,7 +18,8 @@
 int main(int argc, char **argv)
 {
    std::cout << "orange" << std::endl;
-   
+   hal_init();
+
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
   // Touched on green side gpssensor constructor
   Position p(.0, .0, .0); // initial position
@@ -47,8 +48,6 @@ int main(int argc, char **argv)
   uav->attach(tgt); // cross domain 
   rfs->attach(tgt); // cross domain 
   // _observers may be tained; contains a mix of local and remote observers; kind of split TBD
-
-  rpc_init(uav, tgt);
 
   while (true)
     {
