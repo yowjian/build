@@ -7,14 +7,18 @@ void GpsSensorShadow::receive()
 {
     while (1) {
         Position position;
-
+	position_datatype pos;
+	
         gaps_tag  t_tag, r_tag;
         uint32_t  t_mux = 1, t_sec = 1, type = DATA_TYP_POSITION;
 
         tag_write(&t_tag, t_mux, t_sec, type);
 
         size_t len = sizeof(double) * 3;
-        xdc_blocking_recv(&position, &t_tag);
+        xdc_blocking_recv(&pos, &t_tag);
+	position._x = pos.x;
+	position._y = pos.y;
+	position._z = pos.z;	
 
         setPosition(position);
         notify();

@@ -9,6 +9,7 @@ void OwnShipShadow::receive()
 {
     while (1) {
         Position position(0, 0, 0);
+	position_datatype pos;
 
         gaps_tag  t_tag, r_tag;
         uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_POSITION;
@@ -16,7 +17,11 @@ void OwnShipShadow::receive()
         tag_write(&t_tag, t_mux, t_sec, type);
 
         size_t len = sizeof(double) * 8;
-        xdc_blocking_recv(&position, &t_tag);
+        xdc_blocking_recv(&pos, &t_tag);
+
+	position._x = pos.x;
+	position._y = pos.y;
+	position._z = pos.z;
 
         setPosition(position);
         notify();
@@ -27,14 +32,19 @@ void RfSensorShadow::receive()
 {
     while (1) {
         Distance distance(0, 0, 0);
-
+	distance_datatype dis;
+	
         gaps_tag  t_tag, r_tag;
         uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_DISTANCE;
 
         tag_write(&t_tag, t_mux, t_sec, type);
 
         size_t len = sizeof(double) * 8;
-        xdc_blocking_recv(&distance, &t_tag);
+        xdc_blocking_recv(&dis, &t_tag);
+
+	distance._dx = dis.x;
+	distance._dy = dis.y;
+	distance._dz = dis.z;	
 
         setDistance(distance);
         notify();
