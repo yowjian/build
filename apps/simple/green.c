@@ -78,7 +78,7 @@ void *green_recv_distance()
   while (1) {
     xdc_blocking_recv(socket, &dis, &t_tag);
 
-    printf("\t\t\t\t\trecv dis %6d: (%6.0f, %6.0f, %6.0f)\n", count, dis.x, dis.y, dis.z);
+    printf("\t\t\t\t\t\trecv dis %6d: (%6.0f, %6.0f, %6.0f)\n", count, dis.x, dis.y, dis.z);
 
     count++;
   }
@@ -101,7 +101,7 @@ void *green_recv_position()
   while (1) {
     xdc_blocking_recv(socket, &pos, &t_tag);
 
-    printf("\t\t\t\t\trecv pos %6d: (%6.0f, %6.0f, %6.0f)\n", count, pos.x, pos.y, pos.z);
+    printf("\t\t\t\t\t\trecv pos %6d: (%6.0f, %6.0f, %6.0f)\n", count, pos.x, pos.y, pos.z);
 
     count++;
   }

@@ -35,6 +35,8 @@ void *orange_send_distance(void *args)
   int count = 0;
 
   while (1) {
+    usleep(delay_in_ms_dis * 1000);
+
     dis.trailer.seq = 2;
     dis.trailer.rqr = 2;
     dis.trailer.oid = 2;
@@ -53,8 +55,6 @@ void *orange_send_distance(void *args)
     printf("sent dis %6d: (%6.0f, %6.0f, %6.0f)\n", count, dis.x, dis.y, dis.z);
     count++;
     
-    usleep(delay_in_ms_dis * 1000);
-
     dis.x += 2;
     dis.y += 2;
     dis.z += 2;
@@ -74,6 +74,8 @@ void *orange_send_position(void *args)
   int count = 0;
 
   while (1) {
+    usleep(delay_in_ms_pos * 1000);
+
     pos.trailer.seq = 1;
     pos.trailer.rqr = 1;
     pos.trailer.oid = 1;
@@ -92,8 +94,6 @@ void *orange_send_position(void *args)
     printf("sent pos %6d: (%6.0f, %6.0f, %6.0f)\n", count, pos.x, pos.y, pos.z);
     count++;
     
-    usleep(delay_in_ms_pos * 1000);
-
     pos.x += 2;
     pos.y += 2;
     pos.z += 2;
@@ -118,7 +118,7 @@ void *orange_recv()
   while (1) {
     xdc_blocking_recv(socket, &pos, &t_tag);
 
-    printf("\t\t\t\t\trecv %6d: (%6.0f, %6.0f, %6.0f)\n", count, pos.x, pos.y, pos.z);
+    printf("\t\t\t\t\t\trecv %6d: (%6.0f, %6.0f, %6.0f)\n", count, pos.x, pos.y, pos.z);
 
     count++;
   }
@@ -147,13 +147,13 @@ int main(int argc, char **argv)
   ctx = hal_init();
 
   pthread_t sendDisThread, sendPosThread, recvThread;
-
+  
   int rtn = pthread_create(&sendDisThread, NULL, &orange_send_distance, NULL);
   if (rtn != 0) {
     printf("send distance thread creat failed\n");
     exit(1);
   }
-
+  
   rtn = pthread_create(&sendPosThread, NULL, &orange_send_position, NULL);
   if (rtn != 0) {
     printf("send position thread creat failed\n");
