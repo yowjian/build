@@ -2,6 +2,7 @@
 //
 #include <signal.h>
 #include <iostream>
+#include <zmq.h>
 #ifdef _WIN32
 # include <Windows.h>
 #else
@@ -25,7 +26,10 @@ int main(int argc, char **argv)
    signal(SIGABRT, hello);
    signal(SIGSEGV, hello);
 
-   std::cout << "orange" << std::endl;
+   int m1, m2, pp;
+
+   zmq_version(&m1, &m2, &pp);
+   std::cout << "orange " << m1 << " " << m2 << " " << pp << std::endl;
    hal_init();
 
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors

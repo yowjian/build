@@ -11,7 +11,7 @@ void OwnShipShadow::receive()
     uint32_t t_mux = 2, t_sec = 2, type = DATA_TYP_POSITION;
 
     tag_write(&t_tag, t_mux, t_sec, type);
-    void *socket = xdc_socket(t_tag);
+    void *socket = xdc_sub_socket(t_tag);
 
     Position position(0, 0, 0);
     position_datatype pos;
@@ -25,8 +25,7 @@ void OwnShipShadow::receive()
         setPosition(position);
         notify();
     }
-
-    xdc_close(socket, NULL); // TODO
+    zmq_close(socket);
 }
 
 void RfSensorShadow::receive()
@@ -35,7 +34,7 @@ void RfSensorShadow::receive()
     uint32_t t_mux = 2, t_sec = 2, type = DATA_TYP_DISTANCE;
 
     tag_write(&t_tag, t_mux, t_sec, type);
-    void *socket = xdc_socket(t_tag);
+    void *socket = xdc_sub_socket(t_tag);
 
     Distance distance(0, 0, 0);
     distance_datatype dis;
@@ -49,12 +48,12 @@ void RfSensorShadow::receive()
         setDistance(distance);
         notify();
     }
-
-    xdc_close(socket, NULL); // TODO
+    zmq_close(socket);
 }
 
 void hal_init()
 {
+  xdc_ctx();
   xdc_set_out((char *)"ipc:///tmp/halpubbwgreen");
   xdc_set_in((char *)"ipc:///tmp/halsubbwgreen");
     

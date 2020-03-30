@@ -9,7 +9,7 @@ void GpsSensorShadow::receive()
     uint32_t t_mux = 1, t_sec = 1, type = DATA_TYP_POSITION;
 
     tag_write(&t_tag, t_mux, t_sec, type);
-    void *socket = xdc_socket(t_tag);
+    void *socket = xdc_sub_socket(t_tag);
 
     Position position;
     position_datatype pos;
@@ -24,12 +24,11 @@ void GpsSensorShadow::receive()
         setPosition(position);
         notify();
     }
-
-    xdc_close(socket, NULL); // TODO
 }
 
 void hal_init()
 {
+   xdc_ctx();
    xdc_set_out((char *)"ipc:///tmp/halpubbworange");
    xdc_set_in((char *)"ipc:///tmp/halsubbworange");
 

@@ -31,7 +31,9 @@ void TargetShadow::update(Subject *s) {
     uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_POSITION;
 
     tag_write(&t_tag, t_mux, t_sec, type);
-    xdc_asyn_send(&pos, t_tag);
+    void *socket = xdc_pub_socket();
+    xdc_asyn_send(socket, &pos, t_tag);
+    zmq_close(socket);
   }
   else if (rf) {
     Distance distance  = rf->getDistance();
@@ -49,6 +51,9 @@ void TargetShadow::update(Subject *s) {
     uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_DISTANCE;
 
     tag_write(&t_tag, t_mux, t_sec, type);
-    xdc_asyn_send(&dis, t_tag);
+
+    void *socket = xdc_pub_socket();
+    xdc_asyn_send(socket, &dis, t_tag);
+    zmq_close(socket);
   }
 }

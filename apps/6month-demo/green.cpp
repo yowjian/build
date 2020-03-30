@@ -14,13 +14,19 @@
 #include "target.h"
 
 #include "rpc.h"
+#include "hal_xdcomms.h"
 
 int main(int argc, char **argv)
 {
    std::cout << "green" << std::endl;
    hal_init();
 
+   std::cout << "out " << xdc_set_out(NULL) << std::endl;
+   std::cout << "in " << xdc_set_in(NULL) << std::endl;
+   std::cout << "ctx " << (xdc_ctx()==NULL ? "null" : "not") << std::endl;
+   
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
+
   // Touched on green side gpssensor constructor
   Position p(.0, .0, .0); // initial position
   // Touched on orange side by RFSensor constructor

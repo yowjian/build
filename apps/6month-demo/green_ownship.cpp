@@ -29,5 +29,8 @@ void OwnShipShadow::update(Subject *s) {
   uint32_t  t_mux = 1, t_sec = 1, type = DATA_TYP_POSITION;
 
   tag_write(&t_tag, t_mux, t_sec, type);
-  xdc_asyn_send(&pos, t_tag);
+
+  void *socket = xdc_pub_socket();
+  xdc_asyn_send(socket, &pos, t_tag);
+  zmq_close(socket);
 }

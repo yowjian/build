@@ -10,7 +10,7 @@
 
 codec_map  cmap[DATA_TYP_MAX];
 
-int xdc_verbose=0;
+int xdc_verbose=1;
 /**********************************************************************/
 /* LIB Printing Functions */
 /**********************************************************************/
@@ -147,7 +147,7 @@ void * z_connect(int type, const char *dest) {
 /*
  * Send ADU to HAL (which should be listening on the ZMQ subscriber socket)
  */
-void xdc_asyn_send(void *adu, gaps_tag tag) {
+void xdc_asyn_sendX(void *adu, gaps_tag tag) {
   static int   do_once = 1;
   static void *socket;
   sdh_ha_v1    packet, *p=&packet;
@@ -171,65 +171,64 @@ void xdc_asyn_send(void *adu, gaps_tag tag) {
   zmq_send (socket, (void *) p, packet_len, 0);
 }
 
-/*
- * Send ADU to HAL (which should be listening on the ZMQ publisher socket)
- */
-void *xdc_socket(gaps_tag tag)
-{
-static void *hal_socket_111; // TODO
-static void *hal_socket_221;
-static void *hal_socket_222;
-static void *hal_ctx_111;    // TODO
-static void *hal_ctx_221;
-static void *hal_ctx_222;
+void xdc_asyn_send(void *socket, void *adu, gaps_tag tag) {
+  sdh_ha_v1    packet, *p=&packet;
+  size_t       packet_len;
+  
+  size_t adu_len;         /* Size of ADU is calculated by encoder */
+  gaps_data_encode(p, &packet_len, adu, &adu_len, &tag);
+  if(xdc_verbose) {
+    fprintf(stderr, "API sends (on ZMQ s=%p): ", socket);
+    tag_print(&tag);
+    fprintf(stderr, "len=%ld ", adu_len);
+    data_print("Packet", (uint8_t *) p, packet_len);
+  }
+  int bytes = zmq_send (socket, (void *) p, packet_len, 0);
+  if (bytes <= 0) fprintf(stderr, "send error %s %d ", zmq_strerror(errno), bytes);
+}
 
- int err;
-    gaps_tag tag4filter;
-    char addr[50];
-    void *ctx;
+void *xdc_pub_socket()
+{
+    int err;
     void *socket;
 
-    /* a) Open connection with HAL ZMQ publisher */
-    strcpy(addr, xdc_set_in(NULL));
+    socket = zmq_socket(xdc_ctx(), ZMQ_PUB);
+    if (socket == NULL) exit_with_zmq_error("zmq_socket");
 
-   ctx = zmq_ctx_new();
-    if (ctx == NULL)
-        exit_with_zmq_error("zmq_ctx_new");
+    err = zmq_connect(socket, xdc_set_out(NULL));
+    if (err) exit_with_zmq_error("zmq_connect");
 
-   socket = zmq_socket(ctx, ZMQ_SUB);
+    if (xdc_verbose) fprintf(stderr, "API connects (s=%p t=%d) to %s\n",socket, ZMQ_PUB, xdc_set_out(NULL));
+
+    return socket;
+}
+
+void *xdc_sub_socket(gaps_tag tag)
+{
+    int err;
+    gaps_tag tag4filter;
+    void *socket;
+
+    socket = zmq_socket(xdc_ctx(), ZMQ_SUB);
     if (socket == NULL)
         exit_with_zmq_error("zmq_socket");
 
-    err = zmq_connect(socket, addr);
+    err = zmq_connect(socket, xdc_set_in(NULL));
     if (err)
         exit_with_zmq_error("zmq_connect");
 
     if (xdc_verbose)
-        fprintf(stderr, "API connects (s=%p t=%d) to %s\n",socket, ZMQ_SUB, addr);
+        fprintf(stderr, "API connects (s=%p t=%d) to %s\n",socket, ZMQ_SUB, xdc_set_in(NULL));
     tag_encode(&tag4filter, &tag);
 
     err = zmq_setsockopt(socket, ZMQ_SUBSCRIBE, (void *) &tag4filter, RX_FILTER_LEN);
     assert(err == 0);
-
-    if (tag.mux == 1) {
-      hal_socket_111 = socket;
-      hal_ctx_111 = ctx;  
-    }
-    else if (tag.typ == 1) {
-      hal_socket_221 = socket;
-      hal_ctx_221 = ctx;  
-    }
-    else {
-      hal_socket_222 = socket;
-      hal_ctx_222 = ctx;  
-    }
 
     return socket;
 }
 
 void xdc_blocking_recv(void *socket, void *adu, gaps_tag *tag)
 {
-    /* b) Get a packet from HAL ZMQ publisher */
     if (xdc_verbose) {
         fprintf(stderr, "API waiting to recv (using len=%d filter ", RX_FILTER_LEN);
 
@@ -239,26 +238,15 @@ void xdc_blocking_recv(void *socket, void *adu, gaps_tag *tag)
         fprintf(stderr, ")\n");
     }
 
-    sdh_ha_v1    packet;
+    sdh_ha_v1 packet;
     void *p = &packet;
-    printf("1 -- \n");
+
     int size = zmq_recv(socket, p, sizeof(sdh_ha_v1), 0);
-    printf("1.1 -- \n");
     if (xdc_verbose)
         data_print("API recv packet", (uint8_t *) p, size);
 
-    /* c) Decode information from packet */
-    size_t adu_len;  // TODO: remove
-    printf("2 -- \n");
+    size_t adu_len;
     gaps_data_decode(p, size, adu, &adu_len, tag);
-    printf("3 -- \n");
-}
-
-void xdc_close(void *socket, void *ctx)
-{
-    /* Housekeep */
-    zmq_close(socket);
-    zmq_ctx_destroy(ctx);
 }
 
 void xdc_blocking_recvX(void *adu, gaps_tag *tag) {
@@ -391,4 +379,15 @@ char *xdc_set_out(char *addr) {
     }
   }
   return xdc_addr_out;
+}
+
+void *xdc_ctx() {
+    static void *ctx = NULL;
+
+    if (ctx == NULL) {
+        ctx = zmq_ctx_new();
+        if(ctx == NULL) exit_with_zmq_error("zmq_ctx_new");
+    }
+    
+    return ctx;
 }

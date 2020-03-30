@@ -8,9 +8,9 @@ HAL=../../src/hal
 HAL_API_INCLUDE=-I${HAL}/api
 HAL_APPGEN_INCLUDE=-I${HAL}/appgen
 HAL_LIBS=-lpnt
-HAL_LIB_PATH=-L/home/tchen -L${HAL}/appgen
+HAL_LIB_PATH=-L${HAL}/appgen
 
-LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmqq
+LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmq
 CFLAGS += -Wall -g ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 CPPFLAGS=-g -std=c++11 ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 
