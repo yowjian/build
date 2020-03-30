@@ -51,12 +51,14 @@ void RfSensorShadow::receive()
     zmq_close(socket);
 }
 
-void hal_init()
+void *hal_init()
 {
-  xdc_ctx();
+  void *ctx = xdc_ctx();
   xdc_set_out((char *)"ipc:///tmp/halpubbwgreen");
   xdc_set_in((char *)"ipc:///tmp/halsubbwgreen");
     
   xdc_register(position_data_encode, position_data_decode, DATA_TYP_POSITION);
   xdc_register(distance_data_encode, distance_data_decode, DATA_TYP_DISTANCE);
+
+  return ctx;
 }

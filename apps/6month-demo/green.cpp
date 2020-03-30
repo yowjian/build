@@ -16,10 +16,12 @@
 #include "rpc.h"
 #include "hal_xdcomms.h"
 
+void *ctx;
+
 int main(int argc, char **argv)
 {
    std::cout << "green" << std::endl;
-   hal_init();
+   ctx = hal_init();
 
    std::cout << "out " << xdc_set_out(NULL) << std::endl;
    std::cout << "in " << xdc_set_in(NULL) << std::endl;

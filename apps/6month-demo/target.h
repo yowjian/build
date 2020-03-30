@@ -4,6 +4,7 @@
 #include "sensors.h"
 #include <iostream> 
 #include "rpc.h"
+#include "hal_xdcomms.h"
 
 class Target : public Observer, public Subject
 {
@@ -48,9 +49,14 @@ private:
 class TargetShadow: public Target, public Trailer
 {
 public:
+  void *hal_socket = NULL;
+
   TargetShadow(int rate = 1) {
   };
-  ~TargetShadow() {};
+  ~TargetShadow() {
+    if (hal_socket != NULL)
+      zmq_close(hal_socket);
+  };
 
   void notify() override {
       Target::notify();

@@ -16,21 +16,12 @@
 
 #include "rpc.h"
 
-void hello(int signum){
-  printf("Hello World!\n");
-  exit(1);
-}
+void *ctx;
 
 int main(int argc, char **argv)
 {
-   signal(SIGABRT, hello);
-   signal(SIGSEGV, hello);
-
-   int m1, m2, pp;
-
-   zmq_version(&m1, &m2, &pp);
-   std::cout << "orange " << m1 << " " << m2 << " " << pp << std::endl;
-   hal_init();
+   std::cout << "orange " << std::endl;
+   ctx = hal_init();
 
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
   // Touched on green side gpssensor constructor

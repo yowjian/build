@@ -10,7 +10,7 @@
 
 codec_map  cmap[DATA_TYP_MAX];
 
-int xdc_verbose=1;
+int xdc_verbose=0;
 /**********************************************************************/
 /* LIB Printing Functions */
 /**********************************************************************/
@@ -183,16 +183,17 @@ void xdc_asyn_send(void *socket, void *adu, gaps_tag tag) {
     fprintf(stderr, "len=%ld ", adu_len);
     data_print("Packet", (uint8_t *) p, packet_len);
   }
+
   int bytes = zmq_send (socket, (void *) p, packet_len, 0);
   if (bytes <= 0) fprintf(stderr, "send error %s %d ", zmq_strerror(errno), bytes);
 }
 
-void *xdc_pub_socket()
+void *xdc_pub_socket(void *ctx)
 {
     int err;
     void *socket;
 
-    socket = zmq_socket(xdc_ctx(), ZMQ_PUB);
+    socket = zmq_socket(ctx, ZMQ_PUB);
     if (socket == NULL) exit_with_zmq_error("zmq_socket");
 
     err = zmq_connect(socket, xdc_set_out(NULL));

@@ -3,6 +3,7 @@
 #include "observer.h"
 #include "sensors.h"
 #include "rpc.h"
+#include "hal_xdcomms.h"
 
 #include <iostream>
 
@@ -49,12 +50,17 @@ class OwnShipShadow: public OwnShip, public Trailer
 private:
     std::thread thread_;
     void receive();
+    void *hal_socket = NULL;
 
 public:
-    OwnShipShadow(int rate = 1) {
-    thread_ = std::thread(&OwnShipShadow::receive, this);
+  OwnShipShadow(int rate = 1) {
+      thread_ = std::thread(&OwnShipShadow::receive, this);
   }
-  ~OwnShipShadow() { thread_.join(); }
+  ~OwnShipShadow() {
+      if (hal_socket != NULL)
+          zmq_close(hal_socket);
+      thread_.join();
+  }
 
   void notify() override {
       OwnShip::notify();
