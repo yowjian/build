@@ -1,6 +1,6 @@
 // pnt_example.cpp : Defines the entry point for the console application.
 //
-
+#include <signal.h>
 #include <iostream>
 #ifdef _WIN32
 # include <Windows.h>
@@ -15,8 +15,16 @@
 
 #include "rpc.h"
 
+void hello(int signum){
+  printf("Hello World!\n");
+  exit(1);
+}
+
 int main(int argc, char **argv)
 {
+   signal(SIGABRT, hello);
+   signal(SIGSEGV, hello);
+
    std::cout << "orange" << std::endl;
    hal_init();
 

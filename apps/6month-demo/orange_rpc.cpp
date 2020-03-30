@@ -5,24 +5,27 @@
 
 void GpsSensorShadow::receive()
 {
+    gaps_tag t_tag, r_tag;
+    uint32_t t_mux = 1, t_sec = 1, type = DATA_TYP_POSITION;
+
+    tag_write(&t_tag, t_mux, t_sec, type);
+    void *socket = xdc_socket(t_tag);
+
+    Position position;
+    position_datatype pos;
+
     while (1) {
-        Position position;
-	position_datatype pos;
-	
-        gaps_tag  t_tag, r_tag;
-        uint32_t  t_mux = 1, t_sec = 1, type = DATA_TYP_POSITION;
+        xdc_blocking_recv(socket, &pos, &t_tag);
 
-        tag_write(&t_tag, t_mux, t_sec, type);
-
-        size_t len = sizeof(double) * 3;
-        xdc_blocking_recv(&pos, &t_tag);
-	position._x = pos.x;
-	position._y = pos.y;
-	position._z = pos.z;	
+        position._x = pos.x;
+        position._y = pos.y;
+        position._z = pos.z;
 
         setPosition(position);
         notify();
     }
+
+    xdc_close(socket, NULL); // TODO
 }
 
 void hal_init()

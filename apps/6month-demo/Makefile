@@ -7,12 +7,12 @@ DIRS =
 HAL=../../src/hal
 HAL_API_INCLUDE=-I${HAL}/api
 HAL_APPGEN_INCLUDE=-I${HAL}/appgen
-HAL_LIBS=-lpnt -lxdcomms
-HAL_LIB_PATH=-L${HAL}/api -L${HAL}/appgen
+HAL_LIBS=-lpnt
+HAL_LIB_PATH=-L/home/tchen -L${HAL}/appgen
 
-LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmq 
-#CFLAGS += -Wall -g $(XMLFLAGS) -I/dist/include $(DIRS)
-CPPFLAGS=-std=c++11 ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
+LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmqq
+CFLAGS += -Wall -g ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
+CPPFLAGS=-g -std=c++11 ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 
 OBJ = \
 	pnt_example.o \
@@ -24,13 +24,15 @@ ORANGE_OBJ = \
 	orange.o \
 	orange_ownship.o \
 	orange_target.o \
-	orange_rpc.o
+	orange_rpc.o \
+	xdcomms.o
 
 GREEN_OBJ = \
 	green.o \
 	green_ownship.o \
 	green_target.o \
-	green_rpc.o
+	green_rpc.o \
+	xdcomms.o
 
 default: all
 
