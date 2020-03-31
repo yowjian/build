@@ -1,7 +1,8 @@
 // pnt_example.cpp : Defines the entry point for the console application.
 //
-
+#include <signal.h>
 #include <iostream>
+#include <zmq.h>
 #ifdef _WIN32
 # include <Windows.h>
 #else
@@ -17,7 +18,7 @@
 
 int main(int argc, char **argv)
 {
-   std::cout << "orange" << std::endl;
+   std::cout << "orange " << std::endl;
    hal_init();
 
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
