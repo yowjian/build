@@ -1,0 +1,143 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "0 CLOSURE Init",
+        "type": "shell",
+        "command": "mkdir -p ../../src/emu/.apps; cd ../../src/capo/partitioner/src/; make; cd ../../../../apps/pntDemo1/; make libex1.a; cd ../../src/capo/pdg/; make",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "1 CLOSURE PreProcessor",
+        "type": "shell",
+        "command": "make ex1.mod.c",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "2 CLOSURE Compile to LLVM-IR",
+        "type": "shell",
+        "command": "make ex1.mod.bc",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "3 CLOSURE Program Dependency Graph",
+        "type": "shell",
+        "command": "make dot",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "4 CLOSURE Partitioner/Analysis",
+        "type": "shell",
+        "command": "python3 ../../src/capo/partitioner/src/partitioner.py ex1",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "5 CLOSURE Binary Generator",
+        "type": "shell",
+        "command": "make ex1_parts",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "6 CLOSURE Packager",
+        "type": "shell",
+        "command": "make packages; cp *.tar ../../src/emu/.apps/",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "CLEAN",
+        "type": "shell",
+        "command": "rm -rf ../../src/emu/.apps/*; cd ../../src/capo/partitioner/src/; make clean; cd ../../../../apps/pntDemo1/; make clean",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "EMULATE",
+        "type": "shell",
+        "command": "cd ../../src/emu/; ./start.sh 2",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "BUILD ALL",
+        "type": "shell",
+        "command": "",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+          "CLEAN",
+          "0 CLOSURE Init",
+          "1 CLOSURE PreProcessor",
+          "2 CLOSURE Compile to LLVM-IR",
+          "3 CLOSURE Program Dependency Graph",
+          "4 CLOSURE Partitioner/Analysis"
+        ],
+        "problemMatcher": []
+      },
+      {
+        "label": "BUILD FAST",
+        "type": "shell",
+        "command": "",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+          "CLEAN",
+          "0 CLOSURE Init",
+          "5 CLOSURE Binary Generator",
+          "6 CLOSURE Packager",
+          "EMULATE"
+        ],
+        "problemMatcher": []
+      }
+    ]
+  }
