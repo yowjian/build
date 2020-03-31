@@ -16,12 +16,10 @@
 
 #include "rpc.h"
 
-void *ctx;
-
 int main(int argc, char **argv)
 {
    std::cout << "orange " << std::endl;
-   ctx = hal_init();
+   hal_init();
 
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
   // Touched on green side gpssensor constructor

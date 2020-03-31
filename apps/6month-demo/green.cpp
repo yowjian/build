@@ -16,16 +16,13 @@
 #include "rpc.h"
 #include "hal_xdcomms.h"
 
-void *ctx;
-
 int main(int argc, char **argv)
 {
    std::cout << "green" << std::endl;
-   ctx = hal_init();
+   hal_init();
 
    std::cout << "out " << xdc_set_out(NULL) << std::endl;
    std::cout << "in " << xdc_set_in(NULL) << std::endl;
-   std::cout << "ctx " << (xdc_ctx()==NULL ? "null" : "not") << std::endl;
    
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
 
