@@ -7,20 +7,17 @@ DIRS =
 HAL=../../src/hal
 HAL_API_INCLUDE=-I${HAL}/api
 HAL_APPGEN_INCLUDE=-I${HAL}/appgen
-HAL_LIBS=-lpnt
-HAL_LIB_PATH=-L${HAL}/appgen
+HAL_LIBS=-lpnt -lxdcomms
+HAL_LIB_PATH=-L${HAL}/api -L${HAL}/appgen
 
-LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmq
+LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmq 
 CFLAGS += -Wall -g ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
-CPPFLAGS=-g -std=c++11 ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 
 ORANGE_OBJ = \
-	orange.o \
-	xdcomms.o
+	orange.o
 
 GREEN_OBJ = \
-	green.o \
-	xdcomms.o
+	green.o
 
 default: all
 

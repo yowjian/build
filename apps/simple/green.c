@@ -7,7 +7,6 @@
 #include "xdcomms.h"
 #include "gma.h"
 
-void *ctx;
 void *send_socket = NULL;
 int delay_in_ms = 10;
 
@@ -46,7 +45,7 @@ void *green_send(void *args)
         tag_write(&t_tag, t_mux, t_sec, type);
 
         if (send_socket == NULL)
-            send_socket = xdc_pub_socket(ctx);
+            send_socket = xdc_pub_socket();
         xdc_asyn_send(send_socket, &pos, t_tag);
 
         printf("sent %6d: (%6.0f, %6.0f, %6.0f)\n", count, pos.x, pos.y, pos.z);
@@ -126,9 +125,9 @@ int main(int argc, char **argv)
 
         delay_in_ms = (int) (1000 / (double)hertz);
     }
-
     printf("green %d\n", delay_in_ms);
-    ctx = hal_init();
+
+    hal_init();
 
     pthread_t sendThread, recvDisThread, recvPosThread;
 

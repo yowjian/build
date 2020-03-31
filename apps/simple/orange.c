@@ -7,7 +7,6 @@
 #include "xdcomms.h"
 #include "gma.h"
 
-void *ctx;
 int delay_in_ms_dis = 10;
 int delay_in_ms_pos = 100;
 
@@ -33,7 +32,7 @@ void *orange_send_distance(void *args)
     printf("creating send thread\n");
     int count = 0;
 
-    void *send_socket = xdc_pub_socket(ctx);
+    void *send_socket = xdc_pub_socket();
 
     while (1) {
         usleep(delay_in_ms_dis * 1000);
@@ -71,7 +70,7 @@ void *orange_send_position(void *args)
 
     printf("creating send thread\n");
     int count = 0;
-    void *send_socket = xdc_pub_socket(ctx);
+    void *send_socket = xdc_pub_socket();
 
     while (1) {
         usleep(delay_in_ms_pos * 1000);
@@ -149,9 +148,9 @@ int main(int argc, char **argv)
         }
         delay_in_ms_pos = (int) (1000 / (double) hertz);
     }
-
     printf("orange %d %d\n", delay_in_ms_dis, delay_in_ms_pos);
-    ctx = hal_init();
+
+    hal_init();
 
     pthread_t sendDisThread, sendPosThread, recvThread;
 
