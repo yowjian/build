@@ -6,6 +6,7 @@
 
 #include "xdcomms.h"
 #include "gma.h"
+#include "common.h"
 
 int delay_in_ms_dis = 10;
 int delay_in_ms_pos = 100;
@@ -25,6 +26,23 @@ int display_interval = 10;         // in seconds
 
 char benchmarking = 0;
 
+char ipc_pub[MAX_IPC_LEN];
+char ipc_sub[MAX_IPC_LEN];
+
+void stats(int send, int position, int total_count, int last_count)
+{
+    char *dir = send ? "send" : "recv";
+    char *type = position ? "position" : "distance";
+
+    printf("%s %s | %7d %8.2f Hz | %7d %8.2f Hz\n",
+            dir, type,
+            (total_count - last_count),
+            (total_count - last_count) / (double) display_interval,
+            total_count,
+            total_count / (double) elapse_seconds);
+
+}
+
 void *benchmark()
 {
     printf("creating benchmark thread\n");
@@ -39,17 +57,12 @@ void *benchmark()
         elapse_seconds++;
 
         if (benchmarking && (elapse_seconds % display_interval == 0)) {
-            printf("elapsed time  %7ds\n", elapse_seconds);
+            printf("elapsed time: %ds, display interval: %ds\n", elapse_seconds, display_interval);
 
-            printf("send distance %7d %8.2fHz %8.2f\n", send_count_dis, send_count_dis / (double) elapse_seconds,
-                                                      (send_count_dis - last_send_dis) / (double) display_interval);
-            printf("     position %7d %8.2fHz %8.2f\n", send_count_pos, send_count_pos / (double) elapse_seconds,
-                                                      (send_count_pos - last_send_pos) / (double) display_interval);
-
-            printf("recv distance %7d %8.2fHz %8.2f\n", recv_count_dis, recv_count_dis / (double) elapse_seconds,
-                                                        (recv_count_dis - last_recv_dis) / (double) display_interval);
-            printf("     position %7d %8.2fHz %8.2f\n", recv_count_pos, recv_count_pos / (double) elapse_seconds,
-                                                        (recv_count_pos - last_recv_pos) / (double) elapse_seconds);
+            stats(1, 0, send_count_dis, last_send_dis);
+            stats(1, 1, send_count_pos, last_send_pos);
+            stats(0, 0, recv_count_dis, last_recv_dis);
+            stats(0, 1, recv_count_pos, last_recv_pos);
 
             printf("\n");
 
@@ -86,7 +99,9 @@ void usage()
 \t -b     \t benchmark mode\n\
 \t -d <Hz>\t Distance Hertz (default 100 Hz)\n\
 \t -p <Hz>\t Position Hertz (default 10 Hz)\n\
-\t -i <period>\t Intervali in seconds to display statistics in benchmarking (default 10s)\n");
+\t -i <sub>\t Subscribe endpoint\n\
+\t -o <pub>\t Publish endpoint\n\
+\t -v <period>\t Intervali in seconds to display statistics in benchmarking (default 10s)\n");
     exit(1);
 }
 
@@ -103,7 +118,7 @@ int get_hertz(char *arg)
 void parse(int argc, char **argv)
 {
     int c;
-    while ((c = getopt(argc, argv, "bd:p:i:")) != -1) {
+    while ((c = getopt(argc, argv, "bd:p:v:i:o:")) != -1) {
         switch (c) {
         case 'b':
             benchmarking = 1;
@@ -114,8 +129,14 @@ void parse(int argc, char **argv)
         case 'p':
             delay_in_ms_pos = get_hertz(optarg);
             break;
-        case 'i':
+        case 'v':
             display_interval = atoi(optarg);
+            break;
+        case 'i':
+            strcpy(ipc_sub, optarg);
+            break;
+        case 'o':
+            strcpy(ipc_pub, optarg);
             break;
         default:
             usage();
@@ -123,12 +144,12 @@ void parse(int argc, char **argv)
     }
 }
 
-void *init_hal(char *out, char *in)
+void *init_hal()
 {
     void *ctx = xdc_ctx();
 
-    xdc_set_out(out);
-    xdc_set_in(in);
+    xdc_set_out(ipc_pub);
+    xdc_set_in(ipc_sub);
 
     xdc_register(position_data_encode, position_data_decode, DATA_TYP_POSITION);
     xdc_register(distance_data_encode, distance_data_decode, DATA_TYP_DISTANCE);

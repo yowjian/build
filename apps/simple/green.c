@@ -7,9 +7,6 @@
 #include "gma.h"
 #include "common.h"
 
-void *send_socket = NULL;
-int delay_in_ms = 10;
-
 void *green_send_position(void *args)
 {
     return send_position(1, 1, DATA_TYP_POSITION);
@@ -27,14 +24,17 @@ void *green_recv_position()
 
 int main(int argc, char **argv)
 {
+    // defaults
     delay_in_ms_dis = 10000000;
     delay_in_ms_pos = 10;
+    strcpy(ipc_pub, "ipc:///tmp/halpubbwgreen");
+    strcpy(ipc_sub, "ipc:///tmp/halsubbwgreen");
 
     parse(argc, argv);
     printf("green %d %d\n", delay_in_ms_dis, delay_in_ms_pos);
 
     init_locks();
-    init_hal("ipc:///tmp/halpubbwgreen", "ipc:///tmp/halsubbwgreen");
+    init_hal();
 
     pthread_t sendThread;
     int rtn = pthread_create(&sendThread, NULL, &green_send_position, NULL);

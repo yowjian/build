@@ -24,14 +24,17 @@ void *orange_recv_position()
 
 int main(int argc, char **argv)
 {
+    // defaults
     delay_in_ms_dis = 10;
     delay_in_ms_pos = 100;
+    strcpy(ipc_pub, "ipc:///tmp/halpubbworange");
+    strcpy(ipc_sub, "ipc:///tmp/halsubbworange");
 
     parse(argc, argv);
     printf("orange %d %d\n", delay_in_ms_dis, delay_in_ms_pos);
 
     init_locks();
-    init_hal("ipc:///tmp/halpubbworange", "ipc:///tmp/halsubbworange");
+    init_hal();
 
     pthread_t sendDisThread;
     int rtn = pthread_create(&sendDisThread, NULL, &orange_send_distance, NULL);
