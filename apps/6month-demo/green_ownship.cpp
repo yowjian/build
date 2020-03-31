@@ -30,7 +30,7 @@ void OwnShipShadow::update(Subject *s) {
 
   tag_write(&t_tag, t_mux, t_sec, type);
 
-  if (hal_socket == NULL)
-      hal_socket = xdc_pub_socket(ctx);
-  xdc_asyn_send(hal_socket, &pos, t_tag);
+  if (send_pos_socket == NULL)
+      send_pos_socket = xdc_pub_socket(ctx);
+  xdc_asyn_send(send_pos_socket, &pos, t_tag);
 }

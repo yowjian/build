@@ -49,13 +49,16 @@ private:
 class TargetShadow: public Target, public Trailer
 {
 public:
-  void *hal_socket = NULL;
+  void *send_dis_socket = NULL;
+  void *send_pos_socket = NULL;
 
   TargetShadow(int rate = 1) {
   };
   ~TargetShadow() {
-    if (hal_socket != NULL)
-      zmq_close(hal_socket);
+    if (send_dis_socket != NULL)
+      zmq_close(send_dis_socket);
+    if (send_pos_socket != NULL)
+      zmq_close(send_pos_socket);
   };
 
   void notify() override {

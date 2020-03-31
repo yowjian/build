@@ -8,7 +8,6 @@
 #include "gma.h"
 
 void *ctx;
-void *send_socket = NULL;
 int delay_in_ms_dis = 1000;
 int delay_in_ms_pos = 1000;
 
@@ -34,6 +33,8 @@ void *orange_send_distance(void *args)
   printf("creating send thread\n");
   int count = 0;
 
+  void *send_socket = xdc_pub_socket(ctx);
+
   while (1) {
     usleep(delay_in_ms_dis * 1000);
 
@@ -48,8 +49,6 @@ void *orange_send_distance(void *args)
 
     tag_write(&t_tag, t_mux, t_sec, type);
 
-    if (send_socket == NULL)
-      send_socket = xdc_pub_socket(ctx);
     xdc_asyn_send(send_socket, &dis, t_tag);
 
     printf("sent dis %6d: (%6.0f, %6.0f, %6.0f)\n", count, dis.x, dis.y, dis.z);
@@ -72,6 +71,7 @@ void *orange_send_position(void *args)
 
   printf("creating send thread\n");
   int count = 0;
+  void *send_socket = xdc_pub_socket(ctx);
 
   while (1) {
     usleep(delay_in_ms_pos * 1000);
@@ -87,8 +87,6 @@ void *orange_send_position(void *args)
 
     tag_write(&t_tag, t_mux, t_sec, type);
 
-    if (send_socket == NULL)
-      send_socket = xdc_pub_socket(ctx);
     xdc_asyn_send(send_socket, &pos, t_tag);
 
     printf("sent pos %6d: (%6.0f, %6.0f, %6.0f)\n", count, pos.x, pos.y, pos.z);

@@ -9,9 +9,7 @@
 
 class OwnShip: public Observer, public Subject
 {
-#pragma cle begin ORANGE_POSITION
   Track _track;
-#pragma cle end ORANGE_POSITION
   int _frequency;
   int _cycle;
   int _count = 0;
@@ -50,15 +48,15 @@ class OwnShipShadow: public OwnShip, public Trailer
 private:
     std::thread thread_;
     void receive();
-    void *hal_socket = NULL;
+    void *send_pos_socket = NULL;
 
 public:
   OwnShipShadow(int rate = 1) {
       thread_ = std::thread(&OwnShipShadow::receive, this);
   }
   ~OwnShipShadow() {
-      if (hal_socket != NULL)
-          zmq_close(hal_socket);
+      if (send_pos_socket != NULL)
+          zmq_close(send_pos_socket);
       thread_.join();
   }
 
