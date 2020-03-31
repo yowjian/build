@@ -96,12 +96,13 @@ void init_locks()
 void usage()
 {
     printf("Usage: <this-program> \n\
+\t -h     \t help\n\
 \t -b     \t benchmark mode\n\
 \t -d <Hz>\t Distance Hertz (default 100 Hz)\n\
 \t -p <Hz>\t Position Hertz (default 10 Hz)\n\
 \t -i <sub>\t Subscribe endpoint\n\
 \t -o <pub>\t Publish endpoint\n\
-\t -v <period>\t Intervali in seconds to display statistics in benchmarking (default 10s)\n");
+\t -v <period>\t Interval in seconds to display statistics in benchmarking (default 10s)\n");
     exit(1);
 }
 
@@ -118,7 +119,7 @@ int get_hertz(char *arg)
 void parse(int argc, char **argv)
 {
     int c;
-    while ((c = getopt(argc, argv, "bd:p:v:i:o:")) != -1) {
+    while ((c = getopt(argc, argv, "hbd:p:v:i:o:")) != -1) {
         switch (c) {
         case 'b':
             benchmarking = 1;
@@ -137,6 +138,9 @@ void parse(int argc, char **argv)
             break;
         case 'o':
             strcpy(ipc_pub, optarg);
+            break;
+        case 'h':
+            usage();
             break;
         default:
             usage();
@@ -309,3 +313,83 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type)
     return NULL;
 }
 
+void udp_server()
+{
+    printf("waiting for the other enclave.\n");
+
+    int sockfd;
+    char buffer[MAXLINE];
+    struct sockaddr_in servaddr, cliaddr;
+
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    memset(&servaddr, 0, sizeof(servaddr));
+    memset(&cliaddr, 0, sizeof(cliaddr));
+
+    servaddr.sin_family = AF_INET; // IPv4
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+    servaddr.sin_port = htons(PORT);
+
+    if (bind(sockfd, (const struct sockaddr *) &servaddr, sizeof(servaddr)) < 0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    int len = sizeof(cliaddr);
+    int n = recvfrom(sockfd, (char *) buffer, MAXLINE, 0,
+                    (struct sockaddr *) &cliaddr, (unsigned int *) &len);
+    if (n < 0) {
+        perror("failed to receive");
+        exit(EXIT_FAILURE);
+    }
+    if (n >= MAXLINE)
+        n = MAXLINE - 1;
+    buffer[n] = '\0';
+
+    sendto(sockfd, (const char *)buffer, strlen(buffer), 0,
+            (const struct sockaddr *) &cliaddr, len);
+}
+
+void udp_client()
+{
+    int sockfd;
+    char *hello = "ready";
+    char buffer[64];
+    struct sockaddr_in servaddr;
+
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+        perror("Error");
+    }
+
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(PORT);
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+
+    int len;
+    printf("waiting for the other enclave.\n");
+    while (1) {
+        sendto(sockfd, (const char *) hello, strlen(hello), 0,
+               (const struct sockaddr *) &servaddr, sizeof(servaddr));
+
+        int n = recvfrom(sockfd, (char *)buffer, MAXLINE,
+                         0, (struct sockaddr *) &servaddr, (unsigned int *) &len);
+        if (n > 0) {
+            printf("the other enclave is up");
+            return;
+        }
+
+    }
+    close(sockfd);
+}

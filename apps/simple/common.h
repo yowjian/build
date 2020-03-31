@@ -1,6 +1,8 @@
 #pragma once
 
-#define MAX_IPC_LEN 64
+#define MAX_IPC_LEN     64
+#define PORT            8080
+#define MAXLINE         1024
 
 extern int delay_in_ms_dis;
 extern int delay_in_ms_pos;
@@ -30,3 +32,5 @@ void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type);
 void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type);
 void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type);
 void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type);
+void udp_server();
+void udp_client();

@@ -36,8 +36,28 @@ int main(int argc, char **argv)
     init_locks();
     init_hal();
 
+    pthread_t recvThread;
+    int rtn = pthread_create(&recvThread, NULL, &orange_recv_position, NULL);
+    if (rtn != 0) {
+        printf("receice thread creat failed\n");
+        exit(1);
+    }
+
+    // wait for the green enclave
+    // no guarantee there will be no loss, unaccounted for send, etc., but good enough for now
+    udp_server();
+
+    pthread_t benchmarkThread;
+    if (benchmarking) {
+        rtn = pthread_create(&benchmarkThread, NULL, &benchmark, NULL);
+        if (rtn != 0) {
+            printf("benchmark thread creat failed\n");
+            exit(1);
+        }
+    }
+
     pthread_t sendDisThread;
-    int rtn = pthread_create(&sendDisThread, NULL, &orange_send_distance, NULL);
+    rtn = pthread_create(&sendDisThread, NULL, &orange_send_distance, NULL);
     if (rtn != 0) {
         printf("send distance thread creat failed\n");
         exit(1);
@@ -50,21 +70,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    pthread_t recvThread;
-    rtn = pthread_create(&recvThread, NULL, &orange_recv_position, NULL);
-    if (rtn != 0) {
-        printf("receice thread creat failed\n");
-        exit(1);
-    }
-
-    pthread_t benchmarkThread;
-    if (benchmarking) {
-        rtn = pthread_create(&benchmarkThread, NULL, &benchmark, NULL);
-        if (rtn != 0) {
-            printf("benchmark thread creat failed\n");
-            exit(1);
-        }
-    }
 
     pthread_join(sendDisThread, NULL);
     pthread_join(sendPosThread, NULL);
