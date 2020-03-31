@@ -29,6 +29,11 @@ void *benchmark()
 {
     printf("creating benchmark thread\n");
 
+    int last_send_dis;
+    int last_send_pos;
+    int last_recv_dis;
+    int last_recv_pos;
+
     while (1) {
         sleep(1);
         elapse_seconds++;
@@ -36,13 +41,22 @@ void *benchmark()
         if (benchmarking && (elapse_seconds % display_interval == 0)) {
             printf("elapsed time  %7ds\n", elapse_seconds);
 
-            printf("send distance %7d %8.2fHz\n", send_count_dis, send_count_dis / (double) elapse_seconds);
-            printf("     position %7d %8.2fHz\n", send_count_pos, send_count_pos / (double) elapse_seconds);
+            printf("send distance %7d %8.2fHz %8.2f\n", send_count_dis, send_count_dis / (double) elapse_seconds,
+                                                      (send_count_dis - last_send_dis) / (double) display_interval);
+            printf("     position %7d %8.2fHz %8.2f\n", send_count_pos, send_count_pos / (double) elapse_seconds,
+                                                      (send_count_pos - last_send_pos) / (double) display_interval);
 
-            printf("recv distance %7d %8.2fHz\n", recv_count_dis, recv_count_dis / (double) elapse_seconds);
-            printf("     position %7d %8.2fHz\n", recv_count_pos, recv_count_pos / (double) elapse_seconds);
+            printf("recv distance %7d %8.2fHz %8.2f\n", recv_count_dis, recv_count_dis / (double) elapse_seconds,
+                                                        (recv_count_dis - last_recv_dis) / (double) display_interval);
+            printf("     position %7d %8.2fHz %8.2f\n", recv_count_pos, recv_count_pos / (double) elapse_seconds,
+                                                        (recv_count_pos - last_recv_pos) / (double) elapse_seconds);
 
             printf("\n");
+
+            last_send_dis = send_count_dis;
+            last_send_pos = send_count_pos;
+            last_recv_dis = recv_count_dis;
+            last_recv_pos = recv_count_pos;
         }
     }
 
