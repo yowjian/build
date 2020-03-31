@@ -188,12 +188,12 @@ void xdc_asyn_send(void *socket, void *adu, gaps_tag tag) {
   if (bytes <= 0) fprintf(stderr, "send error %s %d ", zmq_strerror(errno), bytes);
 }
 
-void *xdc_pub_socket(void *ctx)
+void *xdc_pub_socket()
 {
     int err;
     void *socket;
 
-    socket = zmq_socket(ctx, ZMQ_PUB);
+    socket = zmq_socket(xdc_ctx(), ZMQ_PUB);
     if (socket == NULL) exit_with_zmq_error("zmq_socket");
 
     err = zmq_connect(socket, xdc_set_out(NULL));
@@ -231,7 +231,7 @@ void *xdc_sub_socket(gaps_tag tag)
 void xdc_blocking_recv(void *socket, void *adu, gaps_tag *tag)
 {
     if (xdc_verbose) {
-        fprintf(stderr, "API waiting to recv (using len=%d filter ", RX_FILTER_LEN);
+        fprintf(stderr, "API waiting to recv (on %p using len=%d filter ", socket, RX_FILTER_LEN);
 
         uint8_t *f = (uint8_t *) tag;
         for (int i = 0; i < RX_FILTER_LEN; i++)
@@ -384,7 +384,6 @@ char *xdc_set_out(char *addr) {
 
 void *xdc_ctx() {
     static void *ctx = NULL;
-
     if (ctx == NULL) {
         ctx = zmq_ctx_new();
         if(ctx == NULL) exit_with_zmq_error("zmq_ctx_new");

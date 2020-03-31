@@ -33,7 +33,7 @@ void TargetShadow::update(Subject *s) {
     tag_write(&t_tag, t_mux, t_sec, type);
 
     if (send_pos_socket == NULL)
-        send_pos_socket = xdc_pub_socket(ctx);
+        send_pos_socket = xdc_pub_socket();
     xdc_asyn_send(send_pos_socket, &pos, t_tag);
   }
   else if (rf) {
@@ -54,7 +54,7 @@ void TargetShadow::update(Subject *s) {
     tag_write(&t_tag, t_mux, t_sec, type);
 
     if (send_dis_socket == NULL)
-        send_dis_socket = xdc_pub_socket(ctx);
+        send_dis_socket = xdc_pub_socket();
     xdc_asyn_send(send_dis_socket, &dis, t_tag);
   }
 }
