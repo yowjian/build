@@ -14,10 +14,12 @@ LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmq
 CFLAGS += -Wall -g ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 
 ORANGE_OBJ = \
-	orange.o
+	orange.o \
+	common.o
 
 GREEN_OBJ = \
-	green.o
+	green.o \
+	common.o
 
 default: all
 
