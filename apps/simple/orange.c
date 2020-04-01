@@ -9,17 +9,17 @@
 
 void *orange_send_distance(void *args)
 {
-    return send_distance(2, 2, DATA_TYP_DISTANCE);
+    return send_distance(2, 2, DATA_TYP_DISTANCE, PORT_ORANGE_TO_GREEN_DIS);
 }
 
 void *orange_send_position(void *args)
 {
-    return send_position(2, 2, DATA_TYP_POSITION);
+    return send_position(2, 2, DATA_TYP_POSITION, PORT_ORANGE_TO_GREEN_POS);
 }
 
 void *orange_recv_position()
 {
-    return recv_position(1, 1, DATA_TYP_POSITION);
+    return recv_position(1, 1, DATA_TYP_POSITION, PORT_GREEN_TO_ORANGE_POS);
 }
 
 int main(int argc, char **argv)
@@ -43,19 +43,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // wait for the green enclave
-    // no guarantee there will be no loss, unaccounted for send, etc., but good enough for now
-    udp_server();
-
-    pthread_t benchmarkThread;
-    if (benchmarking) {
-        rtn = pthread_create(&benchmarkThread, NULL, &benchmark, NULL);
-        if (rtn != 0) {
-            printf("benchmark thread creat failed\n");
-            exit(1);
-        }
-    }
-
     pthread_t sendDisThread;
     rtn = pthread_create(&sendDisThread, NULL, &orange_send_distance, NULL);
     if (rtn != 0) {
@@ -70,6 +57,14 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    pthread_t benchmarkThread;
+    if (benchmarking) {
+        rtn = pthread_create(&benchmarkThread, NULL, &benchmark, NULL);
+        if (rtn != 0) {
+            printf("benchmark thread creat failed\n");
+            exit(1);
+        }
+    }
 
     pthread_join(sendDisThread, NULL);
     pthread_join(sendPosThread, NULL);

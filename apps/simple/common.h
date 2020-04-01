@@ -1,8 +1,13 @@
 #pragma once
+#include <signal.h>
 
 #define MAX_IPC_LEN     64
-#define PORT            8080
-#define MAXLINE         1024
+
+#define PORT_ORANGE_TO_GREEN_DIS  9001
+#define PORT_ORANGE_TO_GREEN_POS  9003
+
+#define PORT_GREEN_TO_ORANGE_DIS  9002
+#define PORT_GREEN_TO_ORANGE_POS  9004
 
 extern int delay_in_ms_dis;
 extern int delay_in_ms_pos;
@@ -28,9 +33,10 @@ void usage();
 int get_hertz(char *arg);
 void parse(int argc, char **argv);
 void *init_hal();
-void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type);
-void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type);
-void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type);
-void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type);
-void udp_server();
-void udp_client();
+void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
+void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
+void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
+void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
+void pong_sender(int port);
+void ping_receiver(int port);
+void sig_handler(int signo);

@@ -8,6 +8,24 @@
 #include "gma.h"
 #include "common.h"
 
+#define DIR_SEND   0
+#define DIR_RECV   1
+#define NUM_DIRS   2
+
+#define TYPE_DIS   0
+#define TYPE_POS   1
+#define TYPE_TOTAL 2
+#define NUM_TYPES  3
+
+typedef struct _stats {
+    int delay;
+    int count;
+    int time;
+    int last_count;
+} stats_type;
+
+stats_type stats[NUM_DIRS][NUM_TYPES];
+
 int delay_in_ms_dis = 10;
 int delay_in_ms_pos = 100;
 
@@ -16,6 +34,9 @@ int recv_count_dis = 0;
 
 int send_count_pos = 0;
 int send_count_dis = 0;
+
+int send_count_total = 0;
+int recv_count_total = 0;
 
 int elapse_seconds = 0;
 
@@ -29,7 +50,13 @@ char benchmarking = 0;
 char ipc_pub[MAX_IPC_LEN];
 char ipc_sub[MAX_IPC_LEN];
 
-void stats(int send, int position, int total_count, int last_count)
+
+static int last_send_dis;
+static int last_send_pos;
+static int last_recv_dis;
+static int last_recv_pos;
+
+void stats_line(int send, int position, int total_count, int last_count)
 {
     char *dir = send ? "send" : "recv";
     char *type = position ? "position" : "distance";
@@ -40,44 +67,54 @@ void stats(int send, int position, int total_count, int last_count)
             (total_count - last_count) / (double) display_interval,
             total_count,
             total_count / (double) elapse_seconds);
+}
 
+void show_stats()
+{
+    printf("elapsed time: %ds, display interval: %ds\n", elapse_seconds, display_interval);
+
+    stats_line(1, 0, send_count_dis, last_send_dis);
+    stats_line(1, 1, send_count_pos, last_send_pos);
+    stats_line(0, 0, recv_count_dis, last_recv_dis);
+    stats_line(0, 1, recv_count_pos, last_recv_pos);
+
+    printf("\n");
+
+    last_send_dis = send_count_dis;
+    last_send_pos = send_count_pos;
+    last_recv_dis = recv_count_dis;
+    last_recv_pos = recv_count_pos;
 }
 
 void *benchmark()
 {
     printf("creating benchmark thread\n");
 
-    int last_send_dis;
-    int last_send_pos;
-    int last_recv_dis;
-    int last_recv_pos;
-
     while (1) {
         sleep(1);
         elapse_seconds++;
 
         if (benchmarking && (elapse_seconds % display_interval == 0)) {
-            printf("elapsed time: %ds, display interval: %ds\n", elapse_seconds, display_interval);
-
-            stats(1, 0, send_count_dis, last_send_dis);
-            stats(1, 1, send_count_pos, last_send_pos);
-            stats(0, 0, recv_count_dis, last_recv_dis);
-            stats(0, 1, recv_count_pos, last_recv_pos);
-
-            printf("\n");
-
-            last_send_dis = send_count_dis;
-            last_send_pos = send_count_pos;
-            last_recv_dis = recv_count_dis;
-            last_recv_pos = recv_count_pos;
+            show_stats();
         }
     }
 
     return NULL;
 }
 
+void sig_handler(int signo)
+{
+    printf("%d %d\n", signo, SIGINT);
+    if (signo == SIGINT) {
+        show_stats();
+        exit(0);
+    }
+}
+
 void init_locks()
 {
+    signal(SIGINT, sig_handler);
+
     recv_count_pos = 0;
 
     if (pthread_mutex_init(&recv_lock, NULL) != 0)
@@ -161,9 +198,9 @@ void *init_hal()
     return ctx;
 }
 
-void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type)
+void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
-    printf("creating distance receive thread\n");
+    pong_sender(port);
 
     gaps_tag t_tag;
 
@@ -172,18 +209,18 @@ void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type)
 
     distance_datatype dis;
 
-    int count = 0;
+    recv_count_dis = 0;
     while (1) {
         xdc_blocking_recv(socket, &dis, &t_tag);
 
-        if (benchmarking) {
-            pthread_mutex_lock(&recv_lock);
-            recv_count_dis++;
-            pthread_mutex_unlock(&recv_lock);
-        }
-        else {
-            printf("\t\t\t\t\t\trecv distance %6d: (%6.0f, %6.0f, %6.0f)\n", count, dis.x, dis.y, dis.z);
-            count++;
+        pthread_mutex_lock(&recv_lock);
+        recv_count_total++;
+        pthread_mutex_unlock(&recv_lock);
+
+        recv_count_dis++;
+
+        if (!benchmarking) {
+            printf("\t\t\t\t\t\trecv distance %6d: (%6.0f, %6.0f, %6.0f)\n", recv_count_dis, dis.x, dis.y, dis.z);
         }
     }
     zmq_close(socket);
@@ -191,9 +228,9 @@ void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type)
     return NULL;
 }
 
-void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type)
+void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
-    printf("creating position receive thread\n");
+    pong_sender(port);
 
     gaps_tag t_tag;
     tag_write(&t_tag, t_mux, t_sec, type);
@@ -202,18 +239,18 @@ void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type)
 
     position_datatype pos;
 
-    int count = 0;
+    recv_count_pos = 0;
     while (1) {
         xdc_blocking_recv(socket, &pos, &t_tag);
 
-        if (benchmarking) {
-            pthread_mutex_lock(&recv_lock);
-            recv_count_pos++;
-            pthread_mutex_unlock(&recv_lock);
-        }
-        else {
-            printf("\t\t\t\t\t\trecv position %6d: (%6.0f, %6.0f, %6.0f)\n", count, pos.x, pos.y, pos.z);
-            count++;
+        pthread_mutex_lock(&recv_lock);
+        recv_count_total++;
+        pthread_mutex_unlock(&recv_lock);
+
+        recv_count_pos++;
+
+        if (!benchmarking) {
+            printf("\t\t\t\t\t\trecv position %6d: (%6.0f, %6.0f, %6.0f)\n", recv_count_pos, pos.x, pos.y, pos.z);
         }
     }
     zmq_close(socket);
@@ -221,18 +258,18 @@ void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type)
     return NULL;
 }
 
-void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type)
+void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
+    ping_receiver(port);
+
     position_datatype pos;
     pos.x = 1;
     pos.y = 1;
     pos.z = 1;
 
-    printf("creating send thread\n");
-
     void *send_pos_socket = xdc_pub_socket();
-    int count = 0;
 
+    send_count_pos = 0;
     while (1) {
         usleep(delay_in_ms_pos * 1000);
 
@@ -248,14 +285,14 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type)
 
         xdc_asyn_send(send_pos_socket, &pos, t_tag);
 
-        if (benchmarking) {
-            pthread_mutex_lock(&recv_lock);
-            send_count_pos++;
-            pthread_mutex_unlock(&recv_lock);
-        }
-        else {
-            printf("sent position %6d: (%6.0f, %6.0f, %6.0f)\n", count, pos.x, pos.y, pos.z);
-            count++;
+        pthread_mutex_lock(&send_lock);
+        send_count_total++;
+        pthread_mutex_unlock(&send_lock);
+
+        send_count_pos++;
+
+        if (!benchmarking) {
+            printf("sent position %6d: (%6.0f, %6.0f, %6.0f)\n", send_count_pos, pos.x, pos.y, pos.z);
         }
 
         pos.x += 2;
@@ -267,9 +304,9 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type)
     return NULL;
 }
 
-void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type)
+void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
-    printf("creating send distance thread\n");
+    ping_receiver(port);
 
     distance_datatype dis;
     dis.x = 1;
@@ -277,8 +314,8 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type)
     dis.z = 1;
 
     void *send_dis_socket = xdc_pub_socket();
-    int count = 0;
 
+    send_count_dis = 0;
     while (1) {
         usleep(delay_in_ms_dis * 1000);
 
@@ -294,14 +331,14 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type)
 
         xdc_asyn_send(send_dis_socket, &dis, t_tag);
 
-        if (benchmarking) {
-            pthread_mutex_lock(&recv_lock);
-            send_count_dis++;
-            pthread_mutex_unlock(&recv_lock);
-        }
-        else {
-            printf("sent distance %6d: (%6.0f, %6.0f, %6.0f)\n", count, dis.x, dis.y, dis.z);
-            count++;
+        pthread_mutex_lock(&send_lock);
+        send_count_total++;
+        pthread_mutex_unlock(&send_lock);
+
+        send_count_dis++;
+
+        if (!benchmarking) {
+            printf("sent distance %6d: (%6.0f, %6.0f, %6.0f)\n", send_count_dis, dis.x, dis.y, dis.z);
         }
 
         dis.x += 2;
@@ -313,13 +350,12 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type)
     return NULL;
 }
 
-void udp_server()
+void pong_sender(int port)
 {
-    printf("waiting for the other enclave.\n");
-
+    const int BUF_SIZE = 64;
     int sockfd;
-    char buffer[MAXLINE];
-    struct sockaddr_in servaddr, cliaddr;
+    char buffer[BUF_SIZE];
+    struct sockaddr_in servaddr;
 
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("socket creation failed");
@@ -327,38 +363,37 @@ void udp_server()
     }
 
     memset(&servaddr, 0, sizeof(servaddr));
-    memset(&cliaddr, 0, sizeof(cliaddr));
-
     servaddr.sin_family = AF_INET; // IPv4
     servaddr.sin_addr.s_addr = INADDR_ANY;
-    servaddr.sin_port = htons(PORT);
-
+    servaddr.sin_port = htons(port);
     if (bind(sockfd, (const struct sockaddr *) &servaddr, sizeof(servaddr)) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
 
+    printf("ponging sender at port %d.\n", port);
+
+    struct sockaddr_in cliaddr;
+    memset(&cliaddr, 0, sizeof(cliaddr));
     int len = sizeof(cliaddr);
-    int n = recvfrom(sockfd, (char *) buffer, MAXLINE, 0,
+
+    int n = recvfrom(sockfd, (char *) buffer, BUF_SIZE, 0,
                     (struct sockaddr *) &cliaddr, (unsigned int *) &len);
     if (n < 0) {
         perror("failed to receive");
         exit(EXIT_FAILURE);
     }
-    if (n >= MAXLINE)
-        n = MAXLINE - 1;
-    buffer[n] = '\0';
 
-    sendto(sockfd, (const char *)buffer, strlen(buffer), 0,
-            (const struct sockaddr *) &cliaddr, len);
+    const char *rsp = "pong";
+    sendto(sockfd, rsp, strlen(rsp), 0, (const struct sockaddr *) &cliaddr, len);
 }
 
-void udp_client()
+void ping_receiver(int port)
 {
+    const int BUF_SIZE = 64;
     int sockfd;
-    char *hello = "ready";
-    char buffer[64];
-    struct sockaddr_in servaddr;
+    char buffer[BUF_SIZE];
+    struct sockaddr_in recv;
 
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("socket creation failed");
@@ -372,24 +407,25 @@ void udp_client()
         perror("Error");
     }
 
-    memset(&servaddr, 0, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(PORT);
-    servaddr.sin_addr.s_addr = INADDR_ANY;
+    memset(&recv, 0, sizeof(recv));
+    recv.sin_family = AF_INET;
+    recv.sin_port = htons(port);
+    recv.sin_addr.s_addr = INADDR_ANY;
+
+    printf("pinging receiver at port %d.\n", port);
 
     int len;
-    printf("waiting for the other enclave.\n");
+    strcpy(buffer, "ping");
     while (1) {
-        sendto(sockfd, (const char *) hello, strlen(hello), 0,
-               (const struct sockaddr *) &servaddr, sizeof(servaddr));
+        sendto(sockfd, (const char *) buffer, strlen(buffer), 0,
+               (const struct sockaddr *) &recv, sizeof(recv));
 
-        int n = recvfrom(sockfd, (char *)buffer, MAXLINE,
-                         0, (struct sockaddr *) &servaddr, (unsigned int *) &len);
+        int n = recvfrom(sockfd, (char *)buffer, BUF_SIZE, 0,
+                         (struct sockaddr *) &recv, (unsigned int *) &len);
         if (n > 0) {
-            printf("the other enclave is up");
+            printf("receiver at port %d is up\n", port);
             return;
         }
-
     }
     close(sockfd);
 }

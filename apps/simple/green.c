@@ -9,17 +9,17 @@
 
 void *green_send_position(void *args)
 {
-    return send_position(1, 1, DATA_TYP_POSITION);
+    return send_position(1, 1, DATA_TYP_POSITION, PORT_GREEN_TO_ORANGE_POS);
 }
 
 void *green_recv_distance()
 {
-    return recv_distance(2, 2, DATA_TYP_DISTANCE);
+    return recv_distance(2, 2, DATA_TYP_DISTANCE, PORT_ORANGE_TO_GREEN_DIS);
 }
 
 void *green_recv_position()
 {
-    return recv_position(2, 2, DATA_TYP_POSITION);
+    return recv_position(2, 2, DATA_TYP_POSITION, PORT_ORANGE_TO_GREEN_POS);
 }
 
 int main(int argc, char **argv)
@@ -50,9 +50,12 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // wait for the orange enclave
-    // no guarantee there will be no loss, unaccounted for send, etc., but good enough for now
-    udp_client();
+    pthread_t sendThread;
+    rtn = pthread_create(&sendThread, NULL, &green_send_position, NULL);
+    if (rtn != 0) {
+        printf("send thread creat failed\n");
+        exit(1);
+    }
 
     pthread_t benchmarkThread;
     if (benchmarking) {
@@ -61,13 +64,6 @@ int main(int argc, char **argv)
             printf("benchmark thread creat failed\n");
             exit(1);
         }
-    }
-
-    pthread_t sendThread;
-    rtn = pthread_create(&sendThread, NULL, &green_send_position, NULL);
-    if (rtn != 0) {
-        printf("send thread creat failed\n");
-        exit(1);
     }
 
     pthread_join(sendThread, NULL);
