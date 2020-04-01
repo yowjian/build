@@ -9,7 +9,7 @@
 #include "gma.h"
 #include "common.h"
 
-static char *type_names[NUM_TYPES] = { "dis", "pos", "total" };
+static char *type_names[NUM_TYPES] = { "distance", "posistion", "total" };
 
 stats_type stats[NUM_DIRS][NUM_TYPES];
 
@@ -41,7 +41,7 @@ void stats_line(int type)
 
     double elapse_seconds = (nums->time - nums->start_time) / 1000;
 
-    printf("%5s|%5d %7.2f|%7d %8.2f",
+    printf("%9s|%5d %7.2f|%7d %8.2f",
             type_names[type],
             (nums->count - nums->last_count),
             (nums->count - nums->last_count) / (double) display_interval,
@@ -91,7 +91,7 @@ void show_duration(int dir, int type)
     m = (sec - (3600 * h)) / 60;
     s = (sec - (3600 * h) - (m * 60));
 
-    printf("elapsed time: %02d:%02d:%02d\n", h, m, s);
+    printf("elapsed time: %02d:%02d:%02d \t display interval: %ds\n", h, m, s, display_interval);
 }
 
 void show_stats()
@@ -102,7 +102,6 @@ void show_stats()
     static char *accu_ptr = NULL;
 
     show_duration(DIR_SEND, TYPE_POS);
-    printf("display interval: %ds\n", display_interval);
 
     center("Send", 31, &send_ptr);
     center("Receive", 31, &recv_ptr);
@@ -110,9 +109,9 @@ void show_stats()
     center("this period", 14, &inst_ptr);
     center("accumulated", 17, &accu_ptr);
 
-    printf("%5s|%s|%s|\n", " ", send_ptr, recv_ptr);
-    printf("%5s|%s|%s|%s|%s|\n", " ", inst_ptr, accu_ptr, inst_ptr, accu_ptr);
-    printf("%5s|%6s%7s|%6s%10s|%6s%7s|%6s%10s|\n", " ", "count", "rate", "count", "rate", "count", "rate", "count", "rate");
+    printf("%9s|%s|%s|\n", " ", send_ptr, recv_ptr);
+    printf("%9s|%s|%s|%s|%s|\n", " ", inst_ptr, accu_ptr, inst_ptr, accu_ptr);
+    printf("%9s|%6s%7s|%6s%10s|%6s%7s|%6s%10s|\n", " ", "count", "rate", "count", "rate", "count", "rate", "count", "rate");
 
     for (int j = 0; j < NUM_TYPES; j++) {
         stats_line(j);
@@ -203,14 +202,20 @@ void usage()
     exit(1);
 }
 
-int get_hertz(char *arg)
+/**
+ * Return delay in ms, given hertz.
+ */
+int get_delay(char *hertz)
 {
-    int hertz = atoi(arg);
-    if (hertz <= 0) {
-        printf("bad argument %s\n", arg);
+    int hz = atoi(hertz);
+    if (hz < 0) {
+        printf("bad argument %s\n", hertz);
         usage();
     }
-    return (int) (1000 / (double) hertz);
+    else if (hz == 0)
+        return -1;  // not running the sender
+
+    return (int) (1000 / (double) hz);
 }
 
 void parse(int argc, char **argv)
@@ -222,10 +227,10 @@ void parse(int argc, char **argv)
             benchmarking = 1;
             break;
         case 'd':
-            stats[DIR_SEND][TYPE_DIS].delay = get_hertz(optarg) * 1000;
+            stats[DIR_SEND][TYPE_DIS].delay = get_delay(optarg);
             break;
         case 'p':
-            stats[DIR_SEND][TYPE_POS].delay = get_hertz(optarg) * 1000;
+            stats[DIR_SEND][TYPE_POS].delay = get_delay(optarg);
             break;
         case 'v':
             display_interval = atoi(optarg);
@@ -336,6 +341,11 @@ void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
 void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
+    if (stats[DIR_SEND][TYPE_POS].delay < 0) {
+        printf("delay = %d, not sending positions\n", stats[DIR_SEND][TYPE_POS].delay);
+        return NULL;
+    }
+
     ping_receiver(port);
 
     position_datatype pos;
@@ -385,6 +395,11 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
 void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
+    if (stats[DIR_SEND][TYPE_DIS].delay < 0) {
+        printf("delay = %d, not sending distance\n", stats[DIR_SEND][TYPE_DIS].delay);
+        return NULL;
+    }
+
     ping_receiver(port);
 
     distance_datatype dis;
