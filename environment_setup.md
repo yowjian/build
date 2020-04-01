@@ -59,6 +59,8 @@ CLOSURE will keep current with the latest LLVM and Clang releases, periodically 
 | xdot          | 1.1-1     |
 | xterm | 348-2ubuntu1|
 
+In addition to the above, we also use [Apache Daffofil v. 2.5.0](http://daffodil.apache.org/releases/2.5.0/), xsltproc (Ubuntu package xsltproc version 1.1.33-0ubuntu1.1) and Saxon-B (Ubuntu package libsaxonb-java version 9.1.0.8+dfsg-2).
+
 ### Python3 packages (pip3 install)
 | Package       | Version | 
 |:--------------|:--------------|
