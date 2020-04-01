@@ -24,6 +24,7 @@ typedef struct _stats {
     int last_count;
     unsigned long long time;
     unsigned long long last_time;
+    unsigned long long start_time;
 } stats_type;
 
 extern stats_type stats[][NUM_TYPES];

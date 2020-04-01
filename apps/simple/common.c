@@ -9,8 +9,7 @@
 #include "gma.h"
 #include "common.h"
 
-static char *dir_names[NUM_DIRS] = { "send", "recv" };
-static char *type_names[NUM_TYPES] = { "distance", "position", "total" };
+static char *type_names[NUM_TYPES] = { "dis", "pos", "total" };
 
 stats_type stats[NUM_DIRS][NUM_TYPES];
 
@@ -34,32 +33,96 @@ unsigned long long get_time()
             (unsigned long long)(tv.tv_usec) / 1000;
 }
 
-void stats_line(int dir, int type)
+void stats_line(int type)
 {
-    stats_type *nums = &stats[dir][type];
+    stats_type *nums = &stats[DIR_SEND][type];
 
     nums->time = get_time();
 
-    double elapse_seconds = (nums->time - nums->last_time) / 1000;
+    double elapse_seconds = (nums->time - nums->start_time) / 1000;
 
-    printf("%4s %10s | %7d %8.2f Hz | %7d %8.2f Hz\n",
-            dir_names[dir], type_names[type],
+    printf("%5s|%5d %7.2f|%7d %8.2f",
+            type_names[type],
+            (nums->count - nums->last_count),
+            (nums->count - nums->last_count) / (double) display_interval,
+            nums->count,
+            nums->count / (double) elapse_seconds);
+
+    nums = &stats[DIR_RECV][type];
+    nums->time = get_time();
+    elapse_seconds = (nums->time - nums->start_time) / 1000;
+
+    printf("|%5d %7.2f|%7d %8.2f|\n",
             (nums->count - nums->last_count),
             (nums->count - nums->last_count) / (double) display_interval,
             nums->count,
             nums->count / (double) elapse_seconds);
 }
 
+char *center(char *str, int width, char **dst)
+{
+    int len = strlen(str);
+
+    if (*dst == NULL) {
+        char *buf = malloc(width);
+        *dst = buf;
+
+        int offset = (width - len) / 2;
+        memset(buf, ' ', width - 1);
+        strcpy(buf + offset, str);
+        buf[offset + len] = ' ';
+        buf[width - 1] = '\0';
+    }
+
+    return *dst;
+}
+
+void show_duration(int dir, int type)
+{
+    int sec, h, m, s;
+
+    unsigned long long ms = get_time() - stats[dir][type].start_time;
+
+    if (stats[dir][type].start_time == 0)
+        ms = 0;
+
+    sec = ms / 1000;
+    h = (sec / 3600);
+    m = (sec - (3600 * h)) / 60;
+    s = (sec - (3600 * h) - (m * 60));
+
+    printf("elapsed time: %02d:%02d:%02d\n", h, m, s);
+}
+
 void show_stats()
 {
+    static char *send_ptr = NULL;
+    static char *recv_ptr = NULL;
+    static char *inst_ptr = NULL;
+    static char *accu_ptr = NULL;
+
+    show_duration(DIR_SEND, TYPE_POS);
     printf("display interval: %ds\n", display_interval);
+
+    center("Send", 31, &send_ptr);
+    center("Receive", 31, &recv_ptr);
+
+    center("this period", 14, &inst_ptr);
+    center("accumulated", 17, &accu_ptr);
+
+    printf("%5s|%s|%s|\n", " ", send_ptr, recv_ptr);
+    printf("%5s|%s|%s|%s|%s|\n", " ", inst_ptr, accu_ptr, inst_ptr, accu_ptr);
+    printf("%5s|%6s%7s|%6s%10s|%6s%7s|%6s%10s|\n", " ", "count", "rate", "count", "rate", "count", "rate", "count", "rate");
+
+    for (int j = 0; j < NUM_TYPES; j++) {
+        stats_line(j);
+    }
 
     for (int i = 0; i < NUM_DIRS; i++) {
         for (int j = 0; j < NUM_TYPES; j++) {
-            stats_line(i, j);
-
             stats_type *nums = &stats[i][j];
             nums->last_count = nums->count;
+            nums->last_time = nums->time;
         }
     }
 
@@ -76,6 +139,7 @@ void init_stats(int delay_dis, int delay_pos)
             nums->delay = 0;
             nums->count = 0;
             nums->last_count = 0;
+            nums->start_time = 0;
         }
     }
 
@@ -194,6 +258,16 @@ void *init_hal()
     return ctx;
 }
 
+void init_time(stats_type *nums)
+{
+    if (nums->start_time != 0)
+        return;
+
+    nums->time = get_time();
+    nums->last_time = nums->time;
+    nums->start_time = nums->time;
+}
+
 void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
     pong_sender(port);
@@ -207,8 +281,8 @@ void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
     stats_type *nums = &stats[DIR_RECV][TYPE_DIS];
 
-    nums->time = get_time();
-    nums->last_time = nums->time;
+    init_time(nums);
+    init_time(&stats[DIR_RECV][TYPE_TOTAL]);
     while (1) {
         xdc_blocking_recv(socket, &dis, &t_tag);
 
@@ -240,8 +314,8 @@ void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
     stats_type *nums = &stats[DIR_RECV][TYPE_POS];
 
-    nums->time = get_time();
-    nums->last_time = nums->time;
+    init_time(nums);
+    init_time(&stats[DIR_RECV][TYPE_TOTAL]);
     while (1) {
         xdc_blocking_recv(socket, &pos, &t_tag);
 
@@ -273,8 +347,8 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
     stats_type *nums = &stats[DIR_SEND][TYPE_POS];
 
-    nums->time = get_time();
-    nums->last_time = nums->time;
+    init_time(nums);
+    init_time(&stats[DIR_SEND][TYPE_TOTAL]);
     while (1) {
         usleep(stats[DIR_SEND][TYPE_POS].delay);
 
@@ -322,8 +396,8 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
     stats_type *nums = &stats[DIR_SEND][TYPE_DIS];
 
-    nums->time = get_time();
-    nums->last_time = nums->time;
+    init_time(nums);
+    init_time(&stats[DIR_SEND][TYPE_TOTAL]);
     while (1) {
         usleep(stats[DIR_SEND][TYPE_DIS].delay);
 
