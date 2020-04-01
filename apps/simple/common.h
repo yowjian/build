@@ -19,7 +19,7 @@
 #define NUM_TYPES  3
 
 typedef struct _stats {
-    int delay;
+    long long delay;
     int count;
     int last_count;
     unsigned long long time;
@@ -39,7 +39,6 @@ extern char ipc_sub[];
 void *benchmark();
 void init_locks();
 void usage();
-int get_delay(char *arg);
 void parse(int argc, char **argv);
 void *init_hal();
 void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);

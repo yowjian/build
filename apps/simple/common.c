@@ -138,7 +138,30 @@ void show_stats()
     printf("\n");
 }
 
-void init_stats(int delay_dis, int delay_pos)
+long long get_delay(int hz)
+{
+    if (hz == 0)
+        return -1;  // not running the sender
+
+    return (long long) (1000000 / (double) hz);
+}
+
+/**
+ * Return delay in us, given hertz.
+ */
+int get_delay_from_str(char *hertz)
+{
+    int hz = atoi(hertz);
+    if (hz < 0) {
+        printf("bad argument %s\n", hertz);
+        usage();
+        return -1;
+    }
+    else
+        return get_delay(hz);
+}
+
+void init_stats(int hz_dis, int hz_pos)
 {
     for (int i = 0; i < NUM_DIRS; i++) {
         for (int j = 0; j < NUM_TYPES; j++) {
@@ -152,8 +175,8 @@ void init_stats(int delay_dis, int delay_pos)
         }
     }
 
-    stats[DIR_SEND][TYPE_DIS].delay = delay_dis * 1000;
-    stats[DIR_SEND][TYPE_POS].delay = delay_pos * 1000;
+    stats[DIR_SEND][TYPE_DIS].delay = get_delay(hz_dis);
+    stats[DIR_SEND][TYPE_POS].delay = get_delay(hz_pos);
 }
 
 void *benchmark()
@@ -212,22 +235,6 @@ void usage()
     exit(1);
 }
 
-/**
- * Return delay in ms, given hertz.
- */
-int get_delay(char *hertz)
-{
-    int hz = atoi(hertz);
-    if (hz < 0) {
-        printf("bad argument %s\n", hertz);
-        usage();
-    }
-    else if (hz == 0)
-        return -1;  // not running the sender
-
-    return (int) (1000 / (double) hz);
-}
-
 void parse(int argc, char **argv)
 {
     int c;
@@ -237,10 +244,10 @@ void parse(int argc, char **argv)
             benchmarking = 1;
             break;
         case 'd':
-            stats[DIR_SEND][TYPE_DIS].delay = get_delay(optarg);
+            stats[DIR_SEND][TYPE_DIS].delay = get_delay_from_str(optarg);
             break;
         case 'p':
-            stats[DIR_SEND][TYPE_POS].delay = get_delay(optarg);
+            stats[DIR_SEND][TYPE_POS].delay = get_delay_from_str(optarg);
             break;
         case 'v':
             display_interval = atoi(optarg);
@@ -352,7 +359,7 @@ void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
     if (stats[DIR_SEND][TYPE_POS].delay < 0) {
-        printf("delay = %d, not sending positions\n", stats[DIR_SEND][TYPE_POS].delay);
+        printf("delay = %lli, not sending positions\n", stats[DIR_SEND][TYPE_POS].delay);
         return NULL;
     }
 
@@ -406,7 +413,7 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
     if (stats[DIR_SEND][TYPE_DIS].delay < 0) {
-        printf("delay = %d, not sending distance\n", stats[DIR_SEND][TYPE_DIS].delay);
+        printf("delay = %lli, not sending distance\n", stats[DIR_SEND][TYPE_DIS].delay);
         return NULL;
     }
 
