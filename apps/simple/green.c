@@ -25,13 +25,12 @@ void *green_recv_position()
 int main(int argc, char **argv)
 {
     // defaults
-    delay_in_ms_dis = 10000000;
-    delay_in_ms_pos = 10;
+    init_stats(10000000, 10);
     strcpy(ipc_pub, "ipc:///tmp/halpubbwgreen");
     strcpy(ipc_sub, "ipc:///tmp/halsubbwgreen");
 
     parse(argc, argv);
-    printf("green %d %d\n", delay_in_ms_dis, delay_in_ms_pos);
+    printf("green %d %d\n", stats[DIR_SEND][TYPE_DIS].delay, stats[DIR_SEND][TYPE_POS].delay);
 
     init_locks();
     init_hal();

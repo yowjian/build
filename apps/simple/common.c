@@ -3,42 +3,16 @@
 #include <string.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "xdcomms.h"
 #include "gma.h"
 #include "common.h"
 
-#define DIR_SEND   0
-#define DIR_RECV   1
-#define NUM_DIRS   2
-
-#define TYPE_DIS   0
-#define TYPE_POS   1
-#define TYPE_TOTAL 2
-#define NUM_TYPES  3
-
-typedef struct _stats {
-    int delay;
-    int count;
-    int time;
-    int last_count;
-} stats_type;
+static char *dir_names[NUM_DIRS] = { "send", "recv" };
+static char *type_names[NUM_TYPES] = { "distance", "position", "total" };
 
 stats_type stats[NUM_DIRS][NUM_TYPES];
-
-int delay_in_ms_dis = 10;
-int delay_in_ms_pos = 100;
-
-int recv_count_pos = 0;
-int recv_count_dis = 0;
-
-int send_count_pos = 0;
-int send_count_dis = 0;
-
-int send_count_total = 0;
-int recv_count_total = 0;
-
-int elapse_seconds = 0;
 
 pthread_mutex_t recv_lock;
 pthread_mutex_t send_lock;
@@ -50,46 +24,70 @@ char benchmarking = 0;
 char ipc_pub[MAX_IPC_LEN];
 char ipc_sub[MAX_IPC_LEN];
 
-
-static int last_send_dis;
-static int last_send_pos;
-static int last_recv_dis;
-static int last_recv_pos;
-
-void stats_line(int send, int position, int total_count, int last_count)
+unsigned long long get_time()
 {
-    char *dir = send ? "send" : "recv";
-    char *type = position ? "position" : "distance";
+    struct timeval tv;
 
-    printf("%s %s | %7d %8.2f Hz | %7d %8.2f Hz\n",
-            dir, type,
-            (total_count - last_count),
-            (total_count - last_count) / (double) display_interval,
-            total_count,
-            total_count / (double) elapse_seconds);
+    gettimeofday(&tv, NULL);
+
+    return  (unsigned long long)(tv.tv_sec) * 1000 +
+            (unsigned long long)(tv.tv_usec) / 1000;
+}
+
+void stats_line(int dir, int type)
+{
+    stats_type *nums = &stats[dir][type];
+
+    nums->time = get_time();
+
+    double elapse_seconds = (nums->time - nums->last_time) / 1000;
+
+    printf("%4s %10s | %7d %8.2f Hz | %7d %8.2f Hz\n",
+            dir_names[dir], type_names[type],
+            (nums->count - nums->last_count),
+            (nums->count - nums->last_count) / (double) display_interval,
+            nums->count,
+            nums->count / (double) elapse_seconds);
 }
 
 void show_stats()
 {
-    printf("elapsed time: %ds, display interval: %ds\n", elapse_seconds, display_interval);
+    printf("display interval: %ds\n", display_interval);
 
-    stats_line(1, 0, send_count_dis, last_send_dis);
-    stats_line(1, 1, send_count_pos, last_send_pos);
-    stats_line(0, 0, recv_count_dis, last_recv_dis);
-    stats_line(0, 1, recv_count_pos, last_recv_pos);
+    for (int i = 0; i < NUM_DIRS; i++) {
+        for (int j = 0; j < NUM_TYPES; j++) {
+            stats_line(i, j);
+
+            stats_type *nums = &stats[i][j];
+            nums->last_count = nums->count;
+        }
+    }
 
     printf("\n");
+}
 
-    last_send_dis = send_count_dis;
-    last_send_pos = send_count_pos;
-    last_recv_dis = recv_count_dis;
-    last_recv_pos = recv_count_pos;
+void init_stats(int delay_dis, int delay_pos)
+{
+    for (int i = 0; i < NUM_DIRS; i++) {
+        for (int j = 0; j < NUM_TYPES; j++) {
+            stats_type *nums = &stats[i][j];
+            nums->time = 0;
+            nums->last_time = 0;
+            nums->delay = 0;
+            nums->count = 0;
+            nums->last_count = 0;
+        }
+    }
+
+    stats[DIR_SEND][TYPE_DIS].delay = delay_dis * 1000;
+    stats[DIR_SEND][TYPE_POS].delay = delay_pos * 1000;
 }
 
 void *benchmark()
 {
     printf("creating benchmark thread\n");
 
+    int elapse_seconds = 0;
     while (1) {
         sleep(1);
         elapse_seconds++;
@@ -114,8 +112,6 @@ void sig_handler(int signo)
 void init_locks()
 {
     signal(SIGINT, sig_handler);
-
-    recv_count_pos = 0;
 
     if (pthread_mutex_init(&recv_lock, NULL) != 0)
     {
@@ -162,10 +158,10 @@ void parse(int argc, char **argv)
             benchmarking = 1;
             break;
         case 'd':
-            delay_in_ms_dis = get_hertz(optarg);
+            stats[DIR_SEND][TYPE_DIS].delay = get_hertz(optarg) * 1000;
             break;
         case 'p':
-            delay_in_ms_pos = get_hertz(optarg);
+            stats[DIR_SEND][TYPE_POS].delay = get_hertz(optarg) * 1000;
             break;
         case 'v':
             display_interval = atoi(optarg);
@@ -209,18 +205,21 @@ void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
     distance_datatype dis;
 
-    recv_count_dis = 0;
+    stats_type *nums = &stats[DIR_RECV][TYPE_DIS];
+
+    nums->time = get_time();
+    nums->last_time = nums->time;
     while (1) {
         xdc_blocking_recv(socket, &dis, &t_tag);
 
         pthread_mutex_lock(&recv_lock);
-        recv_count_total++;
+        stats[DIR_RECV][TYPE_TOTAL].count++;
         pthread_mutex_unlock(&recv_lock);
 
-        recv_count_dis++;
+        nums->count++;
 
         if (!benchmarking) {
-            printf("\t\t\t\t\t\trecv distance %6d: (%6.0f, %6.0f, %6.0f)\n", recv_count_dis, dis.x, dis.y, dis.z);
+            printf("\t\t\t\t\t\trecv distance %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, dis.x, dis.y, dis.z);
         }
     }
     zmq_close(socket);
@@ -239,18 +238,21 @@ void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
     position_datatype pos;
 
-    recv_count_pos = 0;
+    stats_type *nums = &stats[DIR_RECV][TYPE_POS];
+
+    nums->time = get_time();
+    nums->last_time = nums->time;
     while (1) {
         xdc_blocking_recv(socket, &pos, &t_tag);
 
         pthread_mutex_lock(&recv_lock);
-        recv_count_total++;
+        stats[DIR_RECV][TYPE_TOTAL].count++;
         pthread_mutex_unlock(&recv_lock);
 
-        recv_count_pos++;
+        nums->count++;
 
         if (!benchmarking) {
-            printf("\t\t\t\t\t\trecv position %6d: (%6.0f, %6.0f, %6.0f)\n", recv_count_pos, pos.x, pos.y, pos.z);
+            printf("\t\t\t\t\t\trecv position %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, pos.x, pos.y, pos.z);
         }
     }
     zmq_close(socket);
@@ -269,9 +271,12 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
     void *send_pos_socket = xdc_pub_socket();
 
-    send_count_pos = 0;
+    stats_type *nums = &stats[DIR_SEND][TYPE_POS];
+
+    nums->time = get_time();
+    nums->last_time = nums->time;
     while (1) {
-        usleep(delay_in_ms_pos * 1000);
+        usleep(stats[DIR_SEND][TYPE_POS].delay);
 
         pos.trailer.seq = 1;
         pos.trailer.rqr = 1;
@@ -286,13 +291,13 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         xdc_asyn_send(send_pos_socket, &pos, t_tag);
 
         pthread_mutex_lock(&send_lock);
-        send_count_total++;
+        stats[DIR_SEND][TYPE_TOTAL].count++;
         pthread_mutex_unlock(&send_lock);
 
-        send_count_pos++;
+        nums->count++;
 
         if (!benchmarking) {
-            printf("sent position %6d: (%6.0f, %6.0f, %6.0f)\n", send_count_pos, pos.x, pos.y, pos.z);
+            printf("sent position %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, pos.x, pos.y, pos.z);
         }
 
         pos.x += 2;
@@ -315,9 +320,12 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
     void *send_dis_socket = xdc_pub_socket();
 
-    send_count_dis = 0;
+    stats_type *nums = &stats[DIR_SEND][TYPE_DIS];
+
+    nums->time = get_time();
+    nums->last_time = nums->time;
     while (1) {
-        usleep(delay_in_ms_dis * 1000);
+        usleep(stats[DIR_SEND][TYPE_DIS].delay);
 
         dis.trailer.seq = 1;
         dis.trailer.rqr = 1;
@@ -332,13 +340,13 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         xdc_asyn_send(send_dis_socket, &dis, t_tag);
 
         pthread_mutex_lock(&send_lock);
-        send_count_total++;
+        stats[DIR_SEND][TYPE_TOTAL].count++;
         pthread_mutex_unlock(&send_lock);
 
-        send_count_dis++;
+        nums->count++;
 
         if (!benchmarking) {
-            printf("sent distance %6d: (%6.0f, %6.0f, %6.0f)\n", send_count_dis, dis.x, dis.y, dis.z);
+            printf("sent distance %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, dis.x, dis.y, dis.z);
         }
 
         dis.x += 2;

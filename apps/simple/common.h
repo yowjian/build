@@ -9,16 +9,24 @@
 #define PORT_GREEN_TO_ORANGE_DIS  9002
 #define PORT_GREEN_TO_ORANGE_POS  9004
 
-extern int delay_in_ms_dis;
-extern int delay_in_ms_pos;
+#define DIR_SEND   0
+#define DIR_RECV   1
+#define NUM_DIRS   2
 
-extern int recv_count_pos;
-extern int recv_count_dis;
+#define TYPE_DIS   0
+#define TYPE_POS   1
+#define TYPE_TOTAL 2
+#define NUM_TYPES  3
 
-extern int send_count_pos;
-extern int send_count_dis;
+typedef struct _stats {
+    int delay;
+    int count;
+    int last_count;
+    unsigned long long time;
+    unsigned long long last_time;
+} stats_type;
 
-extern int elapse_seconds;
+extern stats_type stats[][NUM_TYPES];
 
 extern pthread_mutex_t recv_lock;
 extern pthread_mutex_t send_lock;
@@ -40,3 +48,4 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
 void pong_sender(int port);
 void ping_receiver(int port);
 void sig_handler(int signo);
+void init_stats(int delay_dis, int delay_pos);
