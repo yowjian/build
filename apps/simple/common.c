@@ -91,7 +91,17 @@ void show_duration(int dir, int type)
     m = (sec - (3600 * h)) / 60;
     s = (sec - (3600 * h) - (m * 60));
 
-    printf("elapsed time: %02d:%02d:%02d \t display interval: %ds\n", h, m, s, display_interval);
+    time_t rawtime;
+    struct tm *info;
+    char buffer[80];
+
+    time(&rawtime);
+
+    info = localtime(&rawtime);
+
+    strftime(buffer, 80, "%H:%M:%S", info);
+
+    printf("current time: %s, \t elapsed time: %02d:%02d:%02d\n", buffer, h, m, s);
 }
 
 void show_stats()
