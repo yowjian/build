@@ -61,9 +61,7 @@ void setPosition(Position const& p) { _p = p; }
 
 class RfSensor : public Sensor
 {
-#pragma cle begin ORANGE_DISTANCE
   Distance _d;
-#pragma cle end ORANGE_DISTANCE
   Velocity _v; // only used for simulation
 
  public:
