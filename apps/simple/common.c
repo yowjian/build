@@ -56,25 +56,27 @@ void show_char()
 {
     static char *jitter_ptr = NULL;
     static char *delay_ptr = NULL;
-    static char *max_ptr = NULL;
-    static char *avg_ptr = NULL;
-    static char *min_ptr = NULL;
+    static char *loss_ptr = NULL;
 
-    center("jitter", 26, &jitter_ptr);
-    center("delay", 25, &delay_ptr);
+    center("jitter (ms)", 26, &jitter_ptr);
+    center("delay (ms)", 25, &delay_ptr);
+    center("loss (%)", 25, &loss_ptr);
 
-    printf("%9s|%s|%s|\n", " ", jitter_ptr, delay_ptr);
-    printf("%9s| %7s %7s %7s | %7s %7s %7s|\n", " ",
+    printf("%9s|%s|%s|%s|\n", " ", jitter_ptr, delay_ptr, loss_ptr);
+    printf("%9s| %7s %7s %7s | %7s %7s %7s| %7s %7s %7s|\n", " ",
+            "average", "max", "min",
             "average", "max", "min",
             "average", "max", "min");
 
     for (int j = 0; j < NUM_TYPES; j++) {
         stats_type *nums = &stats[DIR_RECV][j];
-        printf("%9s| %7.2f %7.2f %7.2f | %7.2f %7.2f %7.2f|\n",
+        printf("%9s| %7.2f %7.2f %7.2f | %7.2f %7.2f %7.2f| %7.2f %7.2f %7.2f|\n",
                 type_names[j],
                 nums->jitter.avg, nums->jitter.max, nums->jitter.min,
-                nums->delay.avg, nums->delay.max, nums->delay.min);
+                nums->delay.avg, nums->delay.max, nums->delay.min,
+                nums->loss.avg, nums->loss.max, nums->loss.min);
     }
+    printf("\n");
 }
 
 void stats_half(int type, stats_type *nums)
@@ -109,11 +111,6 @@ void stats_half(int type, stats_type *nums)
                 rate,
                 percentage);
     }
-}
-
-void stats_char(int type, stats_type *nums)
-{
-    printf("|%7.2f%7.2f|", nums->jitter.avg, nums->delay.avg);
 }
 
 void stats_line(int type)
@@ -414,24 +411,62 @@ void cal_char(stats_type *nums, trailer_datatype *trailer)
     time_t recv_time = get_time();
     time_t sent_time = decode_timestamp(trailer);
 
-    characteristics_t *jitter = &nums->jitter;
-
+    characteristics_t *delay = &nums->delay;
     double delta = recv_time - sent_time;
+    delay->count++;
+
+    if (delta > delay->max)
+        delay->max = delta;
+
+    if (delta < delay->min)
+        delay->min = delta;
+
+    if (delay->count <= 1)
+        delay->avg = delta;
+    else {
+        delay->avg = (delay->avg * (delay->count - 1) + delta) / delay->count;
+    }
+    delay->last = delta;
+
+    characteristics_t *jitter = &nums->jitter;
     jitter->count++;
 
-    if (delta > jitter->max)
-        jitter->max = delta;
+    if (jitter->count > 1) {
+        double jdelta = abs(jitter->last - delta);
+        jitter->avg = (jitter->avg * (jitter->count - 1) + jdelta) / jitter->count;
 
-    if (delta < jitter->min)
-        jitter->min = delta;
+        if (jdelta > jitter->max)
+            jitter->max = jdelta;
 
-    if (jitter->count <= 1)
-        jitter->avg = delta;
-    else {
-        jitter->avg = (jitter->avg * (jitter->count - 1) + delta) / jitter->count;
+        if (jdelta < jitter->min)
+            jitter->min = jdelta;
+    }
+    jitter->last = delta;
+
+    characteristics_t *loss = &nums->loss;
+    loss->count++;
+
+    double value = 0;
+    if (nums->sender_count > 0) {  // receiver
+        double p = (nums->count * 100.0 / nums->sender_count);
+        if (p > 100)
+            p = 100;
+        value = 100 - p;
     }
 
-    jitter->last = delta;
+    if (loss->count <= 1) {
+        loss->avg = value;
+    }
+    else {
+        loss->avg = (loss->avg * (loss->count - 1) + value) / loss->count;
+
+        if (value > loss->max)
+            loss->max = value;
+
+        if (value < loss->min)
+            loss->min = value;
+    }
+    loss->last = value;
 }
 
 void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
