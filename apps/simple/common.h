@@ -21,15 +21,17 @@
 
 typedef struct _stats {
     long long delay;
-    int to_transfer;
-    int count;
-    int last_count;
-    unsigned long long time;
-    unsigned long long last_time;
-    unsigned long long start_time;
-    char done;
-    int port;
-    pthread_t thread;
+    int expected;                   // number of pkts expected to send or receive
+    int count;                      // current count of sent or received pkts
+    int sender_count;               // sender's count received out of band
+    int last_count;                 // count of sent or received pkts in the last period
+    unsigned long long time;        // current time in ms
+    unsigned long long last_time;   // time of the last period in ms
+    unsigned long long start_time;  // start time of the thread in ms
+    char done;                      // 1 for complete; 0 otherwise
+    int port;                       // UDP port to wait or send out-of-band data
+    int sock;                       // socket for out-of-band data
+    pthread_t thread;               // thread associated with this flow
 } stats_type;
 
 extern stats_type stats[][NUM_TYPES];
@@ -49,7 +51,9 @@ void parse(int argc, char **argv);
 void *init_hal();
 void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
 void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
-void pong_sender(int port, int *to_recv);
-void ping_receiver(int port, int to_send);
+int pong_sender(int port, int *to_recv);
+int ping_receiver(int port, int to_send);
+void update_receiver(int sock, int port, int count);
+int update_from_sender(int sock);
 void sig_handler(int signo);
 void init_stats(int delay_dis, int delay_pos);

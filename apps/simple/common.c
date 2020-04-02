@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <errno.h>
 
 #include "xdcomms.h"
 #include "gma.h"
@@ -33,59 +34,47 @@ unsigned long long get_time()
             (unsigned long long)(tv.tv_usec) / 1000;
 }
 
-void stats_line(int type)
+void stats_half(int type, stats_type *nums)
 {
-    stats_type *nums = &stats[DIR_SEND][type];
-
     if (!nums->done)
         nums->time = get_time();
 
     double elapse_seconds = (nums->time - nums->start_time) / 1000;
 
-    if (nums->to_transfer < 0) {
-        printf("%9s|%5s %7s|%7s %8s%7s", "NA", "NA", "NA", "NA", "NA", "NA");
+    if (nums->expected < 0) {
+        printf("|%5s %7s|%7s %8s%7s", "NA", "NA", "NA", "NA", "NA");
     }
     else {
         char percentage[16];
-        if (nums->to_transfer == 0)
-            sprintf(percentage, "%7s", "NA");
+        if (nums->expected == 0) {
+            if (nums->sender_count > 0) {
+                double p = (nums->count * 100.0 / nums->sender_count);
+                if (p > 100)
+                    p = 100;
+                sprintf(percentage, "%7.2f", p);
+            }
+            else
+                sprintf(percentage, "%7s", "NA");
+        }
         else
-            sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->to_transfer));
+            sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->expected));
 
         double rate = nums->count / (double) elapse_seconds;
-
-        printf("%9s|%5d %7.2f|%7d %8.2f%s",
-                type_names[type],
+        printf("|%5d %7.2f|%7d %8.2f%s",
                 (nums->count - nums->last_count),
                 (nums->count - nums->last_count) / (double) display_interval,
                 nums->count,
                 rate,
                 percentage);
     }
+}
 
-    nums = &stats[DIR_RECV][type];
-    if (!nums->done)
-        nums->time = get_time();
-
-    elapse_seconds = (nums->time - nums->start_time) / 1000;
-
-    if (nums->to_transfer < 0) {
-        printf("|%5s %7sf|%7s %8s%7s", "NA", "NA", "NA", "NA", "NA");
-    }
-    else {
-        char percentage[16];
-        if (nums->to_transfer == 0)
-            sprintf(percentage, "%7s", "NA");
-        else
-            sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->to_transfer));
-
-        printf("|%5d %7.2f|%7d %8.2f%s|\n",
-                (nums->count - nums->last_count),
-                (nums->count - nums->last_count) / (double) display_interval,
-                nums->count,
-                nums->count / (double) elapse_seconds,
-                percentage);
-    }
+void stats_line(int type)
+{
+    printf("%9s", type_names[type]);
+    stats_half(type, &stats[DIR_SEND][type]);
+    stats_half(type, &stats[DIR_RECV][type]);
+    printf("|\n");
 }
 
 char *center(char *str, int width, char **dst)
@@ -196,10 +185,10 @@ void init_stats(int hz_dis, int hz_pos)
     memset((char *)stats, 0, sizeof(stats_type) * NUM_DIRS * NUM_TYPES);
 
     stats[DIR_SEND][TYPE_DIS].delay = get_delay(hz_dis);
-    stats[DIR_SEND][TYPE_DIS].to_transfer = 0; // no limit;
+    stats[DIR_SEND][TYPE_DIS].expected = 0; // no limit;
 
     stats[DIR_SEND][TYPE_POS].delay = get_delay(hz_pos);
-    stats[DIR_SEND][TYPE_POS].to_transfer = 0; // no limit
+    stats[DIR_SEND][TYPE_POS].expected = 0; // no limit
 }
 
 void *benchmark()
@@ -273,10 +262,10 @@ void parse(int argc, char **argv)
             stats[DIR_SEND][TYPE_POS].delay = get_delay(get_int(optarg));
             break;
         case 'x':
-            stats[DIR_SEND][TYPE_DIS].to_transfer = get_int(optarg);
+            stats[DIR_SEND][TYPE_DIS].expected = get_int(optarg);
             break;
         case 'y':
-            stats[DIR_SEND][TYPE_POS].to_transfer = get_int(optarg);
+            stats[DIR_SEND][TYPE_POS].expected = get_int(optarg);
             break;
         case 'v':
             display_interval = atoi(optarg);
@@ -329,8 +318,20 @@ void *waiting(void *args)
 {
     stats_type *nums = (stats_type *) args;
 
-    pong_sender(nums->port, &nums->to_transfer);
-    nums->done = 1;
+    while (1) {
+        int old_sender_count = nums->sender_count;
+        nums->sender_count = update_from_sender(nums->sock);
+
+        pthread_mutex_lock(&recv_lock);
+        stats[DIR_RECV][TYPE_TOTAL].sender_count -= old_sender_count;
+        stats[DIR_RECV][TYPE_TOTAL].sender_count += nums->sender_count;
+        pthread_mutex_unlock(&recv_lock);
+
+        if (nums->expected > 0 && nums->sender_count >= nums->expected) {
+            nums->done = 1;
+            break;
+        }
+    }
 
     sleep(10);  // let the packets in flight be received.
     pthread_cancel(nums->thread);
@@ -338,10 +339,10 @@ void *waiting(void *args)
     return NULL;
 }
 
-void wait_for_completion(stats_type *stats)
+void wait_for_completion(stats_type *nums)
 {
     pthread_t waitThread;
-    int rtn = pthread_create(&waitThread, NULL, &waiting, stats);
+    int rtn = pthread_create(&waitThread, NULL, &waiting, nums);
     if (rtn != 0) {
         printf("receice thread creat failed\n");
         exit(1);
@@ -366,9 +367,9 @@ void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     init_time(&stats[DIR_RECV][TYPE_TOTAL]);
 
     // notify the sender that this is ready to receive
-    pong_sender(port, &nums->to_transfer);
+    nums->sock = pong_sender(port, &nums->expected);
     pthread_mutex_lock(&recv_lock);
-    stats[DIR_RECV][TYPE_TOTAL].to_transfer += nums->to_transfer;
+    stats[DIR_RECV][TYPE_TOTAL].expected += nums->expected;
     pthread_mutex_unlock(&recv_lock);
 
     // another thread to wait for send completion to cancel this thread
@@ -430,7 +431,8 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     init_time(nums);
     init_time(&stats[DIR_SEND][TYPE_TOTAL]);
 
-    ping_receiver(port, nums->to_transfer);
+    unsigned long long curr = get_time();
+    int sock = ping_receiver(port, nums->expected);
     while (1) {
         usleep(nums->delay);
 
@@ -450,19 +452,24 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         pos.y++;
         pos.z++;
 
-        if (nums->to_transfer > 0 && nums->count >= nums->to_transfer) {
+        if (get_time() - curr > 1000) {
+            update_receiver(sock, port, nums->count);
+            curr = get_time();
+        }
+
+        if (nums->expected > 0 && nums->count >= nums->expected) {
             close_time(nums);
             break;
         }
     }
     zmq_close(send_socket);
 
-    ping_receiver(port, nums->to_transfer);
+    ping_receiver(port, nums->expected);
 
     return NULL;
 }
 
-void pong_sender(int port, int *to_recv)
+int pong_sender(int port, int *to_recv)
 {
     printf("pong_sender at port %d.\n", port);
 
@@ -502,10 +509,10 @@ void pong_sender(int port, int *to_recv)
     const char *rsp = "pong";
     sendto(sockfd, rsp, strlen(rsp), 0, (const struct sockaddr *) &cliaddr, len);
 
-    close(sockfd);
+    return sockfd;
 }
 
-void ping_receiver(int port, int to_send)
+int ping_receiver(int port, int to_send)
 {
     const int BUF_SIZE = 64;
     int sockfd;
@@ -543,8 +550,48 @@ void ping_receiver(int port, int to_send)
                          (struct sockaddr *) &recv, (unsigned int *) &len);
         if (n > 0) {
             printf("receiver at port %d is up\n", port);
-            return;
+            return sockfd;
         }
     }
-    close(sockfd);
+    return -1;
+}
+
+void update_receiver(int sock, int port, int count)
+{
+    const int BUF_SIZE = 16;
+
+    char msg[BUF_SIZE];
+    sprintf(msg, "%d", count);
+
+    struct sockaddr_in recv;
+    memset(&recv, 0, sizeof(recv));
+    recv.sin_family = AF_INET;
+    recv.sin_port = htons(port);
+    recv.sin_addr.s_addr = INADDR_ANY;
+
+    int n = sendto(sock, (const char *) msg, strlen(msg), 0,
+                   (const struct sockaddr *) &recv, sizeof(recv));
+    if (n <= 0) {
+        printf("*** failed to update receiver: %s\n", strerror(errno));
+    }
+}
+
+int update_from_sender(int sock)
+{
+    const int BUF_SIZE = 16;
+    char msg[BUF_SIZE];
+
+    struct sockaddr_in recv;
+    memset(&recv, 0, sizeof(recv));
+
+    int len;
+    int n = recvfrom(sock, (char *)msg, BUF_SIZE, 0,
+                     (struct sockaddr *) &recv, (unsigned int *) &len);
+    if (n <= 0) {
+        printf("failed to receiver update from sender");
+        return -1;
+    }
+    msg[n] = '\0';
+
+    return get_int(msg);
 }
