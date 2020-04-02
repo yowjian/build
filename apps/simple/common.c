@@ -42,38 +42,50 @@ void stats_line(int type)
 
     double elapse_seconds = (nums->time - nums->start_time) / 1000;
 
-    char percentage[16];
-    if (nums->to_transfer < 0)
-        sprintf(percentage, "%7s", "NA");
-    else
-        sprintf(percentage, "%7.2f", (nums->to_transfer <= 0) ? 0 : (nums->count * 100.0 / nums->to_transfer));
+    if (nums->to_transfer < 0) {
+        printf("%9s|%5s %7s|%7s %8s%7s", "NA", "NA", "NA", "NA", "NA", "NA");
+    }
+    else {
+        char percentage[16];
+        if (nums->to_transfer == 0)
+            sprintf(percentage, "%7s", "NA");
+        else
+            sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->to_transfer));
 
-    double rate = nums->count / (double) elapse_seconds;
+        double rate = nums->count / (double) elapse_seconds;
 
-    printf("%9s|%5d %7.2f|%7d %8.2f%s",
-            type_names[type],
-            (nums->count - nums->last_count),
-            (nums->count - nums->last_count) / (double) display_interval,
-            nums->count,
-            rate,
-            percentage);
+        printf("%9s|%5d %7.2f|%7d %8.2f%s",
+                type_names[type],
+                (nums->count - nums->last_count),
+                (nums->count - nums->last_count) / (double) display_interval,
+                nums->count,
+                rate,
+                percentage);
+    }
 
     nums = &stats[DIR_RECV][type];
     if (!nums->done)
         nums->time = get_time();
 
     elapse_seconds = (nums->time - nums->start_time) / 1000;
-    if (nums->to_transfer < 0)
-        sprintf(percentage, "%7s", "NA");
-    else
-        sprintf(percentage, "%7.2f", (nums->to_transfer <= 0) ? 0 : (nums->count * 100.0 / nums->to_transfer));
 
-    printf("|%5d %7.2f|%7d %8.2f%s|\n",
-            (nums->count - nums->last_count),
-            (nums->count - nums->last_count) / (double) display_interval,
-            nums->count,
-            nums->count / (double) elapse_seconds,
-            percentage);
+    if (nums->to_transfer < 0) {
+        printf("|%5s %7sf|%7s %8s%7s", "NA", "NA", "NA", "NA", "NA");
+    }
+    else {
+        char percentage[16];
+        if (nums->to_transfer == 0)
+            sprintf(percentage, "%7s", "NA");
+        else
+            sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->to_transfer));
+
+        printf("|%5d %7.2f|%7d %8.2f%s|\n",
+                (nums->count - nums->last_count),
+                (nums->count - nums->last_count) / (double) display_interval,
+                nums->count,
+                nums->count / (double) elapse_seconds,
+                percentage);
+    }
 }
 
 char *center(char *str, int width, char **dst)
@@ -184,10 +196,10 @@ void init_stats(int hz_dis, int hz_pos)
     memset((char *)stats, 0, sizeof(stats_type) * NUM_DIRS * NUM_TYPES);
 
     stats[DIR_SEND][TYPE_DIS].delay = get_delay(hz_dis);
-    stats[DIR_SEND][TYPE_DIS].to_transfer = -1; // no limit;
+    stats[DIR_SEND][TYPE_DIS].to_transfer = 0; // no limit;
 
     stats[DIR_SEND][TYPE_POS].delay = get_delay(hz_pos);
-    stats[DIR_SEND][TYPE_POS].to_transfer = -1; // no limit
+    stats[DIR_SEND][TYPE_POS].to_transfer = 0; // no limit
 }
 
 void *benchmark()
@@ -353,13 +365,15 @@ void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     init_time(nums);
     init_time(&stats[DIR_RECV][TYPE_TOTAL]);
 
-    pong_sender(port, &nums->to_transfer); // notify the sender that this is ready to receive
+    // notify the sender that this is ready to receive
+    pong_sender(port, &nums->to_transfer);
     pthread_mutex_lock(&recv_lock);
     stats[DIR_RECV][TYPE_TOTAL].to_transfer += nums->to_transfer;
     pthread_mutex_unlock(&recv_lock);
 
+    // another thread to wait for send completion to cancel this thread
     nums->thread = pthread_self();
-    wait_for_completion(nums);  // another thread to wait for send completion to cancel this thread
+    wait_for_completion(nums);
     while (1) {
         xdc_blocking_recv(socket, pkt, &t_tag);
 
