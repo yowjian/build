@@ -19,7 +19,7 @@ pthread_mutex_t send_lock;
 
 int display_interval = 10;         // in seconds
 
-char benchmarking = 0;
+char verbose = 0;
 
 char ipc_pub[MAX_IPC_LEN];
 char ipc_sub[MAX_IPC_LEN];
@@ -199,7 +199,7 @@ void *benchmark()
         sleep(1);
         elapse_seconds++;
 
-        if (benchmarking && (elapse_seconds % display_interval == 0)) {
+        if (elapse_seconds % display_interval == 0) {
             show_stats();
         }
     }
@@ -235,24 +235,24 @@ void usage()
 {
     printf("Usage: <this-program> \n\
 \t -h     \t help\n\
-\t -b     \t benchmark mode\n\
+\t -v     \t verbose mode\n\
 \t -d <Hz>\t Distance Hertz (default 100 Hz)\n\
 \t -p <Hz>\t Position Hertz (default 10 Hz)\n\
-\t -x <count>\t Distance send count (default unlimited)\n\
-\t -y <count>\t Position send count (default unlimited)\n\
 \t -i <sub>\t Subscribe endpoint\n\
 \t -o <pub>\t Publish endpoint\n\
-\t -v <period>\t Interval in seconds to display statistics in benchmarking (default 10s)\n");
+\t -x <count>\t Distance send count (default unlimited)\n\
+\t -y <count>\t Position send count (default unlimited)\n\
+\t -l <period>\t Interval in seconds to display statistics in benchmarking (default 10s)\n");
     exit(1);
 }
 
 void parse(int argc, char **argv)
 {
     int c;
-    while ((c = getopt(argc, argv, "hbd:p:v:i:o:x:y:")) != -1) {
+    while ((c = getopt(argc, argv, "hvd:p:l:i:o:x:y:")) != -1) {
         switch (c) {
-        case 'b':
-            benchmarking = 1;
+        case 'v':
+            verbose = 1;
             break;
         case 'd':
             stats[DIR_SEND][TYPE_DIS].delay = get_delay(get_int(optarg));
@@ -268,7 +268,7 @@ void parse(int argc, char **argv)
             stats[DIR_SEND][TYPE_POS].expected = get_int(optarg);
             stats[DIR_SEND][TYPE_TOTAL].expected += get_int(optarg);
             break;
-        case 'v':
+        case 'l':
             display_interval = atoi(optarg);
             break;
         case 'i':
@@ -398,7 +398,7 @@ void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
         nums->count++;
 
-        if (!benchmarking) {
+        if (verbose) {
             if (type == DATA_TYP_POSITION) {
                 position_datatype *pos = (position_datatype *) pkt;
                 printf("\t\t\t\t\t\trecv position %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, pos->x, pos->y, pos->z);
@@ -458,7 +458,7 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
         nums->count++;
 
-        if (!benchmarking) {
+        if (verbose) {
             printf("sent %s %6d: (%6.0f, %6.0f, %6.0f)\n", type_str, nums->count, pos.x, pos.y, pos.z);
         }
 

@@ -57,12 +57,10 @@ int main(int argc, char **argv)
     }
 
     pthread_t benchmarkThread;
-    if (benchmarking) {
-        rtn = pthread_create(&benchmarkThread, NULL, &benchmark, NULL);
-        if (rtn != 0) {
-            printf("benchmark thread creat failed\n");
-            exit(1);
-        }
+    rtn = pthread_create(&benchmarkThread, NULL, &benchmark, NULL);
+    if (rtn != 0) {
+        printf("benchmark thread creat failed\n");
+        exit(1);
     }
 
     pthread_join(sendThread, NULL);

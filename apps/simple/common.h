@@ -39,7 +39,7 @@ extern stats_type stats[][NUM_TYPES];
 extern pthread_mutex_t recv_lock;
 extern pthread_mutex_t send_lock;
 
-extern char benchmarking;
+extern char verbose;
 extern char ipc_pub[];
 extern char ipc_sub[];
 
