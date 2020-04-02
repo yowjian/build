@@ -34,6 +34,49 @@ unsigned long long get_time()
             (unsigned long long)(tv.tv_usec) / 1000;
 }
 
+char *center(char *str, int width, char **dst)
+{
+    int len = strlen(str);
+
+    if (*dst == NULL) {
+        char *buf = malloc(width);
+        *dst = buf;
+
+        int offset = (width - len) / 2;
+        memset(buf, ' ', width - 1);
+        strcpy(buf + offset, str);
+        buf[offset + len] = ' ';
+        buf[width - 1] = '\0';
+    }
+
+    return *dst;
+}
+
+void show_char()
+{
+    static char *jitter_ptr = NULL;
+    static char *delay_ptr = NULL;
+    static char *max_ptr = NULL;
+    static char *avg_ptr = NULL;
+    static char *min_ptr = NULL;
+
+    center("jitter", 26, &jitter_ptr);
+    center("delay", 25, &delay_ptr);
+
+    printf("%9s|%s|%s|\n", " ", jitter_ptr, delay_ptr);
+    printf("%9s| %7s %7s %7s | %7s %7s %7s|\n", " ",
+            "average", "max", "min",
+            "average", "max", "min");
+
+    for (int j = 0; j < NUM_TYPES; j++) {
+        stats_type *nums = &stats[DIR_RECV][j];
+        printf("%9s| %7.2f %7.2f %7.2f | %7.2f %7.2f %7.2f|\n",
+                type_names[j],
+                nums->jitter.avg, nums->jitter.max, nums->jitter.min,
+                nums->delay.avg, nums->delay.max, nums->delay.min);
+    }
+}
+
 void stats_half(int type, stats_type *nums)
 {
     if (!nums->done)
@@ -58,7 +101,7 @@ void stats_half(int type, stats_type *nums)
         else
             sprintf(percentage, "%7s", "NA");
 
-        double rate = nums->count / (double) elapse_seconds;
+        double rate = (elapse_seconds == 0) ? 0 : nums->count / (double) elapse_seconds;
         printf("|%5d %7.2f|%7d %8.2f%s",
                 (nums->count - nums->last_count),
                 (nums->count - nums->last_count) / (double) display_interval,
@@ -68,30 +111,17 @@ void stats_half(int type, stats_type *nums)
     }
 }
 
+void stats_char(int type, stats_type *nums)
+{
+    printf("|%7.2f%7.2f|", nums->jitter.avg, nums->delay.avg);
+}
+
 void stats_line(int type)
 {
     printf("%9s", type_names[type]);
     stats_half(type, &stats[DIR_SEND][type]);
     stats_half(type, &stats[DIR_RECV][type]);
     printf("|\n");
-}
-
-char *center(char *str, int width, char **dst)
-{
-    int len = strlen(str);
-
-    if (*dst == NULL) {
-        char *buf = malloc(width);
-        *dst = buf;
-
-        int offset = (width - len) / 2;
-        memset(buf, ' ', width - 1);
-        strcpy(buf + offset, str);
-        buf[offset + len] = ' ';
-        buf[width - 1] = '\0';
-    }
-
-    return *dst;
 }
 
 void show_duration(int dir, int type)
@@ -154,12 +184,14 @@ void show_stats()
         }
     }
     printf("\n");
+
+    show_char();
 }
 
 /**
  * Return delay in us, given hertz.
  */
-long long get_delay(int hz)
+long long get_interval(int hz)
 {
     if (hz == 0)
         return -1;  // not running the sender
@@ -183,10 +215,10 @@ void init_stats(int hz_dis, int hz_pos)
 {
     memset((char *)stats, 0, sizeof(stats_type) * NUM_DIRS * NUM_TYPES);
 
-    stats[DIR_SEND][TYPE_DIS].delay = get_delay(hz_dis);
+    stats[DIR_SEND][TYPE_DIS].interval = get_interval(hz_dis);
     stats[DIR_SEND][TYPE_DIS].expected = 0; // no limit;
 
-    stats[DIR_SEND][TYPE_POS].delay = get_delay(hz_pos);
+    stats[DIR_SEND][TYPE_POS].interval = get_interval(hz_pos);
     stats[DIR_SEND][TYPE_POS].expected = 0; // no limit
 }
 
@@ -255,10 +287,10 @@ void parse(int argc, char **argv)
             verbose = 1;
             break;
         case 'd':
-            stats[DIR_SEND][TYPE_DIS].delay = get_delay(get_int(optarg));
+            stats[DIR_SEND][TYPE_DIS].interval = get_interval(get_int(optarg));
             break;
         case 'p':
-            stats[DIR_SEND][TYPE_POS].delay = get_delay(get_int(optarg));
+            stats[DIR_SEND][TYPE_POS].interval = get_interval(get_int(optarg));
             break;
         case 'x':
             stats[DIR_SEND][TYPE_DIS].expected = get_int(optarg);
@@ -363,6 +395,45 @@ void wait_for_completion(stats_type *nums)
     }
 }
 
+void encode_timestamp(trailer_datatype *trailer)
+{
+    unsigned long long curr = get_time();
+
+    trailer->rqr = (curr >> 32);          // high quad
+    trailer->oid = (curr & 0xffffffff);   // low quad
+}
+
+unsigned long long decode_timestamp(trailer_datatype *trailer)
+{
+    return ((unsigned long long) trailer->rqr << 32) |
+           ((unsigned long long) trailer->oid);
+}
+
+void cal_char(stats_type *nums, trailer_datatype *trailer)
+{
+    time_t recv_time = get_time();
+    time_t sent_time = decode_timestamp(trailer);
+
+    characteristics_t *jitter = &nums->jitter;
+
+    double delta = recv_time - sent_time;
+    jitter->count++;
+
+    if (delta > jitter->max)
+        jitter->max = delta;
+
+    if (delta < jitter->min)
+        jitter->min = delta;
+
+    if (jitter->count <= 1)
+        jitter->avg = delta;
+    else {
+        jitter->avg = (jitter->avg * (jitter->count - 1) + delta) / jitter->count;
+    }
+
+    jitter->last = delta;
+}
+
 void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
     int type_idx = (type == DATA_TYP_POSITION) ? TYPE_POS : TYPE_DIS;
@@ -398,15 +469,17 @@ void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
         nums->count++;
 
-        if (verbose) {
-            if (type == DATA_TYP_POSITION) {
-                position_datatype *pos = (position_datatype *) pkt;
+        if (type == DATA_TYP_POSITION) {
+            position_datatype *pos = (position_datatype *) pkt;
+            cal_char(nums, &pos->trailer);
+            if (verbose)
                 printf("\t\t\t\t\t\trecv position %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, pos->x, pos->y, pos->z);
-            }
-            else {
-                distance_datatype *dis = (distance_datatype *) pkt;
+        }
+        else {
+            distance_datatype *dis = (distance_datatype *) pkt;
+            cal_char(nums, &dis->trailer);
+            if (verbose)
                 printf("\t\t\t\t\t\trecv distance %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, dis->x, dis->y, dis->z);
-            }
         }
     }
     zmq_close(socket);
@@ -421,8 +494,8 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
     char *type_str = (type == DATA_TYP_POSITION) ? "positions" : "distance";
 
-    if (nums->delay < 0) {
-        printf("delay = %lli, not sending %s\n", nums->delay, type_str);
+    if (nums->interval < 0) {
+        printf("interval = %lli, not sending %s\n", nums->interval, type_str);
         return NULL;
     }
 
@@ -448,8 +521,10 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     unsigned long long curr = get_time();
     int sock = ping_receiver(port, nums->expected);
     while (1) {
-        usleep(nums->delay);
+        usleep(nums->interval);
 
+        pos.trailer.seq = pos.x;
+        encode_timestamp(&pos.trailer);
         xdc_asyn_send(send_socket, &pos, t_tag);
 
         pthread_mutex_lock(&send_lock);

@@ -19,8 +19,17 @@
 #define TYPE_TOTAL 2
 #define NUM_TYPES  3
 
+typedef struct _characteristics_t {
+    double max;
+    double min;
+    double avg;
+    double last;
+    int count;
+    char first;
+} characteristics_t;
+
 typedef struct _stats {
-    long long delay;
+    long long interval;
     int expected;                   // number of pkts expected to send or receive
     int count;                      // current count of sent or received pkts
     int sender_count;               // sender's count received out of band
@@ -32,6 +41,9 @@ typedef struct _stats {
     int port;                       // UDP port to wait or send out-of-band data
     int sock;                       // socket for out-of-band data
     pthread_t thread;               // thread associated with this flow
+
+    characteristics_t delay;
+    characteristics_t jitter;
 } stats_type;
 
 extern stats_type stats[][NUM_TYPES];

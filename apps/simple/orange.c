@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     strcpy(ipc_sub, "ipc:///tmp/halsubbworange");
 
     parse(argc, argv);
-    printf("orange %lli %lli\n", stats[DIR_SEND][TYPE_DIS].delay, stats[DIR_SEND][TYPE_POS].delay);
+    printf("orange %lli %lli\n", stats[DIR_SEND][TYPE_DIS].interval, stats[DIR_SEND][TYPE_POS].interval);
 
     init_locks();
     init_hal();
