@@ -37,26 +37,34 @@ void stats_line(int type)
 {
     stats_type *nums = &stats[DIR_SEND][type];
 
-    nums->time = get_time();
+    if (!nums->done)
+        nums->time = get_time();
 
     double elapse_seconds = (nums->time - nums->start_time) / 1000;
+    double percentage = (nums->to_transfer <= 0) ? 0 : (nums->count * 100.0 / nums->to_transfer);
+    double rate = nums->count / (double) elapse_seconds;
 
-    printf("%9s|%5d %7.2f|%7d %8.2f",
+    printf("%9s|%5d %7.2f|%7d %8.2f%7.2f",
             type_names[type],
             (nums->count - nums->last_count),
             (nums->count - nums->last_count) / (double) display_interval,
             nums->count,
-            nums->count / (double) elapse_seconds);
+            rate,
+            percentage);
 
     nums = &stats[DIR_RECV][type];
-    nums->time = get_time();
-    elapse_seconds = (nums->time - nums->start_time) / 1000;
+    if (!nums->done)
+        nums->time = get_time();
 
-    printf("|%5d %7.2f|%7d %8.2f|\n",
+    elapse_seconds = (nums->time - nums->start_time) / 1000;
+    percentage = (nums->to_transfer <= 0) ? 0 : (nums->count * 100.0 / nums->to_transfer);
+
+    printf("|%5d %7.2f|%7d %8.2f%7.2f|\n",
             (nums->count - nums->last_count),
             (nums->count - nums->last_count) / (double) display_interval,
             nums->count,
-            nums->count / (double) elapse_seconds);
+            nums->count / (double) elapse_seconds,
+            percentage);
 }
 
 char *center(char *str, int width, char **dst)
@@ -113,15 +121,17 @@ void show_stats()
 
     show_duration(DIR_SEND, TYPE_POS);
 
-    center("Send", 31, &send_ptr);
-    center("Receive", 31, &recv_ptr);
+    center("Send", 38, &send_ptr);
+    center("Receive", 38, &recv_ptr);
 
     center("this period", 14, &inst_ptr);
-    center("accumulated", 17, &accu_ptr);
+    center("accumulated", 24, &accu_ptr);
 
     printf("%9s|%s|%s|\n", " ", send_ptr, recv_ptr);
     printf("%9s|%s|%s|%s|%s|\n", " ", inst_ptr, accu_ptr, inst_ptr, accu_ptr);
-    printf("%9s|%6s%7s|%6s%10s|%6s%7s|%6s%10s|\n", " ", "count", "rate", "count", "rate", "count", "rate", "count", "rate");
+    printf("%9s|%6s%7s|%6s%10s%7s|%6s%7s|%6s%10s%7s|\n", " ",
+            "count", "rate", "count", "rate", "%",
+            "count", "rate", "count", "rate", "%");
 
     for (int j = 0; j < NUM_TYPES; j++) {
         stats_line(j);
@@ -134,10 +144,12 @@ void show_stats()
             nums->last_time = nums->time;
         }
     }
-
     printf("\n");
 }
 
+/**
+ * Return delay in us, given hertz.
+ */
 long long get_delay(int hz)
 {
     if (hz == 0)
@@ -146,37 +158,27 @@ long long get_delay(int hz)
     return (long long) (1000000 / (double) hz);
 }
 
-/**
- * Return delay in us, given hertz.
- */
-int get_delay_from_str(char *hertz)
+int get_int(char *str)
 {
-    int hz = atoi(hertz);
-    if (hz < 0) {
-        printf("bad argument %s\n", hertz);
+    int i = atoi(str);
+    if (i < 0) {
+        printf("bad argument %s\n", str);
         usage();
         return -1;
     }
-    else
-        return get_delay(hz);
+
+    return i;
 }
 
 void init_stats(int hz_dis, int hz_pos)
 {
-    for (int i = 0; i < NUM_DIRS; i++) {
-        for (int j = 0; j < NUM_TYPES; j++) {
-            stats_type *nums = &stats[i][j];
-            nums->time = 0;
-            nums->last_time = 0;
-            nums->delay = 0;
-            nums->count = 0;
-            nums->last_count = 0;
-            nums->start_time = 0;
-        }
-    }
+    memset((char *)stats, 0, sizeof(stats_type) * NUM_DIRS * NUM_TYPES);
 
     stats[DIR_SEND][TYPE_DIS].delay = get_delay(hz_dis);
+    stats[DIR_SEND][TYPE_DIS].to_transfer = -1; // no limit;
+
     stats[DIR_SEND][TYPE_POS].delay = get_delay(hz_pos);
+    stats[DIR_SEND][TYPE_POS].to_transfer = -1; // no limit
 }
 
 void *benchmark()
@@ -229,6 +231,8 @@ void usage()
 \t -b     \t benchmark mode\n\
 \t -d <Hz>\t Distance Hertz (default 100 Hz)\n\
 \t -p <Hz>\t Position Hertz (default 10 Hz)\n\
+\t -x <count>\t Distance send count (default unlimited)\n\
+\t -y <count>\t Position send count (default unlimited)\n\
 \t -i <sub>\t Subscribe endpoint\n\
 \t -o <pub>\t Publish endpoint\n\
 \t -v <period>\t Interval in seconds to display statistics in benchmarking (default 10s)\n");
@@ -238,16 +242,22 @@ void usage()
 void parse(int argc, char **argv)
 {
     int c;
-    while ((c = getopt(argc, argv, "hbd:p:v:i:o:")) != -1) {
+    while ((c = getopt(argc, argv, "hbd:p:v:i:o:x:y:")) != -1) {
         switch (c) {
         case 'b':
             benchmarking = 1;
             break;
         case 'd':
-            stats[DIR_SEND][TYPE_DIS].delay = get_delay_from_str(optarg);
+            stats[DIR_SEND][TYPE_DIS].delay = get_delay(get_int(optarg));
             break;
         case 'p':
-            stats[DIR_SEND][TYPE_POS].delay = get_delay_from_str(optarg);
+            stats[DIR_SEND][TYPE_POS].delay = get_delay(get_int(optarg));
+            break;
+        case 'x':
+            stats[DIR_SEND][TYPE_DIS].to_transfer = get_int(optarg);
+            break;
+        case 'y':
+            stats[DIR_SEND][TYPE_POS].to_transfer = get_int(optarg);
             break;
         case 'v':
             display_interval = atoi(optarg);
@@ -292,7 +302,9 @@ void init_time(stats_type *nums)
 
 void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
-    pong_sender(port);
+    stats_type *nums = &stats[DIR_RECV][TYPE_DIS];
+
+    pong_sender(port, &nums->to_transfer);
 
     gaps_tag t_tag;
 
@@ -300,8 +312,6 @@ void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     void *socket = xdc_sub_socket(t_tag);
 
     distance_datatype dis;
-
-    stats_type *nums = &stats[DIR_RECV][TYPE_DIS];
 
     init_time(nums);
     init_time(&stats[DIR_RECV][TYPE_TOTAL]);
@@ -325,7 +335,9 @@ void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
 void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
-    pong_sender(port);
+    stats_type *nums = &stats[DIR_RECV][TYPE_POS];
+
+    pong_sender(port, &nums->to_transfer);
 
     gaps_tag t_tag;
     tag_write(&t_tag, t_mux, t_sec, type);
@@ -333,8 +345,6 @@ void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     void *socket = xdc_sub_socket(t_tag);
 
     position_datatype pos;
-
-    stats_type *nums = &stats[DIR_RECV][TYPE_POS];
 
     init_time(nums);
     init_time(&stats[DIR_RECV][TYPE_TOTAL]);
@@ -362,8 +372,9 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         printf("delay = %lli, not sending positions\n", stats[DIR_SEND][TYPE_POS].delay);
         return NULL;
     }
+    stats_type *nums = &stats[DIR_SEND][TYPE_POS];
 
-    ping_receiver(port);
+    ping_receiver(port, nums->to_transfer);
 
     position_datatype pos;
     pos.x = 1;
@@ -371,8 +382,6 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     pos.z = 1;
 
     void *send_pos_socket = xdc_pub_socket();
-
-    stats_type *nums = &stats[DIR_SEND][TYPE_POS];
 
     init_time(nums);
     init_time(&stats[DIR_SEND][TYPE_TOTAL]);
@@ -404,6 +413,12 @@ void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         pos.x += 2;
         pos.y += 2;
         pos.z += 2;
+
+        if (nums->to_transfer > 0 && nums->count >= nums->to_transfer) {
+            nums->done = 1;
+            nums->time = get_time();
+            break;
+        }
     }
     zmq_close(send_pos_socket);
 
@@ -416,8 +431,9 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         printf("delay = %lli, not sending distance\n", stats[DIR_SEND][TYPE_DIS].delay);
         return NULL;
     }
+    stats_type *nums = &stats[DIR_SEND][TYPE_DIS];
 
-    ping_receiver(port);
+    ping_receiver(port, nums->to_transfer);
 
     distance_datatype dis;
     dis.x = 1;
@@ -425,8 +441,6 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     dis.z = 1;
 
     void *send_dis_socket = xdc_pub_socket();
-
-    stats_type *nums = &stats[DIR_SEND][TYPE_DIS];
 
     init_time(nums);
     init_time(&stats[DIR_SEND][TYPE_TOTAL]);
@@ -458,13 +472,19 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         dis.x += 2;
         dis.y += 2;
         dis.z += 2;
+
+        if (nums->to_transfer > 0 && nums->count >= nums->to_transfer) {
+            nums->done = 1;
+            nums->time = get_time();
+            break;
+        }
     }
     zmq_close(send_dis_socket);
 
     return NULL;
 }
 
-void pong_sender(int port)
+void pong_sender(int port, int *to_recv)
 {
     const int BUF_SIZE = 64;
     int sockfd;
@@ -493,16 +513,19 @@ void pong_sender(int port)
 
     int n = recvfrom(sockfd, (char *) buffer, BUF_SIZE, 0,
                     (struct sockaddr *) &cliaddr, (unsigned int *) &len);
-    if (n < 0) {
+    if (n < 0 || n >= BUF_SIZE) {
         perror("failed to receive");
         exit(EXIT_FAILURE);
     }
+    buffer[n] = '\0';
+
+    *to_recv = atoi(buffer);
 
     const char *rsp = "pong";
     sendto(sockfd, rsp, strlen(rsp), 0, (const struct sockaddr *) &cliaddr, len);
 }
 
-void ping_receiver(int port)
+void ping_receiver(int port, int to_send)
 {
     const int BUF_SIZE = 64;
     int sockfd;
@@ -528,10 +551,12 @@ void ping_receiver(int port)
 
     printf("pinging receiver at port %d.\n", port);
 
+    char msg[BUF_SIZE];
+    sprintf(msg, "%d", to_send);
+
     int len;
-    strcpy(buffer, "ping");
     while (1) {
-        sendto(sockfd, (const char *) buffer, strlen(buffer), 0,
+        sendto(sockfd, (const char *) msg, strlen(msg), 0,
                (const struct sockaddr *) &recv, sizeof(recv));
 
         int n = recvfrom(sockfd, (char *)buffer, BUF_SIZE, 0,

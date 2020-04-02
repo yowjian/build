@@ -20,11 +20,13 @@
 
 typedef struct _stats {
     long long delay;
+    int to_transfer;
     int count;
     int last_count;
     unsigned long long time;
     unsigned long long last_time;
     unsigned long long start_time;
+    char done;
 } stats_type;
 
 extern stats_type stats[][NUM_TYPES];
@@ -45,7 +47,7 @@ void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
 void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
 void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
 void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
-void pong_sender(int port);
-void ping_receiver(int port);
+void pong_sender(int port, int *to_recv);
+void ping_receiver(int port, int to_send);
 void sig_handler(int signo);
 void init_stats(int delay_dis, int delay_pos);
