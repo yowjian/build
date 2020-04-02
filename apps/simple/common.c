@@ -46,18 +46,17 @@ void stats_half(int type, stats_type *nums)
     }
     else {
         char percentage[16];
-        if (nums->expected == 0) {
-            if (nums->sender_count > 0) {
-                double p = (nums->count * 100.0 / nums->sender_count);
-                if (p > 100)
-                    p = 100;
-                sprintf(percentage, "%7.2f", p);
-            }
-            else
-                sprintf(percentage, "%7s", "NA");
+        if (nums->sender_count > 0) {  // receiver
+            double p = (nums->count * 100.0 / nums->sender_count);
+            if (p > 100)
+                p = 100;
+            sprintf(percentage, "%7.2f", p);
+        }
+        else if (nums->expected > 0) {
+            sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->expected));
         }
         else
-            sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->expected));
+            sprintf(percentage, "%7s", "NA");
 
         double rate = nums->count / (double) elapse_seconds;
         printf("|%5d %7.2f|%7d %8.2f%s",
@@ -263,9 +262,11 @@ void parse(int argc, char **argv)
             break;
         case 'x':
             stats[DIR_SEND][TYPE_DIS].expected = get_int(optarg);
+            stats[DIR_SEND][TYPE_TOTAL].expected += get_int(optarg);
             break;
         case 'y':
             stats[DIR_SEND][TYPE_POS].expected = get_int(optarg);
+            stats[DIR_SEND][TYPE_TOTAL].expected += get_int(optarg);
             break;
         case 'v':
             display_interval = atoi(optarg);
@@ -314,6 +315,19 @@ void close_time(stats_type *nums)
     nums->time = get_time();
 }
 
+void set_total_done(stats_type *nums)
+{
+    pthread_mutex_lock(&recv_lock);
+
+    nums->done = 1;
+
+    if (stats[DIR_RECV][TYPE_DIS].done && stats[DIR_RECV][TYPE_DIS].sender_count > 0 &&
+        stats[DIR_RECV][TYPE_POS].done && stats[DIR_RECV][TYPE_POS].sender_count > 0)
+        stats[DIR_RECV][TYPE_TOTAL].done = 1;
+
+    pthread_mutex_unlock(&recv_lock);
+}
+
 void *waiting(void *args)
 {
     stats_type *nums = (stats_type *) args;
@@ -328,7 +342,7 @@ void *waiting(void *args)
         pthread_mutex_unlock(&recv_lock);
 
         if (nums->expected > 0 && nums->sender_count >= nums->expected) {
-            nums->done = 1;
+            set_total_done(nums);
             break;
         }
     }
@@ -464,7 +478,7 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     }
     zmq_close(send_socket);
 
-    ping_receiver(port, nums->expected);
+    update_receiver(sock, port, nums->expected);
 
     return NULL;
 }
