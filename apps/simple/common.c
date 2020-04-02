@@ -300,23 +300,30 @@ void init_time(stats_type *nums)
     nums->start_time = nums->time;
 }
 
-void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
+void close_time(stats_type *nums)
 {
-    stats_type *nums = &stats[DIR_RECV][TYPE_DIS];
+    nums->done = 1;
+    nums->time = get_time();
+}
 
-    pong_sender(port, &nums->to_transfer);
+void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
+{
+    int type_idx = (type == DATA_TYP_POSITION) ? TYPE_POS : TYPE_DIS;
+    stats_type *nums = &stats[DIR_RECV][type_idx];
 
     gaps_tag t_tag;
 
     tag_write(&t_tag, t_mux, t_sec, type);
     void *socket = xdc_sub_socket(t_tag);
 
-    distance_datatype dis;
+    char pkt[MAX_PKT_LEN];
 
     init_time(nums);
     init_time(&stats[DIR_RECV][TYPE_TOTAL]);
+
+    pong_sender(port, &nums->to_transfer);
     while (1) {
-        xdc_blocking_recv(socket, &dis, &t_tag);
+        xdc_blocking_recv(socket, pkt, &t_tag);
 
         pthread_mutex_lock(&recv_lock);
         stats[DIR_RECV][TYPE_TOTAL].count++;
@@ -325,7 +332,14 @@ void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         nums->count++;
 
         if (!benchmarking) {
-            printf("\t\t\t\t\t\trecv distance %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, dis.x, dis.y, dis.z);
+            if (type == DATA_TYP_POSITION) {
+                position_datatype *pos = (position_datatype *) pkt;
+                printf("\t\t\t\t\t\trecv position %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, pos->x, pos->y, pos->z);
+            }
+            else {
+                distance_datatype *dis = (distance_datatype *) pkt;
+                printf("\t\t\t\t\t\trecv distance %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, dis->x, dis->y, dis->z);
+            }
         }
     }
     zmq_close(socket);
@@ -333,131 +347,41 @@ void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     return NULL;
 }
 
-void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
+void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
-    stats_type *nums = &stats[DIR_RECV][TYPE_POS];
+    int type_idx = (type == DATA_TYP_POSITION) ? TYPE_POS : TYPE_DIS;
+    stats_type *nums = &stats[DIR_SEND][type_idx];
 
-    pong_sender(port, &nums->to_transfer);
+    char *type_str = (type == DATA_TYP_POSITION) ? "positions" : "distance";
 
-    gaps_tag t_tag;
-    tag_write(&t_tag, t_mux, t_sec, type);
-
-    void *socket = xdc_sub_socket(t_tag);
-
-    position_datatype pos;
-
-    init_time(nums);
-    init_time(&stats[DIR_RECV][TYPE_TOTAL]);
-    while (1) {
-        xdc_blocking_recv(socket, &pos, &t_tag);
-
-        pthread_mutex_lock(&recv_lock);
-        stats[DIR_RECV][TYPE_TOTAL].count++;
-        pthread_mutex_unlock(&recv_lock);
-
-        nums->count++;
-
-        if (!benchmarking) {
-            printf("\t\t\t\t\t\trecv position %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, pos.x, pos.y, pos.z);
-        }
-    }
-    zmq_close(socket);
-
-    return NULL;
-}
-
-void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
-{
-    if (stats[DIR_SEND][TYPE_POS].delay < 0) {
-        printf("delay = %lli, not sending positions\n", stats[DIR_SEND][TYPE_POS].delay);
+    if (nums->delay < 0) {
+        printf("delay = %lli, not sending %s\n", nums->delay, type_str);
         return NULL;
     }
-    stats_type *nums = &stats[DIR_SEND][TYPE_POS];
 
-    ping_receiver(port, nums->to_transfer);
+    gaps_tag  t_tag;
+    tag_write(&t_tag, t_mux, t_sec, type);
 
     position_datatype pos;
     pos.x = 1;
     pos.y = 1;
     pos.z = 1;
+    pos.trailer.seq = 1;
+    pos.trailer.rqr = 1;
+    pos.trailer.oid = 1;
+    pos.trailer.mid = 1;
+    pos.trailer.crc = 1;
 
-    void *send_pos_socket = xdc_pub_socket();
+    void *send_socket = xdc_pub_socket();
 
     init_time(nums);
     init_time(&stats[DIR_SEND][TYPE_TOTAL]);
-    while (1) {
-        usleep(stats[DIR_SEND][TYPE_POS].delay);
-
-        pos.trailer.seq = 1;
-        pos.trailer.rqr = 1;
-        pos.trailer.oid = 1;
-        pos.trailer.mid = 1;
-        pos.trailer.crc = 1;
-
-        gaps_tag  t_tag;
-
-        tag_write(&t_tag, t_mux, t_sec, type);
-
-        xdc_asyn_send(send_pos_socket, &pos, t_tag);
-
-        pthread_mutex_lock(&send_lock);
-        stats[DIR_SEND][TYPE_TOTAL].count++;
-        pthread_mutex_unlock(&send_lock);
-
-        nums->count++;
-
-        if (!benchmarking) {
-            printf("sent position %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, pos.x, pos.y, pos.z);
-        }
-
-        pos.x += 2;
-        pos.y += 2;
-        pos.z += 2;
-
-        if (nums->to_transfer > 0 && nums->count >= nums->to_transfer) {
-            nums->done = 1;
-            nums->time = get_time();
-            break;
-        }
-    }
-    zmq_close(send_pos_socket);
-
-    return NULL;
-}
-
-void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
-{
-    if (stats[DIR_SEND][TYPE_DIS].delay < 0) {
-        printf("delay = %lli, not sending distance\n", stats[DIR_SEND][TYPE_DIS].delay);
-        return NULL;
-    }
-    stats_type *nums = &stats[DIR_SEND][TYPE_DIS];
 
     ping_receiver(port, nums->to_transfer);
-
-    distance_datatype dis;
-    dis.x = 1;
-    dis.y = 1;
-    dis.z = 1;
-
-    void *send_dis_socket = xdc_pub_socket();
-
-    init_time(nums);
-    init_time(&stats[DIR_SEND][TYPE_TOTAL]);
     while (1) {
-        usleep(stats[DIR_SEND][TYPE_DIS].delay);
+        usleep(nums->delay);
 
-        dis.trailer.seq = 1;
-        dis.trailer.rqr = 1;
-        dis.trailer.oid = 1;
-        dis.trailer.mid = 1;
-        dis.trailer.crc = 1;
-
-        gaps_tag  t_tag;
-
-        tag_write(&t_tag, t_mux, t_sec, type);
-
-        xdc_asyn_send(send_dis_socket, &dis, t_tag);
+        xdc_asyn_send(send_socket, &pos, t_tag);
 
         pthread_mutex_lock(&send_lock);
         stats[DIR_SEND][TYPE_TOTAL].count++;
@@ -466,26 +390,27 @@ void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         nums->count++;
 
         if (!benchmarking) {
-            printf("sent distance %6d: (%6.0f, %6.0f, %6.0f)\n", nums->count, dis.x, dis.y, dis.z);
+            printf("sent %s %6d: (%6.0f, %6.0f, %6.0f)\n", type_str, nums->count, pos.x, pos.y, pos.z);
         }
 
-        dis.x += 2;
-        dis.y += 2;
-        dis.z += 2;
+        pos.x++;
+        pos.y++;
+        pos.z++;
 
         if (nums->to_transfer > 0 && nums->count >= nums->to_transfer) {
-            nums->done = 1;
-            nums->time = get_time();
+            close_time(nums);
             break;
         }
     }
-    zmq_close(send_dis_socket);
+    zmq_close(send_socket);
 
     return NULL;
 }
 
 void pong_sender(int port, int *to_recv)
 {
+    printf("pong_sender at port %d.\n", port);
+
     const int BUF_SIZE = 64;
     int sockfd;
     char buffer[BUF_SIZE];
@@ -501,11 +426,9 @@ void pong_sender(int port, int *to_recv)
     servaddr.sin_addr.s_addr = INADDR_ANY;
     servaddr.sin_port = htons(port);
     if (bind(sockfd, (const struct sockaddr *) &servaddr, sizeof(servaddr)) < 0) {
-        perror("bind failed");
+        perror("pong_sender: bind failed");
         exit(EXIT_FAILURE);
     }
-
-    printf("ponging sender at port %d.\n", port);
 
     struct sockaddr_in cliaddr;
     memset(&cliaddr, 0, sizeof(cliaddr));

@@ -2,6 +2,7 @@
 #include <signal.h>
 
 #define MAX_IPC_LEN     64
+#define MAX_PKT_LEN     2048
 
 #define PORT_ORANGE_TO_GREEN_DIS  9001
 #define PORT_ORANGE_TO_GREEN_POS  9003
@@ -43,10 +44,8 @@ void init_locks();
 void usage();
 void parse(int argc, char **argv);
 void *init_hal();
-void *recv_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
-void *recv_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
-void *send_position(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
-void *send_distance(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
+void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
+void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
 void pong_sender(int port, int *to_recv);
 void ping_receiver(int port, int to_send);
 void sig_handler(int signo);

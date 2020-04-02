@@ -9,17 +9,17 @@
 
 void *orange_send_distance(void *args)
 {
-    return send_distance(2, 2, DATA_TYP_DISTANCE, PORT_ORANGE_TO_GREEN_DIS);
+    return gaps_write(2, 2, DATA_TYP_DISTANCE, PORT_ORANGE_TO_GREEN_DIS);
 }
 
 void *orange_send_position(void *args)
 {
-    return send_position(2, 2, DATA_TYP_POSITION, PORT_ORANGE_TO_GREEN_POS);
+    return gaps_write(2, 2, DATA_TYP_POSITION, PORT_ORANGE_TO_GREEN_POS);
 }
 
 void *orange_recv_position()
 {
-    return recv_position(1, 1, DATA_TYP_POSITION, PORT_GREEN_TO_ORANGE_POS);
+    return gaps_read(1, 1, DATA_TYP_POSITION, PORT_GREEN_TO_ORANGE_POS);
 }
 
 int main(int argc, char **argv)
