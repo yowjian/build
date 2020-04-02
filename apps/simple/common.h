@@ -29,6 +29,7 @@ typedef struct _stats {
     unsigned long long start_time;
     char done;
     int port;
+    pthread_t thread;
 } stats_type;
 
 extern stats_type stats[][NUM_TYPES];

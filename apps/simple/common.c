@@ -41,10 +41,16 @@ void stats_line(int type)
         nums->time = get_time();
 
     double elapse_seconds = (nums->time - nums->start_time) / 1000;
-    double percentage = (nums->to_transfer <= 0) ? 0 : (nums->count * 100.0 / nums->to_transfer);
+
+    char percentage[16];
+    if (nums->to_transfer < 0)
+        sprintf(percentage, "%7s", "NA");
+    else
+        sprintf(percentage, "%7.2f", (nums->to_transfer <= 0) ? 0 : (nums->count * 100.0 / nums->to_transfer));
+
     double rate = nums->count / (double) elapse_seconds;
 
-    printf("%9s|%5d %7.2f|%7d %8.2f%7.2f",
+    printf("%9s|%5d %7.2f|%7d %8.2f%s",
             type_names[type],
             (nums->count - nums->last_count),
             (nums->count - nums->last_count) / (double) display_interval,
@@ -57,9 +63,12 @@ void stats_line(int type)
         nums->time = get_time();
 
     elapse_seconds = (nums->time - nums->start_time) / 1000;
-    percentage = (nums->to_transfer <= 0) ? 0 : (nums->count * 100.0 / nums->to_transfer);
+    if (nums->to_transfer < 0)
+        sprintf(percentage, "%7s", "NA");
+    else
+        sprintf(percentage, "%7.2f", (nums->to_transfer <= 0) ? 0 : (nums->count * 100.0 / nums->to_transfer));
 
-    printf("|%5d %7.2f|%7d %8.2f%7.2f|\n",
+    printf("|%5d %7.2f|%7d %8.2f%s|\n",
             (nums->count - nums->last_count),
             (nums->count - nums->last_count) / (double) display_interval,
             nums->count,
@@ -211,14 +220,12 @@ void init_locks()
 {
     signal(SIGINT, sig_handler);
 
-    if (pthread_mutex_init(&recv_lock, NULL) != 0)
-    {
+    if (pthread_mutex_init(&recv_lock, NULL) != 0) {
         printf("\n mutex recv init failed\n");
         exit(1);
     }
 
-    if (pthread_mutex_init(&send_lock, NULL) != 0)
-    {
+    if (pthread_mutex_init(&send_lock, NULL) != 0) {
         printf("\n mutex send init failed\n");
         exit(1);
     }
@@ -313,6 +320,9 @@ void *waiting(void *args)
     pong_sender(nums->port, &nums->to_transfer);
     nums->done = 1;
 
+    sleep(10);  // let the packets in flight be received.
+    pthread_cancel(nums->thread);
+
     return NULL;
 }
 
@@ -344,8 +354,13 @@ void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     init_time(&stats[DIR_RECV][TYPE_TOTAL]);
 
     pong_sender(port, &nums->to_transfer); // notify the sender that this is ready to receive
-    wait_for_completion(nums);  // another thread to wait for completion, setting done to 1
-    while (!nums->done) {
+    pthread_mutex_lock(&recv_lock);
+    stats[DIR_RECV][TYPE_TOTAL].to_transfer += nums->to_transfer;
+    pthread_mutex_unlock(&recv_lock);
+
+    nums->thread = pthread_self();
+    wait_for_completion(nums);  // another thread to wait for send completion to cancel this thread
+    while (1) {
         xdc_blocking_recv(socket, pkt, &t_tag);
 
         pthread_mutex_lock(&recv_lock);
@@ -428,7 +443,7 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     }
     zmq_close(send_socket);
 
-    ping_receiver(port, 0);
+    ping_receiver(port, nums->to_transfer);
 
     return NULL;
 }
