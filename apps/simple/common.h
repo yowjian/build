@@ -28,6 +28,7 @@ typedef struct _stats {
     unsigned long long last_time;
     unsigned long long start_time;
     char done;
+    int port;
 } stats_type;
 
 extern stats_type stats[][NUM_TYPES];
@@ -40,6 +41,7 @@ extern char ipc_pub[];
 extern char ipc_sub[];
 
 void *benchmark();
+void show_stats();
 void init_locks();
 void usage();
 void parse(int argc, char **argv);

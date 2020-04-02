@@ -68,7 +68,8 @@ int main(int argc, char **argv)
     pthread_join(sendDisThread, NULL);
     pthread_join(sendPosThread, NULL);
     pthread_join(recvThread, NULL);
-    if (benchmarking)
-        pthread_join(benchmarkThread, NULL);
+
+    show_stats();
+    exit(0);
 }
 

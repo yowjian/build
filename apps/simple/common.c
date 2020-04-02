@@ -306,10 +306,32 @@ void close_time(stats_type *nums)
     nums->time = get_time();
 }
 
+void *waiting(void *args)
+{
+    stats_type *nums = (stats_type *) args;
+
+    pong_sender(nums->port, &nums->to_transfer);
+    nums->done = 1;
+
+    return NULL;
+}
+
+void wait_for_completion(stats_type *stats)
+{
+    pthread_t waitThread;
+    int rtn = pthread_create(&waitThread, NULL, &waiting, stats);
+    if (rtn != 0) {
+        printf("receice thread creat failed\n");
+        exit(1);
+    }
+}
+
 void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 {
     int type_idx = (type == DATA_TYP_POSITION) ? TYPE_POS : TYPE_DIS;
     stats_type *nums = &stats[DIR_RECV][type_idx];
+
+    nums->port = port;
 
     gaps_tag t_tag;
 
@@ -321,8 +343,9 @@ void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     init_time(nums);
     init_time(&stats[DIR_RECV][TYPE_TOTAL]);
 
-    pong_sender(port, &nums->to_transfer);
-    while (1) {
+    pong_sender(port, &nums->to_transfer); // notify the sender that this is ready to receive
+    wait_for_completion(nums);  // another thread to wait for completion, setting done to 1
+    while (!nums->done) {
         xdc_blocking_recv(socket, pkt, &t_tag);
 
         pthread_mutex_lock(&recv_lock);
@@ -362,6 +385,7 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
     gaps_tag  t_tag;
     tag_write(&t_tag, t_mux, t_sec, type);
 
+    // position and distance happen to be the same, use position for now
     position_datatype pos;
     pos.x = 1;
     pos.y = 1;
@@ -403,6 +427,8 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
         }
     }
     zmq_close(send_socket);
+
+    ping_receiver(port, 0);
 
     return NULL;
 }
@@ -446,6 +472,8 @@ void pong_sender(int port, int *to_recv)
 
     const char *rsp = "pong";
     sendto(sockfd, rsp, strlen(rsp), 0, (const struct sockaddr *) &cliaddr, len);
+
+    close(sockfd);
 }
 
 void ping_receiver(int port, int to_send)
