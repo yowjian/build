@@ -6,6 +6,7 @@
 #include "xdcomms.h"
 #include "gma.h"
 #include "common.h"
+#include "utils.h"
 
 void *green_send_position(void *args)
 {

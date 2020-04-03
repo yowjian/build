@@ -19,6 +19,18 @@
 #define TYPE_TOTAL 2
 #define NUM_TYPES  3
 
+typedef struct _flow_t {
+    int id;
+    int rate;
+    struct _flow_t *next;
+} flow_t;
+
+typedef struct _flow_head_t {
+    char enclave[16];
+    int count;
+    flow_t *flows;
+} flow_head_t;
+
 typedef struct _characteristics_t {
     double max;
     double min;
@@ -54,20 +66,13 @@ extern pthread_mutex_t recv_lock;
 extern pthread_mutex_t send_lock;
 
 extern char verbose;
-extern char ipc_pub[];
-extern char ipc_sub[];
 
 void *benchmark();
-void show_stats();
-void init_locks();
-void usage();
-void parse(int argc, char **argv);
-void *init_hal();
+
 void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
 void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
 int pong_sender(int port, int *to_recv);
 int ping_receiver(int port, int to_send);
 void update_receiver(int sock, int port, int count);
 int update_from_sender(int sock);
-void sig_handler(int signo);
-void init_stats(int delay_dis, int delay_pos);
+

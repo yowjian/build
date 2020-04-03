@@ -15,11 +15,13 @@ CFLAGS += -Wall -g ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 
 ORANGE_OBJ = \
 	orange.o \
-	common.o
+	common.o \
+	utils.o
 
 GREEN_OBJ = \
 	green.o \
-	common.o
+	common.o \
+	utils.o
 
 default: all
 

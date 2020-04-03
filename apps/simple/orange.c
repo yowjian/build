@@ -6,6 +6,7 @@
 #include "xdcomms.h"
 #include "gma.h"
 #include "common.h"
+#include "utils.h"
 
 void *orange_send_distance(void *args)
 {
