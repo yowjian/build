@@ -60,21 +60,21 @@ void show_char()
 
     center("jitter (ms)", 26, &jitter_ptr);
     center("delay (ms)", 25, &delay_ptr);
-    center("loss (%)", 25, &loss_ptr);
+    center("loss (%)", 9, &loss_ptr);
 
     printf("%9s|%s|%s|%s|\n", " ", jitter_ptr, delay_ptr, loss_ptr);
-    printf("%9s| %7s %7s %7s | %7s %7s %7s| %7s %7s %7s|\n", " ",
+    printf("%9s| %7s %7s %7s | %7s %7s %7s| %7s|\n", " ",
             "average", "max", "min",
             "average", "max", "min",
-            "average", "max", "min");
+            "current");
 
     for (int j = 0; j < NUM_TYPES; j++) {
         stats_type *nums = &stats[DIR_RECV][j];
-        printf("%9s| %7.2f %7.2f %7.2f | %7.2f %7.2f %7.2f| %7.2f %7.2f %7.2f|\n",
+        printf("%9s| %7.2f %7.2f %7.2f | %7.2f %7.2f %7.2f| %7.2f|\n",
                 type_names[j],
                 nums->jitter.avg, nums->jitter.max, nums->jitter.min,
                 nums->delay.avg, nums->delay.max, nums->delay.min,
-                nums->loss.avg, nums->loss.max, nums->loss.min);
+                nums->loss.last);
     }
     printf("\n");
 }
@@ -227,7 +227,7 @@ void init_stats(int hz_dis, int hz_pos)
 
 void *benchmark()
 {
-    printf("creating benchmark thread\n");
+    // printf("creating benchmark thread\n");
 
     int elapse_seconds = 0;
     while (1) {
@@ -619,7 +619,7 @@ void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port)
 
 int pong_sender(int port, int *to_recv)
 {
-    printf("pong_sender at port %d.\n", port);
+    // printf("pong_sender at port %d.\n", port);
 
     const int BUF_SIZE = 64;
     int sockfd;
@@ -684,7 +684,7 @@ int ping_receiver(int port, int to_send)
     recv.sin_port = htons(port);
     recv.sin_addr.s_addr = INADDR_ANY;
 
-    printf("pinging receiver at port %d.\n", port);
+    // printf("pinging receiver at port %d.\n", port);
 
     char msg[BUF_SIZE];
     sprintf(msg, "%d", to_send);
@@ -697,7 +697,7 @@ int ping_receiver(int port, int to_send)
         int n = recvfrom(sockfd, (char *)buffer, BUF_SIZE, 0,
                          (struct sockaddr *) &recv, (unsigned int *) &len);
         if (n > 0) {
-            printf("receiver at port %d is up\n", port);
+            // printf("receiver at port %d is up\n", port);
             return sockfd;
         }
     }
