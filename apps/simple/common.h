@@ -25,6 +25,7 @@ typedef struct _characteristics_t {
     double avg;
     double last;
     int count;
+    int last_seq;
     char first;
 } characteristics_t;
 

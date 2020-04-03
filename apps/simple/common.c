@@ -212,6 +212,12 @@ void init_stats(int hz_dis, int hz_pos)
 {
     memset((char *)stats, 0, sizeof(stats_type) * NUM_DIRS * NUM_TYPES);
 
+    for (int i = 0; i < NUM_DIRS; i++) {
+        for (int j = 0; j < NUM_TYPES; j++) {
+            stats[i][j].jitter.first = 1;
+        }
+    }
+
     stats[DIR_SEND][TYPE_DIS].interval = get_interval(hz_dis);
     stats[DIR_SEND][TYPE_DIS].expected = 0; // no limit;
 
@@ -411,6 +417,7 @@ void cal_char(stats_type *nums, trailer_datatype *trailer)
     time_t recv_time = get_time();
     time_t sent_time = decode_timestamp(trailer);
 
+    // delay
     characteristics_t *delay = &nums->delay;
     double delta = recv_time - sent_time;
     delay->count++;
@@ -428,21 +435,38 @@ void cal_char(stats_type *nums, trailer_datatype *trailer)
     }
     delay->last = delta;
 
+    // jitter
     characteristics_t *jitter = &nums->jitter;
-    jitter->count++;
 
-    if (jitter->count > 1) {
-        double jdelta = abs(jitter->last - delta);
-        jitter->avg = (jitter->avg * (jitter->count - 1) + jdelta) / jitter->count;
 
-        if (jdelta > jitter->max)
-            jitter->max = jdelta;
+    if (jitter->first) {
+        jitter->first = 0;
+    }
+    else {
+        if (trailer->seq - jitter->last_seq == 1) {
+            double jdelta = abs(jitter->last - delta);
 
-        if (jdelta < jitter->min)
-            jitter->min = jdelta;
+            jitter->count++;
+            if (jitter->count == 1) {
+                jitter->avg = jdelta;
+                jitter->max = jdelta;
+                jitter->min = jdelta;
+            }
+            else {
+                jitter->avg = (jitter->avg * (jitter->count - 1) + jdelta) / jitter->count;
+
+                if (jdelta > jitter->max)
+                    jitter->max = jdelta;
+
+                if (jdelta < jitter->min)
+                    jitter->min = jdelta;
+            }
+        }
     }
     jitter->last = delta;
+    jitter->last_seq = trailer->seq;
 
+    // loss
     characteristics_t *loss = &nums->loss;
     loss->count++;
 
