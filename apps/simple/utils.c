@@ -472,9 +472,9 @@ void usage()
     printf("Usage: <this-program> \n\
 \t -h     \t help\n\
 \t -v     \t verbose mode\n\
-\t -f <recipe>\t Use the flow file\n\
+\t -f <flow file>\t Use the flow file (default flows.txt)\n\
 \t -e <enc>\t name of my enclave\n\
-\t -l <period>\t Interval in seconds to display statistics in benchmarking (default 10s)\n");
+\t -l <period>\t Interval in seconds to display statistics (default 10s)\n");
     exit(1);
 }
 
