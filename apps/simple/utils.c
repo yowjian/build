@@ -200,6 +200,7 @@ void cal_char(stats_type *nums, trailer_datatype *trailer)
     loss->count++;
 
     double value = 0;
+
     if (nums->sender_count > 0) {  // receiver
         double p = (nums->count * 100.0 / nums->sender_count);
         if (p > 100)
@@ -416,6 +417,7 @@ static void read_flows(char* flows_filename, char *my_enclave_name)
             flow->sec = get_int(sec);
             flow->type = get_int(type);
             sem_init(&flow->sem, 0, 0);
+            flow->state = INIT;
             flow->next = from->flows;
 
             from->flows = flow;

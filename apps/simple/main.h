@@ -20,6 +20,13 @@
 #define TYPE_TOTAL 2
 #define NUM_TYPES  3
 
+typedef enum _flow_state_t {
+    INIT,
+    READY,
+    STARTED,
+    DONE
+} flow_state_t;
+
 typedef struct _characteristics_t {
     double max;
     double min;
@@ -55,8 +62,7 @@ typedef struct _flow_t {
     int mux;
     int sec;
     int type;
-    char ready;
-    char done;
+    flow_state_t state;
     unsigned long long last_update;
     sem_t sem;
     stats_type stats;

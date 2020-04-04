@@ -51,11 +51,12 @@ void *gaps_read(void *args)
     void *socket = xdc_sub_socket(t_tag);
 
     flow->stats.thread = pthread_self();
-    flow->ready = 1;
+    flow->state = READY;
 
     while (1) {
         xdc_blocking_recv(socket, pkt, &t_tag);
         nums->count++;
+        flow->state = STARTED;
 
         position_datatype *pos = (position_datatype *) pkt;
         cal_char(nums, &pos->trailer);
@@ -183,21 +184,21 @@ void *oob_recv(void *args)
             printf("recv %s\n", msg);
 
         const char *ready = "ready";
-        const char *sent = "sent";
         if (!strncmp(msg, ready, strlen(ready))) {
-            int id = get_int(trim(msg + strlen(ready)));
+            int id = get_int(trim(msg + strlen(ready) + 1));
             flow_t *flow = find_flow(id);
             if (flow != NULL) {
                 sem_post(&flow->sem);  // signal sender to start
             }
         }
 
+        const char *sent = "sent";
         if (!strncmp(msg, sent, strlen(sent))) {
             int id, expected;
-            sscanf("%d %d", msg + sizeof(sent), &id, &expected);
+            sscanf(msg + strlen(sent) + 1, "%d %d", &id, &expected);
             flow_t *flow = find_flow(id);
             if (flow != NULL) {
-                flow->stats.expected = expected;
+                flow->stats.sender_count = expected;
             }
         }
     }
@@ -241,11 +242,11 @@ void *oob_send(void *args)
             recv.sin_port = htons(flow->dst->port);
 
             if (flow->stats.count > 0 && flow->stats.expected >= flow->stats.count) {
-                if (!flow->done) {
+                if (flow->state != DONE) {
                     sprintf(msg, "end %d", flow->id);
                     oob_send_pkt(msg, sockfd, &recv);
 
-                    flow->done = 1;
+                    flow->state = DONE;
                 }
             }
             else if (curr - flow->last_update > 1000) {
@@ -264,12 +265,12 @@ void *oob_send(void *args)
 
                 flow_t *flow = head->flows;
                 while (flow != NULL) {
-                    if (flow->ready) {
+                    if (flow->state == READY) {
                         sprintf(msg, "ready %d", flow->id);
                         oob_send_pkt(msg, sockfd, &recv);
                     }
                     else if (flow->stats.expected >= flow->stats.count) {
-                        flow->done = 1;
+                        flow->state = DONE;
                     }
                     flow = flow->next;
                 }
