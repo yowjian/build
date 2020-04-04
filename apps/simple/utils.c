@@ -117,10 +117,10 @@ void init_time(stats_type *nums)
     nums->start_time = nums->time;
 }
 
-void close_time(stats_type *nums)
+void flow_close(flow_t *flow)
 {
-    nums->done = 1;
-    nums->time = get_time();
+    flow->stats.time = get_time();
+    flow->stats.done = 1;
 }
 
 void encode_timestamp(trailer_datatype *trailer)
@@ -280,7 +280,7 @@ static void show_duration()
 
     strftime(buffer, 80, "%H:%M:%S", info);
 
-    printf("enclave: %s\t current time: %s\t elapsed time: %02d:%02d:%02d\n", my_enclave->enclave, buffer, h, m, s);
+    printf("enclave: %s\t current time: %s\t elapsed time: %02d:%02d:%02d\n", my_enclave->name, buffer, h, m, s);
 }
 
 void show_stats()
@@ -332,15 +332,13 @@ static void insert_enclave(char *ptr, char *my_enclave_name)
     char port[16];
 
     enclave_t *enclave = malloc(sizeof(enclave_t));
-    sscanf(ptr, "%s %s %s %s\n", enclave->enclave, port, enclave->pub, enclave->sub);
+    sscanf(ptr, "%s %s %s %s\n", enclave->name, port, enclave->pub, enclave->sub);
 
-    enclave->count = 0;
     enclave->flows = NULL;
     enclave->port = get_int(port);
     enclave->next = NULL;
 
-    if (my_enclave_name != NULL && !strcmp(enclave->enclave, my_enclave_name)) {
-        enclave->tx = 1;
+    if (my_enclave_name != NULL && !strcmp(enclave->name, my_enclave_name)) {
         my_enclave = enclave;
     }
 
@@ -401,7 +399,7 @@ enclave_t *find_enclave(char *name)
     enclave_t *enclave = all_enclaves;
 
     while (enclave != NULL) {
-        if (!strcmp(enclave->enclave, name))
+        if (!strcmp(enclave->name, name))
             return enclave;
 
         enclave = enclave->next;

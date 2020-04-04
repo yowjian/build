@@ -46,21 +46,19 @@ typedef struct _flow_t {
     int sec;
     int type;
     flow_state_t state;
-    unsigned long long last_update;
-    sem_t sem;
+    unsigned long long last_update;     // last time the receiver was updated with sent count
+    sem_t sem;                          // wait until the receiver is ready before sending
     stats_type stats;
     struct _enclave_t *dst;
     struct _flow_t *next;
 } flow_t;
 
 typedef struct _enclave_t {
-    char enclave[16];
-    char pub[64];
-    char sub[64];
-    char tx;
-    int port;
-    int count;
-    flow_t *flows;
+    char name[16];
+    char pub[64];      // IPC publication
+    char sub[64];      // IPC subscription
+    int port;          // port to send/recv out-of-band data
+    flow_t *flows;     // list of flows sent from this enclave
     struct _enclave_t *next;
 } enclave_t;
 
@@ -77,7 +75,7 @@ int get_int(char *str);
 char *trim(char *str);
 void *init_hal();
 void init_time(stats_type *nums);
-void close_time(stats_type *nums);
+void flow_close(flow_t *flow);
 void encode_timestamp(trailer_datatype *trailer);
 unsigned long long decode_timestamp(trailer_datatype *trailer);
 void cal_char(stats_type *nums, trailer_datatype *trailer);

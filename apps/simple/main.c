@@ -57,8 +57,12 @@ static void *gaps_read(void *args)
         cal_char(nums, &pos->trailer);
         if (verbose)
             printf("\t\t\t\t\t\trecv flow %3d, %6d: (%6.0f, %6.0f, %6.0f)\n", flow->id, nums->count, pos->x, pos->y, pos->z);
+
+        if (nums->expected > 0 && nums->count >= nums->expected)
+            break;
     }
     zmq_close(socket);
+    flow_close(flow);
 
     return NULL;
 }
@@ -111,11 +115,11 @@ static void *gaps_write(void *args)
         }
 
         if (nums->expected > 0 && nums->count >= nums->expected) {
-            close_time(nums);
             break;
         }
     }
     zmq_close(send_socket);
+    flow_close(flow);
 
     return NULL;
 }
@@ -265,7 +269,7 @@ static void start_all_threads()
             printf("flow %d: %d %d %d %d\n", flow->id, flow->rate, flow->mux, flow->sec, flow->type);
 
             pthread_t thread;
-            int rtn = pthread_create(&thread, NULL, enclave->tx ? &gaps_write : &gaps_read, flow);
+            int rtn = pthread_create(&thread, NULL, (enclave == my_enclave) ? &gaps_write : &gaps_read, flow);
             if (rtn != 0) {
                 die("thread create failed\n");
             }
