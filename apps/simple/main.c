@@ -130,42 +130,48 @@ void *gaps_write_thread(void *args)
     return NULL;
 }
 
-flow_t *find_flow(flow_head_t *theflows, int id)
+flow_t *find_flow(int id)
 {
-    flow_t *flow = theflows->flows;
+    flow_head_t *head = flow_heads;
 
-    while (flow != NULL) {
-        if (flow->id == id)
-            return flow;
+    while (head != NULL) {
+        flow_t *flow = head->flows;
 
-        flow = flow->next;
+        while (flow != NULL) {
+            if (flow->id == id)
+                return flow;
+
+            flow = flow->next;
+        }
+        head = head->next;
     }
     return NULL;
 }
 
 void *oob_recv(void *args)
 {
-    flow_head_t *head = (flow_head_t *) args;
-
     const int BUF_SIZE = 64;
     int sockfd;
     struct sockaddr_in recv;
 
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("socket creation failed");
-        exit(EXIT_FAILURE);
+        die("socket creation failed");
     }
 
     memset(&recv, 0, sizeof(recv));
     recv.sin_family = AF_INET;
-    recv.sin_port = htons(head->port);
+    recv.sin_port = htons(my_enclave->port);
     recv.sin_addr.s_addr = INADDR_ANY;
+
+    if (bind(sockfd, (const struct sockaddr *) &recv, sizeof(recv)) < 0) {
+        die("bind failed");
+    }
 
     char msg[BUF_SIZE];
     int len;
 
     if (verbose)
-        printf("oob_recv started.\n");
+        printf("oob_recv started at port %d.\n", my_enclave->port);
 
     while (1) {
         int n = recvfrom(sockfd, (char *)msg, BUF_SIZE, 0,
@@ -176,31 +182,32 @@ void *oob_recv(void *args)
         }
         msg[n] = '\0';
 
+        if (verbose)
+            printf("recv %s\n", msg);
+
         const char *ready = "ready";
         const char *sent = "sent";
         if (!strncmp(msg, ready, strlen(ready))) {
             int id = get_int(trim(msg + strlen(ready)));
-            flow_t *flow = find_flow(head, id);
+            flow_t *flow = find_flow(id);
             if (flow != NULL) {
                 sem_post(&flow->sem);  // signal sender to start
             }
-            continue;
         }
 
         if (!strncmp(msg, sent, strlen(sent))) {
             int id, expected;
             sscanf("%d %d", msg + sizeof(sent), &id, &expected);
-            flow_t *flow = find_flow(head, id);
+            flow_t *flow = find_flow(id);
             if (flow != NULL) {
                 flow->stats.expected = expected;
             }
-            continue;
         }
     }
     return NULL;
 }
 
-void send_oob_pkt(char *msg, int sock, struct sockaddr_in *recv)
+static void oob_send_pkt(char *msg, int sock, struct sockaddr_in *recv)
 {
     sendto(sock, (const char *) msg, strlen(msg), 0,
             (const struct sockaddr *) recv, sizeof(*recv));
@@ -211,8 +218,6 @@ void send_oob_pkt(char *msg, int sock, struct sockaddr_in *recv)
 
 void *oob_send(void *args)
 {
-    flow_head_t *all_flows = (flow_head_t *) args;
-
     const int BUF_SIZE = 64;
     int sockfd;
     struct sockaddr_in recv;
@@ -220,16 +225,6 @@ void *oob_send(void *args)
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("socket creation failed");
         exit(EXIT_FAILURE);
-    }
-
-    int port;
-    flow_head_t *head = all_flows;
-    while (head != NULL) {
-        if (!head->tx) {
-            port = head->port;
-            break;
-        }
-        head = head->next;
     }
 
     memset(&recv, 0, sizeof(recv));
@@ -251,14 +246,14 @@ void *oob_send(void *args)
             if (flow->stats.count > 0 && flow->stats.expected >= flow->stats.count) {
                 if (!flow->done) {
                     sprintf(msg, "end %d", flow->id);
-                    send_oob_pkt(msg, sockfd, &recv);
+                    oob_send_pkt(msg, sockfd, &recv);
 
                     flow->done = 1;
                 }
             }
             else if (curr - flow->last_update > 1000) {
                 sprintf(msg, "sent %d %d", flow->id, flow->stats.count);
-                send_oob_pkt(msg, sockfd, &recv);
+                oob_send_pkt(msg, sockfd, &recv);
 
                 flow->last_update = curr;
             }
@@ -274,7 +269,7 @@ void *oob_send(void *args)
                 while (flow != NULL) {
                     if (flow->ready) {
                         sprintf(msg, "ready %d", flow->id);
-                        send_oob_pkt(msg, sockfd, &recv);
+                        oob_send_pkt(msg, sockfd, &recv);
                     }
                     else if (flow->stats.expected >= flow->stats.count) {
                         flow->done = 1;
