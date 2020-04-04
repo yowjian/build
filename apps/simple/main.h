@@ -1,5 +1,6 @@
 #pragma once
 #include <signal.h>
+#include <semaphore.h>
 
 #define MAX_IPC_LEN     64
 #define MAX_PKT_LEN     2048
@@ -18,18 +19,6 @@
 #define TYPE_POS   1
 #define TYPE_TOTAL 2
 #define NUM_TYPES  3
-
-typedef struct _flow_t {
-    int id;
-    int rate;
-    struct _flow_t *next;
-} flow_t;
-
-typedef struct _flow_head_t {
-    char enclave[16];
-    int count;
-    flow_t *flows;
-} flow_head_t;
 
 typedef struct _characteristics_t {
     double max;
@@ -60,13 +49,38 @@ typedef struct _stats {
     characteristics_t loss;
 } stats_type;
 
+typedef struct _flow_t {
+    int id;
+    int rate;
+    int mux;
+    int sec;
+    int type;
+    char ready;
+    char done;
+    unsigned long long last_update;
+    sem_t sem;
+    stats_type stats;
+    struct _flow_head_t *dst;
+    struct _flow_t *next;
+} flow_t;
+
+typedef struct _flow_head_t {
+    char enclave[16];
+    char tx;
+    int port;
+    int count;
+    flow_t *flows;
+    struct _flow_head_t *next;
+} flow_head_t;
+
 extern stats_type stats[][NUM_TYPES];
 
 extern pthread_mutex_t recv_lock;
 extern pthread_mutex_t send_lock;
-
+extern flow_head_t *my_enclave;
 extern char verbose;
 
+void die(char *s);
 void *benchmark();
 
 void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
@@ -75,4 +89,3 @@ int pong_sender(int port, int *to_recv);
 int ping_receiver(int port, int to_send);
 void update_receiver(int sock, int port, int count);
 int update_from_sender(int sock);
-

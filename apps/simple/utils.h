@@ -2,8 +2,7 @@
 
 extern int display_interval;
 
-extern flow_head_t orange_flows;
-extern flow_head_t green_flows;
+extern flow_head_t *flow_heads;
 
 extern char ipc_pub[];
 extern char ipc_sub[];

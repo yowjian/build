@@ -9,18 +9,24 @@
 
 #include "xdcomms.h"
 #include "gma.h"
-#include "common.h"
+
+#include "main.h"
 #include "utils.h"
 
 static char *type_names[NUM_TYPES] = { "distance", "posistion", "total" };
 
-flow_head_t orange_flows;
-flow_head_t green_flows;
+flow_head_t *flow_heads = NULL;
 
 int display_interval = 10;         // in seconds
 
 char ipc_pub[MAX_IPC_LEN];
 char ipc_sub[MAX_IPC_LEN];
+
+void die(char *s)
+{
+    printf("%s: %s\n", s, strerror(errno));
+    exit(1);
+}
 
 unsigned long long get_time()
 {
@@ -233,14 +239,14 @@ static void show_char()
             "average", "max", "min",
             "current");
 
-    for (int j = 0; j < NUM_TYPES; j++) {
-        stats_type *nums = &stats[DIR_RECV][j];
-        printf("%9s| %7.2f %7.2f %7.2f | %7.2f %7.2f %7.2f| %7.2f|\n",
-                type_names[j],
-                nums->jitter.avg, nums->jitter.max, nums->jitter.min,
-                nums->delay.avg, nums->delay.max, nums->delay.min,
-                nums->loss.last);
-    }
+//    for (int j = 0; j < NUM_TYPES; j++) {
+//        stats_type *nums = &stats[DIR_RECV][j];
+//        printf("%9s| %7.2f %7.2f %7.2f | %7.2f %7.2f %7.2f| %7.2f|\n",
+//                type_names[j],
+//                nums->jitter.avg, nums->jitter.max, nums->jitter.min,
+//                nums->delay.avg, nums->delay.max, nums->delay.min,
+//                nums->loss.last);
+//    }
     printf("\n");
 }
 
@@ -281,8 +287,8 @@ static void stats_half(int type, stats_type *nums)
 static void stats_line(int type)
 {
     printf("%9s", type_names[type]);
-    stats_half(type, &stats[DIR_SEND][type]);
-    stats_half(type, &stats[DIR_RECV][type]);
+//    stats_half(type, &stats[DIR_SEND][type]);
+//    stats_half(type, &stats[DIR_RECV][type]);
     printf("|\n");
 }
 
@@ -290,10 +296,10 @@ static void show_duration(int dir, int type)
 {
     int sec, h, m, s;
 
-    unsigned long long ms = get_time() - stats[dir][type].start_time;
+    unsigned long long ms = 0; // get_time() - stats[dir][type].start_time;
 
-    if (stats[dir][type].start_time == 0)
-        ms = 0;
+//    if (stats[dir][type].start_time == 0)
+//        ms = 0;
 
     sec = ms / 1000;
     h = (sec / 3600);
@@ -338,13 +344,13 @@ void show_stats()
         stats_line(j);
     }
 
-    for (int i = 0; i < NUM_DIRS; i++) {
-        for (int j = 0; j < NUM_TYPES; j++) {
-            stats_type *nums = &stats[i][j];
-            nums->last_count = nums->count;
-            nums->last_time = nums->time;
-        }
-    }
+//    for (int i = 0; i < NUM_DIRS; i++) {
+//        for (int j = 0; j < NUM_TYPES; j++) {
+//            stats_type *nums = &stats[i][j];
+//            nums->last_count = nums->count;
+//            nums->last_time = nums->time;
+//        }
+//    }
     printf("\n");
 
     show_char();
@@ -352,48 +358,24 @@ void show_stats()
 
 void init_stats(int hz_dis, int hz_pos)
 {
-    memset((char *)stats, 0, sizeof(stats_type) * NUM_DIRS * NUM_TYPES);
+//    memset((char *)stats, 0, sizeof(stats_type) * NUM_DIRS * NUM_TYPES);
+//
+//    for (int i = 0; i < NUM_DIRS; i++) {
+//        for (int j = 0; j < NUM_TYPES; j++) {
+//            stats[i][j].jitter.first = 1;
+//        }
+//    }
 
-    for (int i = 0; i < NUM_DIRS; i++) {
-        for (int j = 0; j < NUM_TYPES; j++) {
-            stats[i][j].jitter.first = 1;
-        }
-    }
-
-    stats[DIR_SEND][TYPE_DIS].interval = get_interval(hz_dis);
-    stats[DIR_SEND][TYPE_DIS].expected = 0; // no limit;
-
-    stats[DIR_SEND][TYPE_POS].interval = get_interval(hz_pos);
-    stats[DIR_SEND][TYPE_POS].expected = 0; // no limit
+//    stats[DIR_SEND][TYPE_DIS].interval = get_interval(hz_dis);
+//    stats[DIR_SEND][TYPE_DIS].expected = 0; // no limit;
+//
+//    stats[DIR_SEND][TYPE_POS].interval = get_interval(hz_pos);
+//    stats[DIR_SEND][TYPE_POS].expected = 0; // no limit
 }
 
 // --------------------------------------------- program initization
 
-static void sig_handler(int signo)
-{
-    printf("%d %d\n", signo, SIGINT);
-    if (signo == SIGINT) {
-        show_stats();
-        exit(0);
-    }
-}
-
-void init_locks()
-{
-    signal(SIGINT, sig_handler);
-
-    if (pthread_mutex_init(&recv_lock, NULL) != 0) {
-        printf("\n mutex recv init failed\n");
-        exit(1);
-    }
-
-    if (pthread_mutex_init(&send_lock, NULL) != 0) {
-        printf("\n mutex send init failed\n");
-        exit(1);
-    }
-}
-
-static void read_flows(char* flows_filename)
+static void read_flows(char* flows_filename, char *my_enclave_name)
 {
     FILE *fp;
     const int LINE_SIZE = 128;
@@ -404,12 +386,12 @@ static void read_flows(char* flows_filename)
         exit(EXIT_FAILURE);
     }
 
-    memset((char *) &orange_flows, 0, sizeof(flow_head_t));
-    memset((char *) &green_flows, 0, sizeof(flow_head_t));
+    char rate[16], mux[8], sec[8], type[8], port[16];
 
-    char rate[16];
-    flow_head_t *head;
-
+    flow_head_t *from = NULL, *to = NULL;
+    char *enclave = "enclave";
+    char *flows = "flows";
+    int flow_count = 0;
     while (fgets(buf, LINE_SIZE, fp) != NULL) {
         char *ptr = trim(buf);
         if (strlen(ptr) == 0)
@@ -419,28 +401,66 @@ static void read_flows(char* flows_filename)
             continue;
         }
 
-        if (!strcmp(ptr, "green")) {
-            head = &green_flows;
-            strcpy(head->enclave, ptr);
+        if (!strncmp(ptr, enclave, strlen(enclave))) {
+            ptr = trim(ptr + strlen(enclave));
+
+            flow_head_t *head = malloc(sizeof(flow_head_t));
+            sscanf(ptr, "%s %s\n", head->enclave, port);
+
+            head->count = 0;
+            head->flows = NULL;
+            head->port = get_int(port);
+            head->next = flow_heads;
+
+            flow_heads = head;
+
+            if (my_enclave_name != NULL && !strcmp(head->enclave, my_enclave_name)) {
+                head->tx = 1;
+                my_enclave = head;
+            }
         }
-        else if (!strcmp(ptr, "orange")) {
-            head = &orange_flows;
-            strcpy(head->enclave, ptr);
+        else if (!strncmp(ptr, flows, strlen(flows))) {
+            ptr = trim(ptr + strlen(flows));
+
+            char src[16], dst[16];
+            sscanf(ptr, "%s %s", src, dst);
+
+            if (flow_heads == NULL)
+                die("not enclave defined yet.");
+
+            from = to = NULL;
+            flow_head_t *heads = flow_heads;
+            while (heads != NULL) {
+                if (!strcmp(heads->enclave, src))
+                    from = heads;
+                else if (!strcmp(heads->enclave, dst))
+                    to = heads;
+
+                heads = heads->next;
+            }
+            if (from == NULL || to == NULL)
+                die("no enclave found");
         }
-        else if (head == NULL) {
-            printf("no enclave defined yet\n");
-            exit(1);
+        else if (from == NULL|| to == NULL) {
+            die("flow src or dst enclave not found");
         }
         else {
-            head->count++;
+            flow_count++;
 
-            sscanf(ptr, "%s\n", rate);
+            sscanf(ptr, "%s %s %s %s\n", rate, mux, sec, type);
             flow_t *flow = malloc(sizeof(flow_t));
-            flow->id = head->count;
-            flow->rate = get_int(rate);
-            flow->next = head->flows;
+            memset((char *) flow, 0, sizeof(flow_t));
 
-            head->flows = flow;
+            flow->id = flow_count;
+            flow->rate = get_int(rate);
+            flow->mux = get_int(mux);
+            flow->sec = get_int(sec);
+            flow->type = get_int(type);
+            sem_init(&flow->sem, 0, 0);
+            flow->next = from->flows;
+
+            from->flows = flow;
+            flow->dst = to;
         }
     }
 }
@@ -450,56 +470,60 @@ void usage()
     printf("Usage: <this-program> \n\
 \t -h     \t help\n\
 \t -v     \t verbose mode\n\
-\t -d <Hz>\t Distance Hertz (default 100 Hz)\n\
-\t -p <Hz>\t Position Hertz (default 10 Hz)\n\
-\t -f <recipe>\t Read the flow recipe file\n\
-\t -i <sub>\t Subscribe endpoint\n\
-\t -o <pub>\t Publish endpoint\n\
-\t -x <count>\t Distance send count (default unlimited)\n\
-\t -y <count>\t Position send count (default unlimited)\n\
+\t -f <recipe>\t Use the flow file\n\
+\t -e <enc>\t name of my enclave\n\
 \t -l <period>\t Interval in seconds to display statistics in benchmarking (default 10s)\n");
     exit(1);
 }
 
 void parse(int argc, char **argv)
 {
+    char enc[64] = { '\0' };
+    char flow_loaded = 0;
     int c;
-    while ((c = getopt(argc, argv, "hvd:f:p:l:i:o:x:y:")) != -1) {
+
+    while ((c = getopt(argc, argv, "hve:f:l:")) != -1) {
         switch (c) {
-        case 'v':
-            verbose = 1;
+        case 'e':
+            strcpy(enc, optarg);
             break;
-        case 'd':
-            stats[DIR_SEND][TYPE_DIS].interval = get_interval(get_int(optarg));
+        case 'f':
+            read_flows(optarg, enc);
+            flow_loaded = 1;
             break;
-        case 'p':
-            stats[DIR_SEND][TYPE_POS].interval = get_interval(get_int(optarg));
-            break;
-        case 'x':
-            stats[DIR_SEND][TYPE_DIS].expected = get_int(optarg);
-            stats[DIR_SEND][TYPE_TOTAL].expected += get_int(optarg);
-            break;
-        case 'y':
-            stats[DIR_SEND][TYPE_POS].expected = get_int(optarg);
-            stats[DIR_SEND][TYPE_TOTAL].expected += get_int(optarg);
+        case 'h':
+            usage();
             break;
         case 'l':
             display_interval = atoi(optarg);
             break;
-        case 'f':
-            read_flows(optarg);
-            break;
-        case 'i':
-            strcpy(ipc_sub, optarg);
-            break;
-        case 'o':
-            strcpy(ipc_pub, optarg);
-            break;
-        case 'h':
-            usage();
+        case 'v':
+            verbose = 1;
             break;
         default:
             usage();
         }
     }
+
+    if (!flow_loaded) {
+        printf("using default flow definition: flows.txt\n");
+        read_flows("flows.txt", enc);
+    }
+
+    if (my_enclave == NULL) {
+        if (strlen(enc) == 0) {
+            die("Please specify your own enclave using -e");
+        }
+        flow_head_t *heads = flow_heads;
+        while (heads != NULL) {
+            if (!strcmp(heads->enclave, enc)) {
+                my_enclave = heads;
+                break;
+            }
+            heads = heads->next;
+        }
+    }
+
+    if (my_enclave == NULL)
+        die("Please specify your own enclave using -e");
 }

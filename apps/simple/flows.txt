@@ -1,6 +1,13 @@
-orange
-10
-100
+# enclave <enclave name>
+enclave orange 9001
+enclave green 9002
 
-green
-100
+# flows <from> to <to>
+flows orange green
+
+# <send rate> <mux> <sec> <type>
+100 2 2 1
+10 2 2 2
+
+flows green orange
+100 1 1 1

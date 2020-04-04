@@ -25,15 +25,19 @@ void *green_recv_position()
 
 int main(int argc, char **argv)
 {
+    char *enclave = "green";
+
     // defaults
     init_stats(0, 100);
     strcpy(ipc_pub, "ipc:///tmp/halpubbwgreen");
     strcpy(ipc_sub, "ipc:///tmp/halsubbwgreen");
 
     parse(argc, argv);
-    printf("green %lli %lli\n", stats[DIR_SEND][TYPE_DIS].interval, stats[DIR_SEND][TYPE_POS].interval);
+    printf("%s %lli %lli\n", enclave, stats[DIR_SEND][TYPE_DIS].interval, stats[DIR_SEND][TYPE_POS].interval);
 
-    init_locks();
+    start_all_threads(enclave);
+
+    init_locks(enclave);
     init_hal();
 
     pthread_t recvDisThread;

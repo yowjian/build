@@ -13,25 +13,18 @@ HAL_LIB_PATH=-L${HAL}/api -L${HAL}/appgen
 LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmq 
 CFLAGS += -Wall -g ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 
-ORANGE_OBJ = \
-	orange.o \
-	common.o \
-	utils.o
+EXEC=simple
 
-GREEN_OBJ = \
-	green.o \
-	common.o \
+OBJ = \
+	main.o \
 	utils.o
 
 default: all
 
-all: orange green
+all: $(EXEC)
 
-orange: $(ORANGE_OBJ)
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-green: $(GREEN_OBJ)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+$(EXEC): $(OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 .PHONY : force-rebuild 
 
@@ -39,5 +32,5 @@ green: $(GREEN_OBJ)
 	$(CC) $(CFLAGS) $< -o $@ -c
 
 clean:
-	-rm -f *.o *~ orange green
+	-rm -f *.o *~ $(EXEC)
 
