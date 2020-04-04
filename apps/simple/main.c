@@ -7,20 +7,18 @@
 #include <errno.h>
 #include <ctype.h>
 #include <semaphore.h>
+#include <signal.h>
 
 #include "xdcomms.h"
 #include "gma.h"
-#include "main.h"
 #include "utils.h"
 
 enclave_t *my_enclave;
 char verbose = 0;
 unsigned long long sys_start_time;
 
-void *benchmark()
+static void *benchmark()
 {
-    // printf("creating benchmark thread\n");
-
     int elapse_seconds = 0;
     while (1) {
         sleep(1);
@@ -30,11 +28,10 @@ void *benchmark()
             show_stats();
         }
     }
-
     return NULL;
 }
 
-void *gaps_read(void *args)
+static void *gaps_read(void *args)
 {
     flow_t *flow = (flow_t *) args;
 
@@ -44,9 +41,7 @@ void *gaps_read(void *args)
     char pkt[MAX_PKT_LEN];
 
     stats_type *nums = &flow->stats;
-
     init_time(nums);
-    // init_time(&stats[DIR_RECV][TYPE_TOTAL]);  TODO
 
     void *socket = xdc_sub_socket(t_tag);
 
@@ -68,7 +63,7 @@ void *gaps_read(void *args)
     return NULL;
 }
 
-void *gaps_write(void *args)
+static void *gaps_write(void *args)
 {
     flow_t *flow = (flow_t *) args;
 
@@ -89,9 +84,7 @@ void *gaps_write(void *args)
     void *send_socket = xdc_pub_socket();
 
     stats_type *nums = &flow->stats;
-
     init_time(nums);
-    // init_time(&stats[DIR_SEND][TYPE_TOTAL]);
 
     unsigned long long curr = get_time();
 
@@ -109,7 +102,6 @@ void *gaps_write(void *args)
         if (verbose) {
             printf("sent flow %3d, %6d: (%6.0f, %6.0f, %6.0f)\n", flow->id, nums->count, pos.x, pos.y, pos.z);
         }
-
         pos.x++;
         pos.y++;
         pos.z++;
@@ -128,7 +120,7 @@ void *gaps_write(void *args)
     return NULL;
 }
 
-void *oob_recv(void *args)
+static void *oob_recv(void *args)
 {
     const int BUF_SIZE = 64;
     int sockfd;
@@ -196,7 +188,7 @@ static void oob_send_pkt(char *msg, int sock, struct sockaddr_in *recv)
         printf("sent %s\n", msg);
 }
 
-void *oob_send(void *args)
+static void *oob_send(void *args)
 {
     const int BUF_SIZE = 64;
     int sockfd;
@@ -317,7 +309,6 @@ int main(int argc, char **argv)
     init_hal();
 
     sys_start_time = get_time();
-
     start_all_threads();
 
     pthread_exit(NULL);

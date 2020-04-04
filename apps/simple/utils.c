@@ -6,11 +6,11 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <ctype.h>
+#include <semaphore.h>
 
 #include "xdcomms.h"
 #include "gma.h"
 
-#include "main.h"
 #include "utils.h"
 
 enclave_t *all_enclaves = NULL;
