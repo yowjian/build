@@ -29,7 +29,6 @@ typedef struct _stats {
     unsigned long long time;        // current time in ms
     unsigned long long last_time;   // time of the last period in ms
     unsigned long long start_time;  // start time of the thread in ms
-    char done;                      // 1 for complete; 0 otherwise
     pthread_t thread;               // thread associated with this flow
 
     characteristics_t delay;
@@ -48,6 +47,7 @@ typedef struct _flow_t {
     sem_t sem;                          // wait until the receiver is ready before sending
     stats_type stats;
     struct _enclave_t *dst;
+
     struct _flow_t *next;
 } flow_t;
 

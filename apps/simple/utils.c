@@ -120,7 +120,7 @@ void init_time(stats_type *nums)
 void flow_close(flow_t *flow)
 {
     flow->stats.time = get_time();
-    flow->stats.done = 1;
+    flow->state = DONE;
 }
 
 void encode_timestamp(trailer_datatype *trailer)
@@ -225,7 +225,7 @@ static void stats_line(flow_t *flow, char *dir)
 {
     stats_type *nums = &flow->stats;
 
-    if (!nums->done)
+    if (flow->state != DONE)
         nums->time = get_time();
 
     double elapse_seconds = (nums->time - nums->start_time) / 1000;

@@ -219,13 +219,9 @@ static void *oob_send(void *args)
         while (flow != NULL) {
             recv.sin_port = htons(flow->dst->port);
 
-            if (flow->stats.count > 0 && flow->stats.expected >= flow->stats.count) {
-                if (flow->state != DONE) {
-                    sprintf(msg, "end %d", flow->id);
-                    oob_send_pkt(msg, sockfd, &recv);
-
-                    flow->state = DONE;
-                }
+            if (flow->state == DONE) {
+                sprintf(msg, "end %d", flow->id);
+                oob_send_pkt(msg, sockfd, &recv);
             }
             else if (curr - flow->last_update > 1000) {
                 sprintf(msg, "sent %d %d", flow->id, flow->stats.count);
