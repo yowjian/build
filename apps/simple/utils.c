@@ -225,7 +225,7 @@ void cal_char(stats_type *nums, trailer_datatype *trailer)
 
 //---------------------------------------------- statistics
 
-static void stats_line(flow_t *flow, int type)
+static void stats_line(flow_t *flow, char *dir)
 {
     stats_type *nums = &flow->stats;
 
@@ -248,8 +248,9 @@ static void stats_line(flow_t *flow, int type)
         sprintf(percentage, "%7s", "NA");
 
     double rate = (elapse_seconds == 0) ? 0 : nums->count / (double) elapse_seconds;
-    printf("%4d|%5d %7.2f|%7d %8.2f%s|",
+    printf("%4d|%2s|%5d %7.2f|%7d %8.2f%s|",
             flow->id,
+            dir,
             (nums->count - nums->last_count),
             (nums->count - nums->last_count) / (double) display_interval,
             nums->count,
@@ -283,7 +284,7 @@ static void show_duration(int dir, int type)
 
     strftime(buffer, 80, "%H:%M:%S", info);
 
-    printf("current time: %s, \t elapsed time: %02d:%02d:%02d\n", buffer, h, m, s);
+    printf("enclave: %s\t current time: %s\t elapsed time: %02d:%02d:%02d\n", my_enclave->enclave, buffer, h, m, s);
 }
 
 void show_stats()
@@ -304,9 +305,9 @@ void show_stats()
     center("delay (ms)", 24, &delay_ptr);
     center("loss (%)", 9, &loss_ptr);
 
-    printf("%4s|%s|%s|%s|%s|%s|\n", " ",
+    printf("%4s|  |%s|%s|%s|%s|%s|\n", " ",
             inst_ptr, accu_ptr, jitter_ptr, delay_ptr, loss_ptr);
-    printf("%4s|%6s%7s|%6s%10s%7s|%7s %7s %7s|%7s %7s %7s|%8s|\n", " ",
+    printf("%4s|  |%6s%7s|%6s%10s%7s|%7s %7s %7s|%7s %7s %7s|%8s|\n", " ",
             "count", "rate", "count", "rate", "%",
             "average", "max", "min",
             "average", "max", "min",
@@ -315,8 +316,9 @@ void show_stats()
     flow_head_t *head = flow_heads;
     while (head != NULL) {
         flow_t *flow = head->flows;
+        char *dir = (head == my_enclave) ? "->" : "<-";
         while (flow != NULL) {
-            stats_line(flow, DIR_SEND);
+            stats_line(flow, dir);
 
             flow->stats.last_count = flow->stats.count;
 
