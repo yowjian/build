@@ -266,10 +266,7 @@ static void show_duration(int dir, int type)
 {
     int sec, h, m, s;
 
-    unsigned long long ms = 0; // get_time() - stats[dir][type].start_time;
-
-//    if (stats[dir][type].start_time == 0)
-//        ms = 0;
+    unsigned long long ms = get_time() - sys_start_time;
 
     sec = ms / 1000;
     h = (sec / 3600);
@@ -334,6 +331,88 @@ void show_stats()
 
 // --------------------------------------------- program initization
 
+static void insert_enclave(char *ptr, char *my_enclave_name)
+{
+    char port[16];
+
+    flow_head_t *head = malloc(sizeof(flow_head_t));
+    sscanf(ptr, "%s %s %s %s\n", head->enclave, port, head->pub, head->sub);
+
+    head->count = 0;
+    head->flows = NULL;
+    head->port = get_int(port);
+    head->next = NULL;
+
+    if (my_enclave_name != NULL && !strcmp(head->enclave, my_enclave_name)) {
+        head->tx = 1;
+        my_enclave = head;
+    }
+
+    flow_head_t *curr = flow_heads;
+    while (curr != NULL && curr->next != NULL) {
+        curr = curr->next;
+    }
+
+    if (curr == NULL)
+        flow_heads = head;
+    else
+        curr->next = head;
+}
+
+static void insert_flow(flow_head_t *from, flow_head_t *to, int new_id, char *ptr)
+{
+    char rate[16], mux[8], sec[8], type[8];
+
+    sscanf(ptr, "%s %s %s %s\n", rate, mux, sec, type);
+    flow_t *flow = malloc(sizeof(flow_t));
+    memset((char *) flow, 0, sizeof(flow_t));
+
+    flow->id = new_id;
+    flow->rate = get_int(rate);
+    flow->stats.interval = get_interval(flow->rate);
+    flow->mux = get_int(mux);
+    flow->sec = get_int(sec);
+    flow->type = get_int(type);
+    sem_init(&flow->sem, 0, 0);
+    flow->state = INIT;
+
+    flow_t *prev = NULL;
+    flow_t *curr = from->flows;
+    while (curr != NULL && curr->id < flow->id) {
+        prev = curr;
+        curr = curr->next;
+    }
+
+    flow->next = curr;
+    if (curr == NULL) {
+        if (prev == NULL)
+            from->flows = flow;
+        else
+            prev->next = flow;
+    }
+    else {
+        if (prev != NULL)
+            prev->next = flow;
+        else
+            from->flows = flow;
+    }
+
+    flow->dst = to;
+}
+
+flow_head_t *find_enclave(char *name)
+{
+    flow_head_t *heads = flow_heads;
+
+    while (heads != NULL) {
+        if (!strcmp(heads->enclave, name))
+            return heads;
+
+        heads = heads->next;
+    }
+    return NULL;
+}
+
 static void read_flows(char* flows_filename, char *my_enclave_name)
 {
     FILE *fp;
@@ -344,8 +423,6 @@ static void read_flows(char* flows_filename, char *my_enclave_name)
         printf("Failed to open config file %s\n", flows_filename);
         exit(EXIT_FAILURE);
     }
-
-    char rate[16], mux[8], sec[8], type[8], port[16];
 
     flow_head_t *from = NULL, *to = NULL;
     char *enclave = "enclave";
@@ -363,20 +440,7 @@ static void read_flows(char* flows_filename, char *my_enclave_name)
         if (!strncmp(ptr, enclave, strlen(enclave))) {
             ptr = trim(ptr + strlen(enclave));
 
-            flow_head_t *head = malloc(sizeof(flow_head_t));
-            sscanf(ptr, "%s %s %s %s\n", head->enclave, port, head->pub, head->sub);
-
-            head->count = 0;
-            head->flows = NULL;
-            head->port = get_int(port);
-            head->next = flow_heads;
-
-            flow_heads = head;
-
-            if (my_enclave_name != NULL && !strcmp(head->enclave, my_enclave_name)) {
-                head->tx = 1;
-                my_enclave = head;
-            }
+            insert_enclave(ptr, my_enclave_name);
         }
         else if (!strncmp(ptr, flows, strlen(flows))) {
             ptr = trim(ptr + strlen(flows));
@@ -387,16 +451,8 @@ static void read_flows(char* flows_filename, char *my_enclave_name)
             if (flow_heads == NULL)
                 die("not enclave defined yet.");
 
-            from = to = NULL;
-            flow_head_t *heads = flow_heads;
-            while (heads != NULL) {
-                if (!strcmp(heads->enclave, src))
-                    from = heads;
-                else if (!strcmp(heads->enclave, dst))
-                    to = heads;
-
-                heads = heads->next;
-            }
+            from = find_enclave(src);
+            to = find_enclave(dst);
             if (from == NULL || to == NULL)
                 die("no enclave found");
         }
@@ -406,22 +462,7 @@ static void read_flows(char* flows_filename, char *my_enclave_name)
         else {
             flow_count++;
 
-            sscanf(ptr, "%s %s %s %s\n", rate, mux, sec, type);
-            flow_t *flow = malloc(sizeof(flow_t));
-            memset((char *) flow, 0, sizeof(flow_t));
-
-            flow->id = flow_count;
-            flow->rate = get_int(rate);
-            flow->stats.interval = get_interval(flow->rate);
-            flow->mux = get_int(mux);
-            flow->sec = get_int(sec);
-            flow->type = get_int(type);
-            sem_init(&flow->sem, 0, 0);
-            flow->state = INIT;
-            flow->next = from->flows;
-
-            from->flows = flow;
-            flow->dst = to;
+            insert_flow(from, to, flow_count, ptr);
         }
     }
 }

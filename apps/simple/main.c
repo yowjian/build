@@ -16,6 +16,7 @@
 flow_head_t *my_enclave;
 
 char verbose = 0;
+unsigned long long sys_start_time;
 
 void *benchmark()
 {
@@ -337,6 +338,8 @@ int main(int argc, char **argv)
 
     signal(SIGINT, sig_handler);
     init_hal();
+
+    sys_start_time = get_time();
 
     start_all_threads();
 

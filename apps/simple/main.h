@@ -87,6 +87,7 @@ extern pthread_mutex_t recv_lock;
 extern pthread_mutex_t send_lock;
 extern flow_head_t *my_enclave;
 extern char verbose;
+extern unsigned long long sys_start_time;
 
 void die(char *s);
 void *benchmark();
