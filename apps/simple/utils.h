@@ -30,8 +30,6 @@ typedef struct _stats {
     unsigned long long last_time;   // time of the last period in ms
     unsigned long long start_time;  // start time of the thread in ms
     char done;                      // 1 for complete; 0 otherwise
-    int port;                       // UDP port to wait or send out-of-band data
-    int sock;                       // socket for out-of-band data
     pthread_t thread;               // thread associated with this flow
 
     characteristics_t delay;
