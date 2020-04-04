@@ -114,7 +114,6 @@ void *gaps_write(void *args)
         pos.z++;
 
         if (get_time() - curr > 1000) {
-//            update_receiver(sock, port, nums->count);
             curr = get_time();
         }
 
@@ -124,8 +123,6 @@ void *gaps_write(void *args)
         }
     }
     zmq_close(send_socket);
-
-//    update_receiver(sock, port, nums->expected);
 
     return NULL;
 }

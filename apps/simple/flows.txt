@@ -1,6 +1,6 @@
 # enclave <enclave name>
-enclave orange 9001
-enclave green 9002
+enclave orange 9001 ipc:///tmp/halpubbworange ipc:///tmp/halsubbworange
+enclave green 9002 ipc:///tmp/halpubbwgreen ipc:///tmp/halsubbwgreen
 
 # flows <from> to <to>
 flows orange green

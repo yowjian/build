@@ -13,8 +13,6 @@
 #include "main.h"
 #include "utils.h"
 
-static char *type_names[NUM_TYPES] = { "distance", "posistion", "total" };
-
 flow_head_t *flow_heads = NULL;
 
 int display_interval = 10;         // in seconds
@@ -102,8 +100,10 @@ void *init_hal()
 {
     void *ctx = xdc_ctx();
 
-    xdc_set_out(ipc_pub);
-    xdc_set_in(ipc_sub);
+    printf("IPC: %s %s\n", my_enclave->pub, my_enclave->sub);
+
+    xdc_set_out(my_enclave->pub);
+    xdc_set_in(my_enclave->sub);
 
     xdc_register(position_data_encode, position_data_decode, DATA_TYP_POSITION);
     xdc_register(distance_data_encode, distance_data_decode, DATA_TYP_DISTANCE);
@@ -290,8 +290,8 @@ static void show_duration(int dir, int type)
 
 void show_stats()
 {
-    static char *send_ptr = NULL;
-    static char *recv_ptr = NULL;
+//    static char *send_ptr = NULL;
+//    static char *recv_ptr = NULL;
     static char *inst_ptr = NULL;
     static char *accu_ptr = NULL;
     static char *jitter_ptr = NULL;
@@ -314,14 +314,20 @@ void show_stats()
             "average", "max", "min",
             " ");
 
-    flow_t *flow = my_enclave->flows;
-    while (flow != NULL) {
-        stats_line(flow, DIR_SEND);
+    flow_head_t *head = flow_heads;
+    while (head != NULL) {
+        flow_t *flow = head->flows;
+        while (flow != NULL) {
+            stats_line(flow, DIR_SEND);
 
-        flow->stats.last_count = flow->stats.count;
+            flow->stats.last_count = flow->stats.count;
 
-        flow = flow->next;
+            flow = flow->next;
+        }
+
+        head = head->next;
     }
+
     printf("\n");
 }
 
@@ -357,7 +363,7 @@ static void read_flows(char* flows_filename, char *my_enclave_name)
             ptr = trim(ptr + strlen(enclave));
 
             flow_head_t *head = malloc(sizeof(flow_head_t));
-            sscanf(ptr, "%s %s\n", head->enclave, port);
+            sscanf(ptr, "%s %s %s %s\n", head->enclave, port, head->pub, head->sub);
 
             head->count = 0;
             head->flows = NULL;

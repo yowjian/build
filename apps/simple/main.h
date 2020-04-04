@@ -66,6 +66,8 @@ typedef struct _flow_t {
 
 typedef struct _flow_head_t {
     char enclave[16];
+    char pub[64];
+    char sub[64];
     char tx;
     int port;
     int count;
