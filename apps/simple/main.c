@@ -40,25 +40,24 @@ static void *gaps_read(void *args)
 
     char pkt[MAX_PKT_LEN];
 
-    stats_type *nums = &flow->stats;
-    init_time(nums);
+    init_time(flow);
 
     void *socket = xdc_sub_socket(t_tag);
 
-    flow->stats.thread = pthread_self();
+    flow->thread = pthread_self();
     flow->state = READY;
 
     while (1) {
         xdc_blocking_recv(socket, pkt, &t_tag);
-        nums->count++;
+        flow->count++;
         flow->state = STARTED;
 
         position_datatype *pos = (position_datatype *) pkt;
-        cal_char(nums, &pos->trailer);
+        cal_char(flow, &pos->trailer);
         if (verbose)
-            printf("\t\t\t\t\t\trecv flow %3d, %6d: (%6.0f, %6.0f, %6.0f)\n", flow->id, nums->count, pos->x, pos->y, pos->z);
+            printf("\t\t\t\t\t\trecv flow %3d, %6d: (%6.0f, %6.0f, %6.0f)\n", flow->id, flow->count, pos->x, pos->y, pos->z);
 
-        if (nums->expected > 0 && nums->count >= nums->expected)
+        if (flow->expected > 0 && flow->count >= flow->expected)
             break;
     }
     zmq_close(socket);
@@ -89,24 +88,23 @@ static void *gaps_write(void *args)
 
     void *send_socket = xdc_pub_socket();
 
-    stats_type *nums = &flow->stats;
-    init_time(nums);
+    init_time(flow);
 
     unsigned long long curr = get_time();
 
     sem_wait(&flow->sem);
     while (1) {
-        usleep(nums->interval);
+        usleep(flow->interval);
 
         pos.trailer.seq = pos.x;
         encode_timestamp(&pos.trailer);
 
         xdc_asyn_send(send_socket, &pos, t_tag);
 
-        nums->count++;
+        flow->count++;
 
         if (verbose) {
-            printf("sent flow %3d, %6d: (%6.0f, %6.0f, %6.0f)\n", flow->id, nums->count, pos.x, pos.y, pos.z);
+            printf("sent flow %3d, %6d: (%6.0f, %6.0f, %6.0f)\n", flow->id, flow->count, pos.x, pos.y, pos.z);
         }
         pos.x++;
         pos.y++;
@@ -116,7 +114,7 @@ static void *gaps_write(void *args)
             curr = get_time();
         }
 
-        if (nums->expected > 0 && nums->count >= nums->expected) {
+        if (flow->expected > 0 && flow->count >= flow->expected) {
             break;
         }
     }
@@ -181,7 +179,7 @@ static void *oob_recv(void *args)
             sscanf(msg + strlen(sent) + 1, "%d %d", &id, &expected);
             flow_t *flow = find_flow(id);
             if (flow != NULL) {
-                flow->stats.sender_count = expected;
+                flow->sender_count = expected;
             }
             continue;
         }
@@ -247,7 +245,7 @@ static void *oob_send(void *args)
                 flow->state = TERMINATED;
             }
             else if (flow->state != TERMINATED && curr - flow->last_update > 1000) {
-                sprintf(msg, "sent %d %d", flow->id, flow->stats.count);
+                sprintf(msg, "sent %d %d", flow->id, flow->count);
                 oob_send_pkt(msg, sockfd, &recv);
 
                 flow->last_update = curr;
@@ -269,7 +267,7 @@ static void *oob_send(void *args)
                     }
                     else if (flow->state == DONE) {
                         if (get_time() - flow->last_update > 10000) {
-                            pthread_cancel(flow->stats.thread);
+                            pthread_cancel(flow->thread);
                             flow->state = TERMINATED;
 
                             printf("terminate recv flow %d\n", flow->id);

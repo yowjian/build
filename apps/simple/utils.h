@@ -15,23 +15,13 @@ typedef struct _characteristics_t {
     double max;
     double min;
     double avg;
-    double last;
-    int count;
-    int last_seq;
-    char first;
+    double last;                   // last sample value
+    int count;                     // # of samples
+    int last_seq;                  // last sequence number
+    char first;                    // used in jitter only
 } characteristics_t;
 
 typedef struct _stats {
-    long long interval;
-    int expected;                   // number of pkts expected to send or receive
-    int count;                      // current count of sent or received pkts
-    int sender_count;               // sender's count received out of band
-    int last_count;                 // count of sent or received pkts in the last period
-    unsigned long long time;        // current time in ms
-    unsigned long long last_time;   // time of the last period in ms
-    unsigned long long start_time;  // start time of the thread in ms
-    pthread_t thread;               // thread associated with this flow
-
     characteristics_t delay;
     characteristics_t jitter;
     characteristics_t loss;
@@ -39,13 +29,26 @@ typedef struct _stats {
 
 typedef struct _flow_t {
     int id;
-    int rate;
+    int rate;                       // rate in hz of sending data packets
+    long long interval;             // interval between sending data packets; calculated from rate
     int mux;
     int sec;
     int type;
+    sem_t sem;                      // wait until the receiver is ready before sending
     flow_state_t state;
-    unsigned long long last_update;     // last time the receiver was updated with sent count
-    sem_t sem;                          // wait until the receiver is ready before sending
+
+    int expected;                   // number of pkts expected to send or receive
+    int count;                      // current count of sent or received pkts
+    int sender_count;               // sender's count received out of band
+    int last_count;                 // count of sent or received pkts in the last period
+
+    unsigned long long time;        // current time in ms
+    unsigned long long last_time;   // time of the last period in ms
+    unsigned long long start_time;  // start time of the thread in ms
+    unsigned long long last_update; // last time the receiver was updated with sent count
+
+    pthread_t thread;               // thread associated with this flow
+
     stats_type stats;
     struct _enclave_t *dst;
 
@@ -73,11 +76,11 @@ long long get_interval(int hz);
 int get_int(char *str);
 char *trim(char *str);
 void *init_hal();
-void init_time(stats_type *nums);
+void init_time(flow_t *flow);
 void flow_close(flow_t *flow);
 void encode_timestamp(trailer_datatype *trailer);
 unsigned long long decode_timestamp(trailer_datatype *trailer);
-void cal_char(stats_type *nums, trailer_datatype *trailer);
+void cal_char(flow_t *flow, trailer_datatype *trailer);
 void init_locks();
 
 void show_stats();

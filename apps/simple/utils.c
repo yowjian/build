@@ -107,19 +107,19 @@ void *init_hal()
     return ctx;
 }
 
-void init_time(stats_type *nums)
+void init_time(flow_t *flow)
 {
-    if (nums->start_time != 0)
+    if (flow->start_time != 0)
         return;
 
-    nums->time = get_time();
-    nums->last_time = nums->time;
-    nums->start_time = nums->time;
+    flow->time = get_time();
+    flow->last_time = flow->time;
+    flow->start_time = flow->time;
 }
 
 void flow_close(flow_t *flow)
 {
-    flow->stats.time = get_time();
+    flow->time = get_time();
     flow->state = DONE;
 }
 
@@ -137,8 +137,10 @@ unsigned long long decode_timestamp(trailer_datatype *trailer)
            ((unsigned long long) trailer->oid);
 }
 
-void cal_char(stats_type *nums, trailer_datatype *trailer)
+void cal_char(flow_t *flow, trailer_datatype *trailer)
 {
+    stats_type *nums = &flow->stats;
+
     time_t recv_time = get_time();
     time_t sent_time = decode_timestamp(trailer);
 
@@ -197,8 +199,8 @@ void cal_char(stats_type *nums, trailer_datatype *trailer)
 
     double value = 0;
 
-    if (nums->sender_count > 0) {  // receiver
-        double p = (nums->count * 100.0 / nums->sender_count);
+    if (flow->sender_count > 0) {  // receiver
+        double p = (flow->count * 100.0 / flow->sender_count);
         if (p > 100)
             p = 100;
         value = 100 - p;
@@ -226,30 +228,30 @@ static void stats_line(flow_t *flow, char *dir)
     stats_type *nums = &flow->stats;
 
     if (flow->state != DONE)
-        nums->time = get_time();
+        flow->time = get_time();
 
-    double elapse_seconds = (nums->time - nums->start_time) / 1000;
+    double elapse_seconds = (flow->time - flow->start_time) / 1000;
 
     char percentage[16];
-    if (nums->sender_count > 0) {  // receiver
-        double p = (nums->count * 100.0 / nums->sender_count);
+    if (flow->sender_count > 0) {  // receiver
+        double p = (flow->count * 100.0 / flow->sender_count);
         if (p > 100)
             p = 100;
         sprintf(percentage, "%7.2f", p);
     }
-    else if (nums->expected > 0) {
-        sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->expected));
+    else if (flow->expected > 0) {
+        sprintf(percentage, "%7.2f", (flow->count * 100.0 / flow->expected));
     }
     else
         sprintf(percentage, "%7s", "NA");
 
-    double rate = (elapse_seconds == 0) ? 0 : nums->count / (double) elapse_seconds;
+    double rate = (elapse_seconds == 0) ? 0 : flow->count / (double) elapse_seconds;
     printf("%4d|%2s|%5d %7.2f|%7d %8.2f%s|",
             flow->id,
             dir,
-            (nums->count - nums->last_count),
-            (nums->count - nums->last_count) / (double) display_interval,
-            nums->count,
+            (flow->count - flow->last_count),
+            (flow->count - flow->last_count) / (double) display_interval,
+            flow->count,
             rate,
             percentage);
 
@@ -314,8 +316,7 @@ void show_stats()
         while (flow != NULL) {
             stats_line(flow, dir);
 
-            flow->stats.last_count = flow->stats.count;
-
+            flow->last_count = flow->count;
             flow = flow->next;
         }
 
@@ -367,13 +368,13 @@ static void insert_flow(enclave_t *from, enclave_t *to, int new_id, char *ptr)
 
     flow->id = new_id;
     flow->rate = get_int(rate);
-    flow->stats.interval = get_interval(flow->rate);
+    flow->interval = get_interval(flow->rate);
     flow->mux = get_int(mux);
     flow->sec = get_int(sec);
     flow->type = get_int(type);
     sem_init(&flow->sem, 0, 0);
     flow->state = INIT;
-    flow->stats.expected = (n >= 5) ? get_int(expected) : 0;
+    flow->expected = (n >= 5) ? get_int(expected) : 0;
 
     flow_t *prev = NULL;
     flow_t *curr = from->flows;
