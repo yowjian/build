@@ -223,73 +223,42 @@ void cal_char(stats_type *nums, trailer_datatype *trailer)
 }
 
 //---------------------------------------------- statistics
-static void show_char()
+
+static void stats_line(flow_t *flow, int type)
 {
-    static char *jitter_ptr = NULL;
-    static char *delay_ptr = NULL;
-    static char *loss_ptr = NULL;
+    stats_type *nums = &flow->stats;
 
-    center("jitter (ms)", 26, &jitter_ptr);
-    center("delay (ms)", 25, &delay_ptr);
-    center("loss (%)", 9, &loss_ptr);
-
-    printf("%9s|%s|%s|%s|\n", " ", jitter_ptr, delay_ptr, loss_ptr);
-    printf("%9s| %7s %7s %7s | %7s %7s %7s| %7s|\n", " ",
-            "average", "max", "min",
-            "average", "max", "min",
-            "current");
-
-//    for (int j = 0; j < NUM_TYPES; j++) {
-//        stats_type *nums = &stats[DIR_RECV][j];
-//        printf("%9s| %7.2f %7.2f %7.2f | %7.2f %7.2f %7.2f| %7.2f|\n",
-//                type_names[j],
-//                nums->jitter.avg, nums->jitter.max, nums->jitter.min,
-//                nums->delay.avg, nums->delay.max, nums->delay.min,
-//                nums->loss.last);
-//    }
-    printf("\n");
-}
-
-static void stats_half(int type, stats_type *nums)
-{
     if (!nums->done)
         nums->time = get_time();
 
     double elapse_seconds = (nums->time - nums->start_time) / 1000;
 
-    if (nums->expected < 0) {
-        printf("|%5s %7s|%7s %8s%7s", "NA", "NA", "NA", "NA", "NA");
+    char percentage[16];
+    if (nums->sender_count > 0) {  // receiver
+        double p = (nums->count * 100.0 / nums->sender_count);
+        if (p > 100)
+            p = 100;
+        sprintf(percentage, "%7.2f", p);
     }
-    else {
-        char percentage[16];
-        if (nums->sender_count > 0) {  // receiver
-            double p = (nums->count * 100.0 / nums->sender_count);
-            if (p > 100)
-                p = 100;
-            sprintf(percentage, "%7.2f", p);
-        }
-        else if (nums->expected > 0) {
-            sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->expected));
-        }
-        else
-            sprintf(percentage, "%7s", "NA");
-
-        double rate = (elapse_seconds == 0) ? 0 : nums->count / (double) elapse_seconds;
-        printf("|%5d %7.2f|%7d %8.2f%s",
-                (nums->count - nums->last_count),
-                (nums->count - nums->last_count) / (double) display_interval,
-                nums->count,
-                rate,
-                percentage);
+    else if (nums->expected > 0) {
+        sprintf(percentage, "%7.2f", (nums->count * 100.0 / nums->expected));
     }
-}
+    else
+        sprintf(percentage, "%7s", "NA");
 
-static void stats_line(int type)
-{
-    printf("%9s", type_names[type]);
-//    stats_half(type, &stats[DIR_SEND][type]);
-//    stats_half(type, &stats[DIR_RECV][type]);
-    printf("|\n");
+    double rate = (elapse_seconds == 0) ? 0 : nums->count / (double) elapse_seconds;
+    printf("%4d|%5d %7.2f|%7d %8.2f%s|",
+            flow->id,
+            (nums->count - nums->last_count),
+            (nums->count - nums->last_count) / (double) display_interval,
+            nums->count,
+            rate,
+            percentage);
+
+    printf("%7.2f %7.2f %7.2f|%7.2f %7.2f %7.2f| %7.2f|\n",
+            nums->jitter.avg, nums->jitter.max, nums->jitter.min,
+            nums->delay.avg, nums->delay.max, nums->delay.min,
+            nums->loss.last);
 }
 
 static void show_duration(int dir, int type)
@@ -325,52 +294,35 @@ void show_stats()
     static char *recv_ptr = NULL;
     static char *inst_ptr = NULL;
     static char *accu_ptr = NULL;
+    static char *jitter_ptr = NULL;
+    static char *delay_ptr = NULL;
+    static char *loss_ptr = NULL;
 
     show_duration(DIR_SEND, TYPE_POS);
 
-    center("Send", 38, &send_ptr);
-    center("Receive", 38, &recv_ptr);
-
     center("this period", 14, &inst_ptr);
     center("accumulated", 24, &accu_ptr);
+    center("jitter (ms)", 24, &jitter_ptr);
+    center("delay (ms)", 24, &delay_ptr);
+    center("loss (%)", 9, &loss_ptr);
 
-    printf("%9s|%s|%s|\n", " ", send_ptr, recv_ptr);
-    printf("%9s|%s|%s|%s|%s|\n", " ", inst_ptr, accu_ptr, inst_ptr, accu_ptr);
-    printf("%9s|%6s%7s|%6s%10s%7s|%6s%7s|%6s%10s%7s|\n", " ",
+    printf("%4s|%s|%s|%s|%s|%s|\n", " ",
+            inst_ptr, accu_ptr, jitter_ptr, delay_ptr, loss_ptr);
+    printf("%4s|%6s%7s|%6s%10s%7s|%7s %7s %7s|%7s %7s %7s|%8s|\n", " ",
             "count", "rate", "count", "rate", "%",
-            "count", "rate", "count", "rate", "%");
+            "average", "max", "min",
+            "average", "max", "min",
+            " ");
 
-    for (int j = 0; j < NUM_TYPES; j++) {
-        stats_line(j);
+    flow_t *flow = my_enclave->flows;
+    while (flow != NULL) {
+        stats_line(flow, DIR_SEND);
+
+        flow->stats.last_count = flow->stats.count;
+
+        flow = flow->next;
     }
-
-//    for (int i = 0; i < NUM_DIRS; i++) {
-//        for (int j = 0; j < NUM_TYPES; j++) {
-//            stats_type *nums = &stats[i][j];
-//            nums->last_count = nums->count;
-//            nums->last_time = nums->time;
-//        }
-//    }
     printf("\n");
-
-    show_char();
-}
-
-void init_stats(int hz_dis, int hz_pos)
-{
-//    memset((char *)stats, 0, sizeof(stats_type) * NUM_DIRS * NUM_TYPES);
-//
-//    for (int i = 0; i < NUM_DIRS; i++) {
-//        for (int j = 0; j < NUM_TYPES; j++) {
-//            stats[i][j].jitter.first = 1;
-//        }
-//    }
-
-//    stats[DIR_SEND][TYPE_DIS].interval = get_interval(hz_dis);
-//    stats[DIR_SEND][TYPE_DIS].expected = 0; // no limit;
-//
-//    stats[DIR_SEND][TYPE_POS].interval = get_interval(hz_pos);
-//    stats[DIR_SEND][TYPE_POS].expected = 0; // no limit
 }
 
 // --------------------------------------------- program initization
@@ -453,6 +405,7 @@ static void read_flows(char* flows_filename, char *my_enclave_name)
 
             flow->id = flow_count;
             flow->rate = get_int(rate);
+            flow->stats.interval = get_interval(flow->rate);
             flow->mux = get_int(mux);
             flow->sec = get_int(sec);
             flow->type = get_int(type);

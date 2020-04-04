@@ -83,9 +83,5 @@ extern char verbose;
 void die(char *s);
 void *benchmark();
 
-void *gaps_write(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
-void *gaps_read(uint32_t t_mux, uint32_t t_sec, uint32_t type, int port);
-int pong_sender(int port, int *to_recv);
-int ping_receiver(int port, int to_send);
 void update_receiver(int sock, int port, int count);
 int update_from_sender(int sock);

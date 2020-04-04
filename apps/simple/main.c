@@ -34,7 +34,7 @@ void *benchmark()
     return NULL;
 }
 
-void *gaps_read_thread(void *args)
+void *gaps_read(void *args)
 {
     flow_t *flow = (flow_t *) args;
 
@@ -67,7 +67,7 @@ void *gaps_read_thread(void *args)
     return NULL;
 }
 
-void *gaps_write_thread(void *args)
+void *gaps_write(void *args)
 {
     flow_t *flow = (flow_t *) args;
 
@@ -293,7 +293,7 @@ static void start_all_threads()
             printf("flow %d: %d %d %d %d\n", flow->id, flow->rate, flow->mux, flow->sec, flow->type);
 
             pthread_t thread;
-            int rtn = pthread_create(&thread, NULL, head->tx ? &gaps_write_thread : &gaps_read_thread, flow);
+            int rtn = pthread_create(&thread, NULL, head->tx ? &gaps_write : &gaps_read, flow);
             if (rtn != 0) {
                 die("thread create failed\n");
             }
@@ -332,7 +332,6 @@ static void sig_handler(int signo)
 int main(int argc, char **argv)
 {
     // defaults
-    init_stats(10, 100);
     strcpy(ipc_pub, "ipc:///tmp/halpubbworange");
     strcpy(ipc_sub, "ipc:///tmp/halsubbworange");
 
