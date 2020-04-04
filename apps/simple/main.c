@@ -13,8 +13,7 @@
 #include "main.h"
 #include "utils.h"
 
-flow_head_t *my_enclave;
-
+enclave_t *my_enclave;
 char verbose = 0;
 unsigned long long sys_start_time;
 
@@ -126,24 +125,6 @@ void *gaps_write(void *args)
     }
     zmq_close(send_socket);
 
-    return NULL;
-}
-
-flow_t *find_flow(int id)
-{
-    flow_head_t *head = flow_heads;
-
-    while (head != NULL) {
-        flow_t *flow = head->flows;
-
-        while (flow != NULL) {
-            if (flow->id == id)
-                return flow;
-
-            flow = flow->next;
-        }
-        head = head->next;
-    }
     return NULL;
 }
 
@@ -259,12 +240,12 @@ void *oob_send(void *args)
             flow = flow->next;
         }
 
-        flow_head_t *head = flow_heads;
-        while (head != NULL) {
-            if (head != my_enclave) {
-                recv.sin_port = htons(head->port);
+        enclave_t *enclave = all_enclaves;
+        while (enclave != NULL) {
+            if (enclave != my_enclave) {
+                recv.sin_port = htons(enclave->port);
 
-                flow_t *flow = head->flows;
+                flow_t *flow = enclave->flows;
                 while (flow != NULL) {
                     if (flow->state == READY) {
                         sprintf(msg, "ready %d", flow->id);
@@ -276,7 +257,7 @@ void *oob_send(void *args)
                     flow = flow->next;
                 }
             }
-            head = head->next;
+            enclave = enclave->next;
         }
         sleep(1);
     }
@@ -285,20 +266,20 @@ void *oob_send(void *args)
 
 static void start_all_threads()
 {
-    flow_head_t *head = flow_heads;
-    while (head != NULL) {
-        flow_t *flow = head->flows;
+    enclave_t *enclave = all_enclaves;
+    while (enclave != NULL) {
+        flow_t *flow = enclave->flows;
         while (flow != NULL) {
             printf("flow %d: %d %d %d %d\n", flow->id, flow->rate, flow->mux, flow->sec, flow->type);
 
             pthread_t thread;
-            int rtn = pthread_create(&thread, NULL, head->tx ? &gaps_write : &gaps_read, flow);
+            int rtn = pthread_create(&thread, NULL, enclave->tx ? &gaps_write : &gaps_read, flow);
             if (rtn != 0) {
                 die("thread create failed\n");
             }
             flow = flow->next;
         }
-        head = head->next;
+        enclave = enclave->next;
     }
 
     pthread_t thread;
@@ -307,7 +288,7 @@ static void start_all_threads()
         die("thread create failed\n");
     }
 
-    rtn = pthread_create(&thread, NULL, &oob_send, flow_heads);
+    rtn = pthread_create(&thread, NULL, &oob_send, all_enclaves);
     if (rtn != 0) {
         die("thread create failed\n");
     }
@@ -330,10 +311,6 @@ static void sig_handler(int signo)
 
 int main(int argc, char **argv)
 {
-    // defaults
-    strcpy(ipc_pub, "ipc:///tmp/halpubbworange");
-    strcpy(ipc_sub, "ipc:///tmp/halsubbworange");
-
     parse(argc, argv);
 
     signal(SIGINT, sig_handler);

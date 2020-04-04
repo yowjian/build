@@ -13,12 +13,8 @@
 #include "main.h"
 #include "utils.h"
 
-flow_head_t *flow_heads = NULL;
-
+enclave_t *all_enclaves = NULL;
 int display_interval = 10;         // in seconds
-
-char ipc_pub[MAX_IPC_LEN];
-char ipc_sub[MAX_IPC_LEN];
 
 void die(char *s)
 {
@@ -263,7 +259,7 @@ static void stats_line(flow_t *flow, char *dir)
             nums->loss.last);
 }
 
-static void show_duration(int dir, int type)
+static void show_duration()
 {
     int sec, h, m, s;
 
@@ -289,15 +285,13 @@ static void show_duration(int dir, int type)
 
 void show_stats()
 {
-//    static char *send_ptr = NULL;
-//    static char *recv_ptr = NULL;
     static char *inst_ptr = NULL;
     static char *accu_ptr = NULL;
     static char *jitter_ptr = NULL;
     static char *delay_ptr = NULL;
     static char *loss_ptr = NULL;
 
-    show_duration(DIR_SEND, TYPE_POS);
+    show_duration();
 
     center("this period", 14, &inst_ptr);
     center("accumulated", 24, &accu_ptr);
@@ -307,16 +301,16 @@ void show_stats()
 
     printf("%4s|  |%s|%s|%s|%s|%s|\n", " ",
             inst_ptr, accu_ptr, jitter_ptr, delay_ptr, loss_ptr);
-    printf("%4s|  |%6s%7s|%6s%10s%7s|%7s %7s %7s|%7s %7s %7s|%8s|\n", " ",
+    printf("%4s|  |%6s%7s|%6s%10s%7s|%7s %7s %7s|%7s %7s %7s|%8s|\n", "flow",
             "count", "rate", "count", "rate", "%",
             "average", "max", "min",
             "average", "max", "min",
             " ");
 
-    flow_head_t *head = flow_heads;
-    while (head != NULL) {
-        flow_t *flow = head->flows;
-        char *dir = (head == my_enclave) ? "->" : "<-";
+    enclave_t *enclave = all_enclaves;
+    while (enclave != NULL) {
+        flow_t *flow = enclave->flows;
+        char *dir = (enclave == my_enclave) ? "->" : "<-";
         while (flow != NULL) {
             stats_line(flow, dir);
 
@@ -325,7 +319,7 @@ void show_stats()
             flow = flow->next;
         }
 
-        head = head->next;
+        enclave = enclave->next;
     }
 
     printf("\n");
@@ -337,31 +331,31 @@ static void insert_enclave(char *ptr, char *my_enclave_name)
 {
     char port[16];
 
-    flow_head_t *head = malloc(sizeof(flow_head_t));
-    sscanf(ptr, "%s %s %s %s\n", head->enclave, port, head->pub, head->sub);
+    enclave_t *enclave = malloc(sizeof(enclave_t));
+    sscanf(ptr, "%s %s %s %s\n", enclave->enclave, port, enclave->pub, enclave->sub);
 
-    head->count = 0;
-    head->flows = NULL;
-    head->port = get_int(port);
-    head->next = NULL;
+    enclave->count = 0;
+    enclave->flows = NULL;
+    enclave->port = get_int(port);
+    enclave->next = NULL;
 
-    if (my_enclave_name != NULL && !strcmp(head->enclave, my_enclave_name)) {
-        head->tx = 1;
-        my_enclave = head;
+    if (my_enclave_name != NULL && !strcmp(enclave->enclave, my_enclave_name)) {
+        enclave->tx = 1;
+        my_enclave = enclave;
     }
 
-    flow_head_t *curr = flow_heads;
+    enclave_t *curr = all_enclaves;
     while (curr != NULL && curr->next != NULL) {
         curr = curr->next;
     }
 
     if (curr == NULL)
-        flow_heads = head;
+        all_enclaves = enclave;
     else
-        curr->next = head;
+        curr->next = enclave;
 }
 
-static void insert_flow(flow_head_t *from, flow_head_t *to, int new_id, char *ptr)
+static void insert_flow(enclave_t *from, enclave_t *to, int new_id, char *ptr)
 {
     char rate[16], mux[8], sec[8], type[8];
 
@@ -402,15 +396,33 @@ static void insert_flow(flow_head_t *from, flow_head_t *to, int new_id, char *pt
     flow->dst = to;
 }
 
-flow_head_t *find_enclave(char *name)
+enclave_t *find_enclave(char *name)
 {
-    flow_head_t *heads = flow_heads;
+    enclave_t *enclave = all_enclaves;
 
-    while (heads != NULL) {
-        if (!strcmp(heads->enclave, name))
-            return heads;
+    while (enclave != NULL) {
+        if (!strcmp(enclave->enclave, name))
+            return enclave;
 
-        heads = heads->next;
+        enclave = enclave->next;
+    }
+    return NULL;
+}
+
+flow_t *find_flow(int id)
+{
+    enclave_t *enclave = all_enclaves;
+
+    while (enclave != NULL) {
+        flow_t *flow = enclave->flows;
+
+        while (flow != NULL) {
+            if (flow->id == id)
+                return flow;
+
+            flow = flow->next;
+        }
+        enclave = enclave->next;
     }
     return NULL;
 }
@@ -426,7 +438,7 @@ static void read_flows(char* flows_filename, char *my_enclave_name)
         exit(EXIT_FAILURE);
     }
 
-    flow_head_t *from = NULL, *to = NULL;
+    enclave_t *from = NULL, *to = NULL;
     char *enclave = "enclave";
     char *flows = "flows";
     int flow_count = 0;
@@ -450,7 +462,7 @@ static void read_flows(char* flows_filename, char *my_enclave_name)
             char src[16], dst[16];
             sscanf(ptr, "%s %s", src, dst);
 
-            if (flow_heads == NULL)
+            if (all_enclaves == NULL)
                 die("not enclave defined yet.");
 
             from = find_enclave(src);
@@ -518,14 +530,7 @@ void parse(int argc, char **argv)
         if (strlen(enc) == 0) {
             die("Please specify your own enclave using -e");
         }
-        flow_head_t *heads = flow_heads;
-        while (heads != NULL) {
-            if (!strcmp(heads->enclave, enc)) {
-                my_enclave = heads;
-                break;
-            }
-            heads = heads->next;
-        }
+        my_enclave = find_enclave(enc);
     }
 
     if (my_enclave == NULL)

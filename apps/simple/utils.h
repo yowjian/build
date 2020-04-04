@@ -2,10 +2,7 @@
 
 extern int display_interval;
 
-extern flow_head_t *flow_heads;
-
-extern char ipc_pub[];
-extern char ipc_sub[];
+extern enclave_t *all_enclaves;
 
 unsigned long long get_time();
 char *center(char *str, int width, char **dst);
@@ -25,3 +22,6 @@ void init_stats(int hz_dis, int hz_pos);
 
 void usage();
 void parse(int argc, char **argv);
+
+flow_t *find_flow(int id);
+enclave_t *find_enclave(char *name);

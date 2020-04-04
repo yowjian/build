@@ -2,23 +2,8 @@
 #include <signal.h>
 #include <semaphore.h>
 
-#define MAX_IPC_LEN     64
-#define MAX_PKT_LEN     2048
-
-#define PORT_ORANGE_TO_GREEN_DIS  9001
-#define PORT_ORANGE_TO_GREEN_POS  9003
-
-#define PORT_GREEN_TO_ORANGE_DIS  9002
-#define PORT_GREEN_TO_ORANGE_POS  9004
-
-#define DIR_SEND   0
-#define DIR_RECV   1
-#define NUM_DIRS   2
-
-#define TYPE_DIS   0
-#define TYPE_POS   1
-#define TYPE_TOTAL 2
-#define NUM_TYPES  3
+#define MAX_IPC_LEN     128
+#define MAX_PKT_LEN     4096
 
 typedef enum _flow_state_t {
     INIT,
@@ -66,11 +51,11 @@ typedef struct _flow_t {
     unsigned long long last_update;
     sem_t sem;
     stats_type stats;
-    struct _flow_head_t *dst;
+    struct _enclave_t *dst;
     struct _flow_t *next;
 } flow_t;
 
-typedef struct _flow_head_t {
+typedef struct _enclave_t {
     char enclave[16];
     char pub[64];
     char sub[64];
@@ -78,19 +63,12 @@ typedef struct _flow_head_t {
     int port;
     int count;
     flow_t *flows;
-    struct _flow_head_t *next;
-} flow_head_t;
+    struct _enclave_t *next;
+} enclave_t;
 
-extern stats_type stats[][NUM_TYPES];
-
-extern pthread_mutex_t recv_lock;
-extern pthread_mutex_t send_lock;
-extern flow_head_t *my_enclave;
+extern enclave_t *my_enclave;
 extern char verbose;
 extern unsigned long long sys_start_time;
 
 void die(char *s);
 void *benchmark();
-
-void update_receiver(int sock, int port, int count);
-int update_from_sender(int sock);
