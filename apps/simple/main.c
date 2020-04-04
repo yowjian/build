@@ -64,6 +64,8 @@ static void *gaps_read(void *args)
     zmq_close(socket);
     flow_close(flow);
 
+    printf("flow %d recv completed\n", flow->id);
+
     return NULL;
 }
 
@@ -121,6 +123,8 @@ static void *gaps_write(void *args)
     zmq_close(send_socket);
     flow_close(flow);
 
+    printf("flow %d send completed\n", flow->id);
+
     return NULL;
 }
 
@@ -168,6 +172,7 @@ static void *oob_recv(void *args)
             if (flow != NULL) {
                 sem_post(&flow->sem);  // signal sender to start
             }
+            continue;
         }
 
         const char *sent = "sent";
@@ -178,6 +183,19 @@ static void *oob_recv(void *args)
             if (flow != NULL) {
                 flow->stats.sender_count = expected;
             }
+            continue;
+        }
+
+        const char *end = "end";
+        if (!strncmp(msg, end, strlen(end))) {
+            int id;
+
+            sscanf(msg + strlen(end) + 1, "%d", &id);
+            flow_t *flow = find_flow(id);
+            if (flow != NULL) {
+                flow->state = DONE;
+            }
+            continue;
         }
     }
     return NULL;
@@ -212,7 +230,10 @@ static void *oob_send(void *args)
     if (verbose)
         printf("oob_send started.\n");
 
+    char all_terminated = 1;
     while (1) {
+        all_terminated = 1;
+
         flow_t *flow = my_enclave->flows;
         unsigned long long curr = get_time();
 
@@ -222,13 +243,16 @@ static void *oob_send(void *args)
             if (flow->state == DONE) {
                 sprintf(msg, "end %d", flow->id);
                 oob_send_pkt(msg, sockfd, &recv);
+
+                flow->state = TERMINATED;
             }
-            else if (curr - flow->last_update > 1000) {
+            else if (flow->state != TERMINATED && curr - flow->last_update > 1000) {
                 sprintf(msg, "sent %d %d", flow->id, flow->stats.count);
                 oob_send_pkt(msg, sockfd, &recv);
 
                 flow->last_update = curr;
             }
+            all_terminated &= (flow->state == TERMINATED);
             flow = flow->next;
         }
 
@@ -243,13 +267,23 @@ static void *oob_send(void *args)
                         sprintf(msg, "ready %d", flow->id);
                         oob_send_pkt(msg, sockfd, &recv);
                     }
-                    else if (flow->stats.expected >= flow->stats.count) {
-                        flow->state = DONE;
+                    else if (flow->state == DONE) {
+                        if (get_time() - flow->last_update > 10000) {
+                            pthread_cancel(flow->stats.thread);
+                            flow->state = TERMINATED;
+
+                            printf("terminate recv flow %d\n", flow->id);
+                        }
                     }
+                    all_terminated &= (flow->state == TERMINATED);
                     flow = flow->next;
                 }
             }
             enclave = enclave->next;
+        }
+        if (all_terminated) {
+            show_stats();
+            exit(0);
         }
         sleep(1);
     }

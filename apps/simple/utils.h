@@ -7,7 +7,8 @@ typedef enum _flow_state_t {
     INIT,
     READY,
     STARTED,
-    DONE
+    DONE,
+    TERMINATED
 } flow_state_t;
 
 typedef struct _characteristics_t {

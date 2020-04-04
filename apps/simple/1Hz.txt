@@ -8,12 +8,6 @@ flows orange green
 # <send rate> <mux> <sec> <type>
 1 2 2 1
 1 2 2 2
-1 2 2 2
-1 2 2 2
-1 2 2 2
-1 2 2 2
-1 2 2 2
-
 
 flows green orange
 1 1 1 1

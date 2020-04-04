@@ -355,9 +355,13 @@ static void insert_enclave(char *ptr, char *my_enclave_name)
 
 static void insert_flow(enclave_t *from, enclave_t *to, int new_id, char *ptr)
 {
-    char rate[16], mux[8], sec[8], type[8];
+    char rate[16], mux[8], sec[8], type[8], expected[8];
 
-    sscanf(ptr, "%s %s %s %s\n", rate, mux, sec, type);
+    int n = sscanf(ptr, "%s %s %s %s %s\n", rate, mux, sec, type, expected);
+    if (n < 4) {
+        die("invalid flow");
+    }
+
     flow_t *flow = malloc(sizeof(flow_t));
     memset((char *) flow, 0, sizeof(flow_t));
 
@@ -369,6 +373,7 @@ static void insert_flow(enclave_t *from, enclave_t *to, int new_id, char *ptr)
     flow->type = get_int(type);
     sem_init(&flow->sem, 0, 0);
     flow->state = INIT;
+    flow->stats.expected = (n >= 5) ? get_int(expected) : 0;
 
     flow_t *prev = NULL;
     flow_t *curr = from->flows;
