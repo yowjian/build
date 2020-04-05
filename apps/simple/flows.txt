@@ -5,7 +5,7 @@ enclave green 9002 ipc:///tmp/halpubbwgreen ipc:///tmp/halsubbwgreen
 # flows <from> to <to>
 flows orange green
 
-# <send rate> <mux> <sec> <type>
+# <send rate> <mux> <sec> <type> [<#pkt>]
 100 2 2 1 2000
 10 2 2 2 200
 

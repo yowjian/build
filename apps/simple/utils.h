@@ -11,7 +11,7 @@ typedef enum _flow_state_t {
     TERMINATED
 } flow_state_t;
 
-typedef struct _characteristics_t {
+typedef struct _qos_t {
     double max;
     double min;
     double avg;
@@ -19,13 +19,7 @@ typedef struct _characteristics_t {
     int count;                     // # of samples
     int last_seq;                  // last sequence number
     char first;                    // used in jitter only
-} characteristics_t;
-
-typedef struct _stats {
-    characteristics_t delay;
-    characteristics_t jitter;
-    characteristics_t loss;
-} stats_type;
+} qos_t;
 
 typedef struct _flow_t {
     int id;
@@ -49,7 +43,10 @@ typedef struct _flow_t {
 
     pthread_t thread;               // thread associated with this flow
 
-    stats_type stats;
+    qos_t delay;
+    qos_t jitter;
+    qos_t loss;
+
     struct _enclave_t *dst;
 
     struct _flow_t *next;

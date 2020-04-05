@@ -139,13 +139,11 @@ unsigned long long decode_timestamp(trailer_datatype *trailer)
 
 void cal_char(flow_t *flow, trailer_datatype *trailer)
 {
-    stats_type *nums = &flow->stats;
-
     time_t recv_time = get_time();
     time_t sent_time = decode_timestamp(trailer);
 
     // delay
-    characteristics_t *delay = &nums->delay;
+    qos_t *delay = &flow->delay;
     double delta = recv_time - sent_time;
     delay->count++;
 
@@ -163,8 +161,7 @@ void cal_char(flow_t *flow, trailer_datatype *trailer)
     delay->last = delta;
 
     // jitter
-    characteristics_t *jitter = &nums->jitter;
-
+    qos_t *jitter = &flow->jitter;
 
     if (jitter->first) {
         jitter->first = 0;
@@ -194,7 +191,7 @@ void cal_char(flow_t *flow, trailer_datatype *trailer)
     jitter->last_seq = trailer->seq;
 
     // loss
-    characteristics_t *loss = &nums->loss;
+    qos_t *loss = &flow->loss;
     loss->count++;
 
     double value = 0;
@@ -225,8 +222,6 @@ void cal_char(flow_t *flow, trailer_datatype *trailer)
 
 static void stats_line(flow_t *flow, char *dir)
 {
-    stats_type *nums = &flow->stats;
-
     if (flow->state != DONE)
         flow->time = get_time();
 
@@ -256,9 +251,9 @@ static void stats_line(flow_t *flow, char *dir)
             percentage);
 
     printf("%7.2f %7.2f %7.2f|%7.2f %7.2f %7.2f| %7.2f|\n",
-            nums->jitter.avg, nums->jitter.max, nums->jitter.min,
-            nums->delay.avg, nums->delay.max, nums->delay.min,
-            nums->loss.last);
+            flow->jitter.avg, flow->jitter.max, flow->jitter.min,
+            flow->delay.avg, flow->delay.max, flow->delay.min,
+            flow->loss.last);
 }
 
 static void show_duration()
