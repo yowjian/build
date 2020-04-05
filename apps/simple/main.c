@@ -119,7 +119,7 @@ static void *gaps_write(void *args)
         }
     }
     zmq_close(send_socket);
-    flow_close(flow);
+    flow_close(flow);   // transition to DONE
 
     printf("flow %d send completed\n", flow->id);
 
@@ -164,17 +164,17 @@ static void *oob_recv(void *args)
             printf("recv %s\n", msg);
 
         const char *ready = "ready";
-        if (!strncmp(msg, ready, strlen(ready))) {
+        if (!strncmp(msg, ready, strlen(ready))) {  // receiver is ready
             int id = get_int(trim(msg + strlen(ready) + 1));
             flow_t *flow = find_flow(id);
             if (flow != NULL) {
-                sem_post(&flow->sem);  // signal sender to start
+                sem_post(&flow->sem);  // signal sender to start sending
             }
             continue;
         }
 
         const char *sent = "sent";
-        if (!strncmp(msg, sent, strlen(sent))) {
+        if (!strncmp(msg, sent, strlen(sent))) {  // updated #pkt from sender
             int id, expected;
             sscanf(msg + strlen(sent) + 1, "%d %d", &id, &expected);
             flow_t *flow = find_flow(id);
@@ -185,7 +185,7 @@ static void *oob_recv(void *args)
         }
 
         const char *end = "end";
-        if (!strncmp(msg, end, strlen(end))) {
+        if (!strncmp(msg, end, strlen(end))) {  // sender has completed
             int id;
 
             sscanf(msg + strlen(end) + 1, "%d", &id);
@@ -232,19 +232,20 @@ static void *oob_send(void *args)
     while (1) {
         all_terminated = 1;
 
-        flow_t *flow = my_enclave->flows;
+        flow_t *flow = my_enclave->flows;  // check only send flows
         unsigned long long curr = get_time();
 
         while (flow != NULL) {
             recv.sin_port = htons(flow->dst->port);
 
-            if (flow->state == DONE) {
+            if (flow->state == DONE) {  // finished sending
                 sprintf(msg, "end %d", flow->id);
                 oob_send_pkt(msg, sockfd, &recv);
 
                 flow->state = TERMINATED;
             }
             else if (flow->state != TERMINATED && curr - flow->last_update > 1000) {
+                // send an update to the receiver on the #pkt sent
                 sprintf(msg, "sent %d %d", flow->id, flow->count);
                 oob_send_pkt(msg, sockfd, &recv);
 
@@ -256,16 +257,16 @@ static void *oob_send(void *args)
 
         enclave_t *enclave = all_enclaves;
         while (enclave != NULL) {
-            if (enclave != my_enclave) {
+            if (enclave != my_enclave) {  // check all receive flows
                 recv.sin_port = htons(enclave->port);
 
                 flow_t *flow = enclave->flows;
                 while (flow != NULL) {
-                    if (flow->state == READY) {
+                    if (flow->state == READY) {  // ask flow receiver if it is ready
                         sprintf(msg, "ready %d", flow->id);
                         oob_send_pkt(msg, sockfd, &recv);
                     }
-                    else if (flow->state == DONE) {
+                    else if (flow->state == DONE) { // received 'end' from sender, terminate the thread
                         if (get_time() - flow->last_update > 10000) {
                             pthread_cancel(flow->thread);
                             flow->state = TERMINATED;
