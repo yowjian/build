@@ -10,6 +10,9 @@ HAL_APPGEN_INCLUDE=-I${HAL}/appgen
 HAL_LIBS=-lpnt -lxdcomms
 HAL_LIB_PATH=-L${HAL}/api -L${HAL}/appgen
 
+LIBS 	    = ${HAL}/api/libxdcomms.a
+COMPATLIBS  = ${HAL}/x86_64_prebuild/libzmq.a -static -Wl,--allow-multiple-definition -Wl,-Bstatic -lsodium -lunwind -llzma $(LDFLAGS) -ldl -lc -lstdc++ -lpthread
+
 LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmq 
 CFLAGS += -Wall -g ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 
@@ -25,6 +28,9 @@ all: $(EXEC)
 
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
+
+static: $(OBJ)
+	$(CC) $(CFLAGS) -o $(EXEC) $^ $(LIBS) $(COMPATLIBS)
 
 .PHONY : force-rebuild 
 
