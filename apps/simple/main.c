@@ -99,7 +99,7 @@ static void *gaps_write(void *args)
         pos.trailer.seq = pos.x;
         encode_timestamp(&pos.trailer);
 
-        xdc_asyn_send(send_socket, &pos, t_tag);
+        xdc_asyn_send(send_socket, &pos, &t_tag);
 
         flow->count++;
 
