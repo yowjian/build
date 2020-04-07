@@ -39,22 +39,22 @@ default: all
 
 all: orange green
 
+static: static-orange static-green
+
 pnt: $(OBJ)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 orange: $(ORANGE_OBJ)
-ifeq ($(STATIC_BUILD),true)
-	$(CXX) -o $@ $^ $(LIBS) $(COMPATLIBS)
-else
 	$(CXX) -o $@ $^ $(LDFLAGS)
-endif
 
 green: $(GREEN_OBJ)
-ifeq ($(STATIC_BUILD),true)
-	$(CXX) -o $@ $^ $(LIBS) $(COMPATLIBS)
-else
 	$(CXX) -o $@ $^ $(LDFLAGS)
-endif
+
+static-orange: $(ORANGE_OBJ)
+	$(CXX) -o orange $^ $(LIBS) $(COMPATLIBS)
+
+static-green: $(GREEN_OBJ)
+	$(CXX) -o green $^ $(LIBS) $(COMPATLIBS)
 
 .PHONY : force-rebuild 
 
