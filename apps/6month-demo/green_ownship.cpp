@@ -32,5 +32,5 @@ void OwnShipShadow::update(Subject *s) {
 
   if (send_pos_socket == NULL)
       send_pos_socket = xdc_pub_socket();
-  xdc_asyn_send(send_pos_socket, &pos, t_tag);
+  xdc_asyn_send(send_pos_socket, &pos, &t_tag);
 }

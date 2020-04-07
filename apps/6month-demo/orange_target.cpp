@@ -34,7 +34,7 @@ void TargetShadow::update(Subject *s) {
 
     if (send_pos_socket == NULL)
         send_pos_socket = xdc_pub_socket();
-    xdc_asyn_send(send_pos_socket, &pos, t_tag);
+    xdc_asyn_send(send_pos_socket, &pos, &t_tag);
   }
   else if (rf) {
     Distance distance  = rf->getDistance();
@@ -55,6 +55,6 @@ void TargetShadow::update(Subject *s) {
 
     if (send_dis_socket == NULL)
         send_dis_socket = xdc_pub_socket();
-    xdc_asyn_send(send_dis_socket, &dis, t_tag);
+    xdc_asyn_send(send_dis_socket, &dis, &t_tag);
   }
 }

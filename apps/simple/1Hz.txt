@@ -1,0 +1,19 @@
+# enclave <enclave name>
+enclave orange 9001 ipc:///tmp/halpubbworange ipc:///tmp/halsubbworange
+enclave green 9002 ipc:///tmp/halpubbwgreen ipc:///tmp/halsubbwgreen
+
+# flows <from> to <to>
+flows orange green
+
+# <send rate> <mux> <sec> <type>
+1 2 2 1 100
+1 2 2 2 100
+1 2 2 2 100
+1 2 2 2 100
+1 2 2 2 100
+1 2 2 2 100
+1 2 2 2 100
+
+
+flows green orange
+1 1 1 1 100
