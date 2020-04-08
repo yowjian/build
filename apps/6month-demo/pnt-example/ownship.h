@@ -1,9 +1,6 @@
 #pragma once
 #include "pnt_data.h"
 #include "observer.h"
-#include "sensors.h"
-#include "hal_xdcomms.h"
-
 #include <iostream>
 
 class OwnShip: public Observer, public Subject
@@ -11,7 +8,6 @@ class OwnShip: public Observer, public Subject
   Track _track;
   int _frequency;
   int _cycle;
-  int _count = 0;
 
 public:
   OwnShip(int rate = 1) : _frequency(rate) {
@@ -31,38 +27,13 @@ public:
 
   void print_track()
   {
-    std::cout << ++_count << " ---UAV TRACK ---" << std::endl
+    std::cout << "---UAV TRACK ---" << std::endl
 	      << " x=" << _track._pos._x << std::endl
 	      << " y=" << _track._pos._y << std::endl
 	      << " z=" << _track._pos._z << std::endl << std::endl;
   }
-  // CHANGE: from protected
-  void setPosition(Position const& p) { _track._pos = p; }
 protected:
+  void setPosition(Position const& p) { _track._pos = p; }
   void setVelocity(Velocity const& v) { _track._v = v; }
-};
-
-class OwnShipShadow: public OwnShip, public Trailer
-{
-private:
-    std::thread thread_;
-    void receive();
-    void *send_pos_socket = NULL;
-
-public:
-  OwnShipShadow(int rate = 1) {
-      thread_ = std::thread(&OwnShipShadow::receive, this);
-  }
-  ~OwnShipShadow() {
-      if (send_pos_socket != NULL)
-          zmq_close(send_pos_socket);
-      thread_.join();
-  }
-
-  void notify() override {
-      OwnShip::notify();
-  }
-
-  virtual void update(Subject *s) override;
-
+  
 };

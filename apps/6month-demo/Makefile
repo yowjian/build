@@ -17,12 +17,6 @@ LDFLAGS += $(HAL_LIB_PATH) -lpthread $(HAL_LIBS) -lzmq
 #CFLAGS += -Wall -g $(XMLFLAGS) -I/dist/include $(DIRS)
 CPPFLAGS=-std=c++11 ${HAL_API_INCLUDE} ${HAL_APPGEN_INCLUDE}
 
-OBJ = \
-	pnt_example.o \
-	ownship.o \
-	target.o \
-	rpc.o
-
 ORANGE_OBJ = \
 	orange.o \
 	orange_ownship.o \
@@ -40,9 +34,6 @@ default: all
 all: orange green
 
 static: static-orange static-green
-
-pnt: $(OBJ)
-	$(CXX) -o $@ $^ $(LDFLAGS)
 
 orange: $(ORANGE_OBJ)
 	$(CXX) -o $@ $^ $(LDFLAGS)
@@ -62,5 +53,5 @@ static-green: $(GREEN_OBJ)
 	$(CC) $(CFLAGS) $< -o $@ -c
 
 clean:
-	-rm -f *.o *~ pnt orange green
+	-rm -f *.o *~ orange green
 

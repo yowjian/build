@@ -1,7 +1,6 @@
 #include "target.h"
 #include "ownship.h"
 #include "sensors.h"
-#include "rpc.h"
 
 void Target::update(Subject *s) {
   static int cnt = 0;
@@ -12,18 +11,18 @@ void Target::update(Subject *s) {
   RfSensor *rf = dynamic_cast<RfSensor *>(s);
   if (uav) {
     setUAVLocation(uav->getPosition());
-    if (orange_enclave) {
+    //    if (orange_enclave) {
       // push UAV position to green via RPC
 //      updateRemote(s);
-    }
+//    }
   } else if (gps) {
     tick = true; // yeah.. hackish
   } else if (rf) {
     setDistance(rf->getDistance());
-    if (orange_enclave) {
+    //    if (orange_enclave) {
       // push the distance to green via RPC
 //      updateRemote(s);
-    }
+//    }
   }
 		
   if (tick && _cycle != 0 && 0 == ++cnt % _cycle) {

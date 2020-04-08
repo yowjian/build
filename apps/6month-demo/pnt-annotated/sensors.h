@@ -92,35 +92,3 @@ void setDistance(Distance const& d) { _d = d; }
   }
 
 };
-
-class GpsSensorShadow : public GpsSensor
-{
-private:
-    std::thread thread_;
-    void receive();
-
-public:
-    GpsSensorShadow(Position const& p, Velocity const& v) :  GpsSensor(p, v) {
-      thread_ = std::thread(&GpsSensorShadow::receive, this);
-    }
-    ~GpsSensorShadow() { thread_.join(); }
-
-    void read() override {
-    }
-};
-
-class RfSensorShadow : public RfSensor
-{
-private:
-    std::thread thread_;
-    void receive();
-
-public:
-    RfSensorShadow(Distance const& d, Velocity const& v) :  RfSensor(d, v) {
-      thread_ = std::thread(&RfSensorShadow::receive, this);
-    }
-    ~RfSensorShadow() { thread_.join(); }
-
-    void read() override {
-    }
-};
