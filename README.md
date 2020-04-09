@@ -28,8 +28,6 @@ Clone the CLOSURE components as follows, into the 'build' directory (referred to
 ```
 gits clone https://github.com/gaps-closure/build
 ```
-In the following, $BUILD refers to 
-
 
 ## Build All from source excluding LLVM
 To build the entire CLOSURE, except LLVM, from source, do the following

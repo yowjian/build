@@ -1,11 +1,11 @@
-# enclave <enclave name>
+# enclave <enclave name> <port> <pub-endpoint> <sub-endpoint>
 enclave orange 9001 ipc:///tmp/halpubbworange ipc:///tmp/halsubbworange
 enclave green 9002 ipc:///tmp/halpubbwgreen ipc:///tmp/halsubbwgreen
 
-# flows <from> to <to>
+# flows <from-enclave> to <to-enclave>
 flows orange green
 
-# <send rate> <mux> <sec> <type> [<#pkt>]
+# <transmission rate in Hz> <mux> <sec> <type> [<#packets>]
 100 2 2 1 
 10 2 2 2 
 
