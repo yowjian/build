@@ -1,17 +1,13 @@
 # CLOSURE Simple App
 The simple app is a small utility to test the connectivity and data transfer via CLOSURE HAL.
 
-A prerequisite of building CLOSURE from its components is git slave. Download and install [git slave](http://gitslave.sourceforge.net/) as follows, if it is not already installed on your system.
-```
-```
-
 ## Contents
 - [Building the App](#building-the-app)
 - [Running the App](#running-the-app)
 - [Sample Output](#sample-output)
 
 ## Building the App
-Do the following to build the app.
+The simple app uses APIs provided by the CLOSURE hal library, which must be built separately. Please refer to [Cloning CLOSURE](../../README.md) to populate and build hal. Once hal is successfully built, do the following to build the simple app.
 
 ```
 make
