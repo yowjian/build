@@ -3,6 +3,6 @@
 *.ll
 *clemap*
 *mod.c
+!example_files/*mod.c
 ex1_orange
 ex1_purple
-ex1_plain.c
