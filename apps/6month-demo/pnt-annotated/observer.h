@@ -27,14 +27,3 @@ protected:
   unordered_set<Observer *> _observers;
 };
 
-class Trailer
-{
-public:
-    int seq;
-    int rqr;
-    int oid;
-    short mid;
-    short crc;
-
-    Trailer() {}
-};

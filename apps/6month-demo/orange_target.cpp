@@ -26,7 +26,9 @@ void TargetShadow::update(Subject *s) {
     pos.trailer.mid = mid;
     pos.trailer.crc = crc;
 
-    gaps_tag  t_tag, r_tag;
+    #pragma cle begin TAG_2_2_1
+    gaps_tag  t_tag;
+    #pragma cle end TAG_2_2_1
     uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_POSITION;
 
     tag_write(&t_tag, t_mux, t_sec, type);
@@ -47,7 +49,9 @@ void TargetShadow::update(Subject *s) {
     dis.trailer.mid = mid;
     dis.trailer.crc = crc;
 
-    gaps_tag  t_tag, r_tag;
+    #pragma cle begin TAG_2_2_2
+    gaps_tag  t_tag;
+    #pragma cle end TAG_2_2_2
     uint32_t  t_mux = 2, t_sec = 2, type = DATA_TYP_DISTANCE;
 
     tag_write(&t_tag, t_mux, t_sec, type);

@@ -6,30 +6,40 @@
 # include <Windows.h>
 #else
 # include <unistd.h>
-# include <string.h>
 #endif
 #include "pnt_data.h"
 #include "sensors.h"
 #include "ownship.h"
 #include "target.h"
 
-bool orange_enclave = false;
+#pragma cle def GREEN {"level":"green",\
+  "cdf": [\
+    {"remotelevel":"==orange", \
+     "direction": "egress", \
+     "guardhint": { "oneway": "true"}}\
+  ] }
+
+#pragma cle def ORANGE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"==green", \
+     "direction": "egress", \
+     "guardhint": { "oneway": "true"}}\
+  ] }
+
+#pragma cle def TAG_1_1_1 {}
+#pragma cle def TAG_2_2_1 {}
+#pragma cle def TAG_2_2_2 {}
 
 int main(int argc, char **argv)
 {
-  // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
-  // Touched on green side gpssensor constructor
   Position p(.0, .0, .0); // initial position
-  // Touched on orange side by RFSensor constructor
   Distance d(1062, 7800, 9000); // initial target distance
-  // Touched by green side gpssensor constructor
+
   Velocity v(50, 25, 12);
-  // touched by orange side RFSensor constructor
   Velocity vtgt(35, 625, 18);
   #pragma cle begin GREEN
   GpsSensor* gps = new GpsSensor(p, v);
   #pragma cle end GREEN
-
   #pragma cle begin ORANGE
   RfSensor* rfs = new RfSensor(d, vtgt);
     
@@ -40,17 +50,16 @@ int main(int argc, char **argv)
   #pragma cle end GREEN
 
   // setup the dataflow relationships
-  gps->attach(uav); // cross domain attach gps is green uav is orange
+  gps->attach(uav);
   gps->attach(tgt);
-  uav->attach(tgt); // cross domain 
-  rfs->attach(tgt); // cross domain 
-  // _observers may be tained; contains a mix of local and remote observers; kind of split TBD
+  uav->attach(tgt);
+  rfs->attach(tgt);
 
   while (true)
     {
       // here we simulate sensor data streams
-	  gps->read();
-	  rfs->read();
+      gps->read();
+      rfs->read();
       
 #ifdef _WIN32	  
       Sleep(sleep_msec); // 100 Hz

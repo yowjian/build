@@ -5,7 +5,9 @@
 
 void GpsSensorShadow::receive()
 {
-    gaps_tag t_tag, r_tag;
+    #pragma cle begin TAG_1_1_1
+    gaps_tag t_tag;
+    #pragma cle end TAG_1_1_1
     uint32_t t_mux = 1, t_sec = 1, type = DATA_TYP_POSITION;
 
     tag_write(&t_tag, t_mux, t_sec, type);

@@ -7,7 +7,9 @@
 
 void OwnShipShadow::receive()
 {
+    #pragma cle begin TAG_2_2_1
     gaps_tag t_tag;
+    #pragma cle end TAG_2_2_1
     uint32_t t_mux = 2, t_sec = 2, type = DATA_TYP_POSITION;
 
     tag_write(&t_tag, t_mux, t_sec, type);
@@ -30,7 +32,9 @@ void OwnShipShadow::receive()
 
 void RfSensorShadow::receive()
 {
+    #pragma cle begin TAG_2_2_2
     gaps_tag t_tag;
+    #pragma cle end TAG_2_2_2
     uint32_t t_mux = 2, t_sec = 2, type = DATA_TYP_DISTANCE;
 
     tag_write(&t_tag, t_mux, t_sec, type);

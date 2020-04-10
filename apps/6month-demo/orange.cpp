@@ -1,4 +1,4 @@
-// pnt_example.cpp : Defines the entry point for the console application.
+// orange.cpp : Defines the entry point for the console application. (orange enclave)
 //
 #include <signal.h>
 #include <iostream>
@@ -14,6 +14,24 @@
 #include "ownship.h"
 #include "target.h"
 
+#pragma cle def GREEN {"level":"green",\
+  "cdf": [\
+    {"remotelevel":"==orange", \
+     "direction": "egress", \
+     "guardhint": { "oneway": "true"}}\
+  ] }
+
+#pragma cle def ORANGE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"==green", \
+     "direction": "egress", \
+     "guardhint": { "oneway": "true"}}\
+  ] }
+
+#pragma cle def TAG_1_1_1 {}
+#pragma cle def TAG_2_2_1 {}
+#pragma cle def TAG_2_2_2 {}
+
 int main(int argc, char **argv)
 {
    std::cout << "orange " << std::endl;
@@ -28,18 +46,14 @@ int main(int argc, char **argv)
   Velocity v(50, 25, 12);
   // touched by orange side RFSensor constructor
   Velocity vtgt(35, 625, 18);
-  #pragma cle begin GREEN
   GpsSensorShadow* gps = new GpsSensorShadow(p, v);
-  #pragma cle end GREEN
 
   #pragma cle begin ORANGE
   RfSensor* rfs = new RfSensor(d, vtgt);
     
   OwnShip* uav = new OwnShip(100); // updates at 100 Hz frequency
   #pragma cle end ORANGE
-  #pragma cle begin GREEN
   TargetShadow* tgt = new TargetShadow (10); // updates at 10 Hz frequency
-  #pragma cle end GREEN
 
   // setup the dataflow relationships
   gps->attach(uav); // cross domain attach gps is green uav is orange

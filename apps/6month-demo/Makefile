@@ -55,3 +55,64 @@ static-green: $(GREEN_OBJ)
 clean:
 	-rm -f *.o *~ orange green
 
+
+#### LLVM Partitioner 
+
+# make PROG=green will override this
+PROG=orange
+LIBPDG=../../src/capo/pdg/build/libpdg.so
+CLE_PRE=../../src/mules/cle-preprocessor/src
+PARTITIONER=../../src/capo/partitioner/src/partitioner.py
+
+orange_LLVMOBJ = orange_ownship.ll\
+          orange_rpc.ll\
+          orange_target.ll\
+          orange.mod.ll
+          
+green_LLVMOBJ = green_ownship.ll\
+          green_rpc.ll\
+          green_target.ll\
+          green.mod.ll
+
+
+.SECONDARY:
+
+enclaves: pdgragh.main.dot
+	python3 $(PARTITIONER) $(PROG).cpp
+
+
+dot: $(PROG)_all.mod.bc
+	opt -load $(LIBPDG) -dot-pdg $^
+
+remdot: dot
+	gvpr -c "N[$.degree==0]{delete(root,$$)}" pdgragh.main.dot -o tmp.dot
+	mv tmp.dot pdgragh.main.dot
+	cp pdgragh.main.dot $(PROG)_all.pdgragh.main.dot
+	
+$(PROG)_all.mod.bc: $($(PROG)_LLVMOBJ)
+	llvm-link -o $@ $^
+
+%.mod.bc: %.mod.ll
+	llvm-as $^
+
+%.ll: %.c
+%.ll: %.cpp
+	clang $(CPPFLAGS) -S -g $(INCLUDE_DIRS) -emit-llvm $^
+
+%.mod.c: %.c
+%.mod.cpp: %.cpp
+	$(CLE_PRE)/qd_cle_preprocessor.py -f $^
+
+tags:
+	llvm-dis orange_all.mod.bc
+	llvm-dis green_all.mod.bc
+	python3 ../../src/capo/partitioner/src/tag_processor.py green_all.pdgragh.main.dot orange_all.pdgragh.main.dot
+	echo "INVOKE cutzoom HERE"
+
+#packages:
+#	tar cf $(PROG)_$(ENC1)-enclave-gw-P.tar $(PROG)_$(ENC1)
+#	tar cf $(PROG)_$(ENC2)-enclave-gw-O.tar $(PROG)_$(ENC2)
+
+capoclean:
+	rm -f *~ *.ll *.bc *.dot *.clemap.json *.mod.c *.mod.cpp 
+

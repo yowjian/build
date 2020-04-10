@@ -1,4 +1,4 @@
-// pnt_example.cpp : Defines the entry point for the console application.
+// green.cpp : Defines the entry point for the console application. (green enclave)
 //
 
 #include <iostream>
@@ -15,6 +15,24 @@
 
 #include "hal_xdcomms.h"
 
+#pragma cle def GREEN {"level":"green",\
+  "cdf": [\
+    {"remotelevel":"==orange", \
+     "direction": "egress", \
+     "guardhint": { "oneway": "true"}}\
+  ] }
+
+#pragma cle def ORANGE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"==green", \
+     "direction": "egress", \
+     "guardhint": { "oneway": "true"}}\
+  ] }
+
+#pragma cle def TAG_1_1_1 {}
+#pragma cle def TAG_2_2_1 {}
+#pragma cle def TAG_2_2_2 {}
+
 int main(int argc, char **argv)
 {
    std::cout << "green" << std::endl;
@@ -24,7 +42,6 @@ int main(int argc, char **argv)
    std::cout << "in " << xdc_set_in(NULL) << std::endl;
    
   // Assume the color for p, d, v, vtgt is inferred from below coloring in constructors
-
   // Touched on green side gpssensor constructor
   Position p(.0, .0, .0); // initial position
   // Touched on orange side by RFSensor constructor
@@ -37,11 +54,9 @@ int main(int argc, char **argv)
   GpsSensor* gps = new GpsSensor(p, v);
   #pragma cle end GREEN
 
-  #pragma cle begin ORANGE
   RfSensorShadow* rfs = new RfSensorShadow(d, vtgt);
     
   OwnShipShadow* uav = new OwnShipShadow(100); // updates at 100 Hz frequency
-  #pragma cle end ORANGE
   #pragma cle begin GREEN
   Target* tgt = new Target (10); // updates at 10 Hz frequency
   #pragma cle end GREEN
