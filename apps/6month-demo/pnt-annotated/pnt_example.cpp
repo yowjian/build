@@ -13,8 +13,6 @@
 #include "ownship.h"
 #include "target.h"
 
-#include "rpc.h"
-
 bool orange_enclave = false;
 
 int main(int argc, char **argv)
@@ -47,8 +45,6 @@ int main(int argc, char **argv)
   uav->attach(tgt); // cross domain 
   rfs->attach(tgt); // cross domain 
   // _observers may be tained; contains a mix of local and remote observers; kind of split TBD
-
-  rpc_init(uav, tgt);
 
   while (true)
     {

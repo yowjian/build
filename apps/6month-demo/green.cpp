@@ -13,7 +13,6 @@
 #include "ownship.h"
 #include "target.h"
 
-#include "rpc.h"
 #include "hal_xdcomms.h"
 
 int main(int argc, char **argv)

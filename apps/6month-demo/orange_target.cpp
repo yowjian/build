@@ -1,7 +1,6 @@
 #include "target.h"
 #include "ownship.h"
 #include "sensors.h"
-#include "rpc.h"
 
 #include "hal_xdcomms.h"
 #include "hal_gma.h"

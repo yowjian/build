@@ -2,7 +2,6 @@
 #include "pnt_data.h"
 #include "observer.h"
 #include "sensors.h"
-#include "hal_xdcomms.h"
 
 #include <iostream>
 
@@ -40,29 +39,4 @@ public:
   void setPosition(Position const& p) { _track._pos = p; }
 protected:
   void setVelocity(Velocity const& v) { _track._v = v; }
-};
-
-class OwnShipShadow: public OwnShip, public Trailer
-{
-private:
-    std::thread thread_;
-    void receive();
-    void *send_pos_socket = NULL;
-
-public:
-  OwnShipShadow(int rate = 1) {
-      thread_ = std::thread(&OwnShipShadow::receive, this);
-  }
-  ~OwnShipShadow() {
-      if (send_pos_socket != NULL)
-          zmq_close(send_pos_socket);
-      thread_.join();
-  }
-
-  void notify() override {
-      OwnShip::notify();
-  }
-
-  virtual void update(Subject *s) override;
-
 };

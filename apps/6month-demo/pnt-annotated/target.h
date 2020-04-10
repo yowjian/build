@@ -3,7 +3,6 @@
 #include "observer.h"
 #include "sensors.h"
 #include <iostream> 
-#include "hal_xdcomms.h"
 
 class Target : public Observer, public Subject
 {
@@ -43,27 +42,4 @@ protected:
 
 private:
   void targetLocation();
-};
-
-class TargetShadow: public Target, public Trailer
-{
-public:
-  void *send_dis_socket = NULL;
-  void *send_pos_socket = NULL;
-
-  TargetShadow(int rate = 1) {
-  };
-  ~TargetShadow() {
-    if (send_dis_socket != NULL)
-      zmq_close(send_dis_socket);
-    if (send_pos_socket != NULL)
-      zmq_close(send_pos_socket);
-  };
-
-  void notify() override {
-      Target::notify();
-  }
-
-  virtual void update(Subject *s) override;
-
 };

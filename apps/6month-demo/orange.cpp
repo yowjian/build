@@ -14,8 +14,6 @@
 #include "ownship.h"
 #include "target.h"
 
-#include "rpc.h"
-
 int main(int argc, char **argv)
 {
    std::cout << "orange " << std::endl;
