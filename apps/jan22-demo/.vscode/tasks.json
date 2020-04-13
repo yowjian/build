@@ -4,7 +4,7 @@
       {
         "label": "0 CLOSURE Init",
         "type": "shell",
-        "command": "mkdir -p ../../src/emu/.apps; cd ../../src/capo/partitioner/src/; make; cd ../../../../apps/jan22-demo/; make libex1.a; cd ../../src/capo/pdg/; make",
+        "command": "source initenv.sh; mkdir -p ../../src/emu/.apps; cd ../../src/capo/partitioner/src/; make; env;if [ \"$INCLUDE_AARCH64\" == \"true\" ] ; then make CC=aarch64-none-linux-gnu-gcc; fi; cd ../../../../apps/jan22-demo/; make libex1.a; cd ../../src/capo/pdg/; make",
         "args": [],
         "group": {
           "kind": "build",
@@ -15,7 +15,7 @@
       {
         "label": "1 CLOSURE PreProcessor",
         "type": "shell",
-        "command": "make ex1.mod.c",
+        "command": "source initenv.sh; make ex1.mod.c",
         "args": [],
         "group": {
           "kind": "build",
@@ -26,7 +26,7 @@
       {
         "label": "2 CLOSURE Compile to LLVM-IR",
         "type": "shell",
-        "command": "make ex1.mod.bc",
+        "command": "source initenv.sh; make ex1.mod.bc",
         "args": [],
         "group": {
           "kind": "build",
@@ -37,7 +37,7 @@
       {
         "label": "3 CLOSURE Program Dependency Graph",
         "type": "shell",
-        "command": "make dot",
+        "command": "source initenv.sh; make dot",
         "args": [],
         "group": {
           "kind": "build",
@@ -59,7 +59,7 @@
       {
         "label": "5 CLOSURE Binary Generator",
         "type": "shell",
-        "command": "make ex1_parts",
+        "command": "source initenv.sh; make ex1_parts",
         "args": [],
         "group": {
           "kind": "build",
@@ -70,7 +70,7 @@
       {
         "label": "6 CLOSURE Packager",
         "type": "shell",
-        "command": "make packages; cp *.tar ../../src/emu/.apps/",
+        "command": "source initenv.sh; make packages; cp *.tar ../../src/emu/.apps/",
         "args": [],
         "group": {
           "kind": "build",
@@ -81,7 +81,7 @@
       {
         "label": "CLEAN",
         "type": "shell",
-        "command": "rm -rf ../../src/emu/.apps/*; cd ../../src/capo/partitioner/src/; make clean; cd ../../../../apps/jan22-demo/; make clean",
+        "command": "source initenv.sh; rm -rf ../../src/emu/.apps/*; cd ../../src/capo/partitioner/src/; make clean; cd ../../../../apps/jan22-demo/; make clean",
         "args": [],
         "group": {
           "kind": "build",
