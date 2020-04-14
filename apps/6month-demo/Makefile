@@ -62,24 +62,30 @@ clean:
 PROG=orange
 LIBPDG=../../src/capo/pdg/build/libpdg.so
 CLE_PRE=../../src/mules/cle-preprocessor/src
-PARTITIONER=../../src/capo/partitioner/src/partitioner.py
+PARTITIONER_DIR=../../src/capo/partitioner/src
 
-orange_LLVMOBJ = orange_ownship.ll\
-          orange_rpc.ll\
-          orange_target.ll\
+orange_LLVMOBJ = orange_ownship.mod.ll\
+          orange_rpc.mod.ll\
+          orange_target.mod.ll\
           orange.mod.ll
           
-green_LLVMOBJ = green_ownship.ll\
-          green_rpc.ll\
-          green_target.ll\
+green_LLVMOBJ = green_ownship.mod.ll\
+          green_rpc.mod.ll\
+          green_target.mod.ll\
           green.mod.ll
 
 
 .SECONDARY:
 
-enclaves: pdgragh.main.dot
-	python3 $(PARTITIONER) $(PROG).cpp
+capotags: orange_all.pdgragh.main.dot green_all.pdgragh.main.dot
+	llvm-dis orange_all.mod.bc
+	llvm-dis green_all.mod.bc
+	python3 $(PARTITIONER_DIR)/tag_processor.py orange_all.pdgragh.main.dot green_all.pdgragh.main.dot
 
+
+$(PROG)_enclaves: $(PROG)_all.pdgragh.main.dot $(PROG)_all.mod.ll
+	python3 $(PARTITIONER_DIR)/partitioner.py $(PROG)_all.cpp
+	mv enclaves.dot $(PROG)_enclaves.dot
 
 dot: $(PROG)_all.mod.bc
 	opt -load $(LIBPDG) -dot-pdg $^
@@ -95,9 +101,12 @@ $(PROG)_all.mod.bc: $($(PROG)_LLVMOBJ)
 %.mod.bc: %.mod.ll
 	llvm-as $^
 
+#%.mod.ll: %.mod.bc
+#llvm-dis $^
+
 %.ll: %.c
 %.ll: %.cpp
-	clang $(CPPFLAGS) -S -g $(INCLUDE_DIRS) -emit-llvm $^
+	clang $(CPPFLAGS) -S -g -O0 $(INCLUDE_DIRS) -emit-llvm $^
 
 %.mod.c: %.c
 %.mod.cpp: %.cpp
@@ -106,7 +115,7 @@ $(PROG)_all.mod.bc: $($(PROG)_LLVMOBJ)
 tags:
 	llvm-dis orange_all.mod.bc
 	llvm-dis green_all.mod.bc
-	python3 ../../src/capo/partitioner/src/tag_processor.py green_all.pdgragh.main.dot orange_all.pdgragh.main.dot
+	python3 $(PARTITIONER_DIR)/tag_processor.py green_all.pdgragh.main.dot orange_all.pdgragh.main.dot
 	echo "INVOKE cutzoom HERE"
 
 #packages:
