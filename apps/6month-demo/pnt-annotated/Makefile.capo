@@ -1,0 +1,44 @@
+PROG = pnt_example
+ENC1 = orange
+ENC2 = green
+
+CC = gcc
+INCLUDE_DIRS = -I../src
+CFLAGS = -Wall -g $(INCLUDE_DIRS)
+CPPFLAGS = -Wall -g $(INCLUDE_DIRS) -std=c++11
+LIBPDG=../../../src/capo/pdg/build/libpdg.so
+CLE_PRE=../../../src/mules/cle-preprocessor/src
+PARTITIONER_DIR=../../../src/capo/partitioner/src
+
+all: enclaves
+
+.SECONDARY:
+
+enclaves: pdgragh.main.dot
+	python3 $(PARTITIONER_DIR)/partitioner.py $(PROG).cpp
+
+dot: $(PROG).mod.bc
+	opt -load $(LIBPDG) -dot-pdg $^
+	#opt -load $(LIBPDG) -dot-ddg $^
+	#opt -load $(LIBPDG) -dot-cdg $^
+
+remdot: dot
+	gvpr -c "N[$.degree==0]{delete(root,$$)}" pdgragh.main.dot -o tmp.dot
+	mv tmp.dot pdgragh.main.dot
+
+%.mod.bc: %.mod.ll
+	llvm-as $^
+
+%.mod.ll: %.mod.c
+%.mod.ll: %.mod.cpp
+	clang -S -g $(INCLUDE_DIRS) -emit-llvm $^
+
+%.mod.c: %.c
+%.mod.cpp: %.cpp
+	$(CLE_PRE)/qd_cle_preprocessor.py -f $^
+
+
+
+
+
+
