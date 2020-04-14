@@ -48,7 +48,7 @@
       {
         "label": "4 CLOSURE Partitioner/Analysis",
         "type": "shell",
-        "command": "python3 ../../src/capo/partitioner/src/partitioner.py ex1",
+        "command": "python3 ../../src/capo/partitioner/src/partitioner.py ex1.c",
         "args": [],
         "group": {
           "kind": "build",

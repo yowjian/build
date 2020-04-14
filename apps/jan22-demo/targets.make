@@ -47,6 +47,6 @@ ifeq ($(BUILD_AARCH64_LIBS),true)
 # test the user has sourced the aarch cross compile enviroment
 ifeq ($(shell which aarch64-none-linux-gnu-gcc),)
 # the aarch64 (ie arm64) compiler was not found
-$(error Unable to find arm64 compiler "aarch64-none-linux-gnu-gcc" please cd into the src/crosscompile and source "env-aarch64")
+$(error Unable to find arm64 compiler "aarch64-none-linux-gnu-gcc" please cd into the src/mbig/crosscompile and source "env-aarch64")
 endif
 endif

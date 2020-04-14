@@ -9,7 +9,7 @@ if [ "$arm_target_cnt" != "0" ]
 then
     echo source arm enviroment
     cdir=`pwd`
-    cd ../../src/crosscompile/
+    cd ../../src/mbig/crosscompile/
 
     source env-aarch64
     cd "$cdir"

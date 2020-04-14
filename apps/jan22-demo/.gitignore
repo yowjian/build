@@ -2,6 +2,9 @@
 *.bc
 *.ll
 *clemap*
+*.o
+/lib*ex1.a
+/ex1*.tar
 *mod.c
 !example_files/*mod.c
 ex1_orange
