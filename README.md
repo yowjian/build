@@ -14,6 +14,10 @@ sed 's/pod2man/pod2man --name gits-checkup/' -i contrib/Makefile
 make
 sudo make install
 ```
+Note that on some OS distributions, line 1018 of gits needs to be modified as follows (two backslashes added in substitution expression):
+```
+gits 1018: $stashes =~ s/^(stash\@\{\d+\}: )WIP( on .*: [\da-f]+)\.\.\..*$/${1}Work-in-Progress${2}/mg;
+```
 
 ## Contents
 - [Cloning CLOSURE](#cloning-closure)

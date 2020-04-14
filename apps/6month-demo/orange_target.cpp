@@ -39,7 +39,7 @@ void TargetShadow::update(Subject *s) {
   }
   else if (rf) {
     Distance distance  = rf->getDistance();
-    position_datatype dis;
+    distance_datatype dis;
     dis.x = distance._dx;
     dis.y = distance._dy;
     dis.z = distance._dz;
