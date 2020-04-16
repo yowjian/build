@@ -6,9 +6,9 @@ DIRS =
 
 HAL=../../src/hal
 HAL_API_INCLUDE=-I${HAL}/api
-HAL_APPGEN_INCLUDE=-I${HAL}/appgen
-HAL_LIBS=-lpnt -lxdcomms
-HAL_LIB_PATH=-L${HAL}/api -L${HAL}/appgen
+HAL_APPGEN_INCLUDE=-I${HAL}/appgen/6month-demo
+HAL_LIBS=-lxdcomms -lfloat -lgma
+HAL_LIB_PATH=-L${HAL}/api -L${HAL}/appgen/6month-demo
 
 LIBS 	    = ${HAL}/api/libxdcomms.a
 COMPATLIBS  = ${HAL}/x86_64_prebuild/libzmq.a -static -Wl,--allow-multiple-definition -Wl,-Bstatic -lsodium -lunwind -llzma $(LDFLAGS) -ldl -lc -lstdc++ -lpthread
@@ -68,7 +68,7 @@ orange_LLVMOBJ = orange_ownship.mod.ll\
           orange_rpc.mod.ll\
           orange_target.mod.ll\
           orange.mod.ll
-          
+
 green_LLVMOBJ = green_ownship.mod.ll\
           green_rpc.mod.ll\
           green_target.mod.ll\
@@ -76,12 +76,6 @@ green_LLVMOBJ = green_ownship.mod.ll\
 
 
 .SECONDARY:
-
-capotags: orange_all.pdgragh.main.dot green_all.pdgragh.main.dot
-	llvm-dis orange_all.mod.bc
-	llvm-dis green_all.mod.bc
-	python3 $(PARTITIONER_DIR)/tag_processor.py orange_all.pdgragh.main.dot green_all.pdgragh.main.dot
-
 
 $(PROG)_enclaves: $(PROG)_all.pdgragh.main.dot $(PROG)_all.mod.ll
 	python3 $(PARTITIONER_DIR)/partitioner.py $(PROG)_all.cpp
@@ -94,7 +88,7 @@ remdot: dot
 	gvpr -c "N[$.degree==0]{delete(root,$$)}" pdgragh.main.dot -o tmp.dot
 	mv tmp.dot pdgragh.main.dot
 	cp pdgragh.main.dot $(PROG)_all.pdgragh.main.dot
-	
+
 $(PROG)_all.mod.bc: $($(PROG)_LLVMOBJ)
 	llvm-link -o $@ $^
 
@@ -112,16 +106,21 @@ $(PROG)_all.mod.bc: $($(PROG)_LLVMOBJ)
 %.mod.cpp: %.cpp
 	$(CLE_PRE)/qd_cle_preprocessor.py -f $^
 
-tags:
+capotags:
 	llvm-dis orange_all.mod.bc
 	llvm-dis green_all.mod.bc
 	python3 $(PARTITIONER_DIR)/tag_processor.py green_all.pdgragh.main.dot orange_all.pdgragh.main.dot
-	echo "INVOKE cutzoom HERE"
+	$(PARTITIONER_DIR)/cutzoom/cutzoom.py -f join_graph.dot -k1 -o abridged_1_colored.dot
+	$(PARTITIONER_DIR)/cutzoom/cutzoom.py -f join_graph.dot -k2 -o abridged_2_colored.dot
 
-#packages:
-#	tar cf $(PROG)_$(ENC1)-enclave-gw-P.tar $(PROG)_$(ENC1)
-#	tar cf $(PROG)_$(ENC2)-enclave-gw-O.tar $(PROG)_$(ENC2)
+packages:
+	mkdir -p appgen
+	cp ${HAL}/api/libxdcomms.so ./appgen
+	cp ${HAL}/appgen/6month-demo/*.so ./appgen
+	cp ${HAL}/appgen/6month-demo/*.a ./appgen
+	tar cf pnt_example-green-enclave-gw-O.tar green appgen
+	tar cf pnt_example-orange-enclave-gw-G.tar orange appgen
 
 capoclean:
-	rm -f *~ *.ll *.bc *.dot *.clemap.json *.mod.c *.mod.cpp 
-
+	rm -f *~ *.ll *.bc *.dot *.clemap.json *.mod.c *.mod.cpp *.tar *.so
+	rm -rf appgen

@@ -37,8 +37,6 @@ remdot: dot
 %.mod.cpp: %.cpp
 	$(CLE_PRE)/qd_cle_preprocessor.py -f $^
 
-
-
-
-
-
+clean:
+	rm -f *.o *clemap.json *.dot *.ll *.bc *.mod.cpp *.puml
+	rm -rf out
