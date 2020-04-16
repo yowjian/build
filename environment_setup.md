@@ -65,6 +65,7 @@ In addition to the above, we also use [Apache Daffofil v. 2.5.0](http://daffodil
 | Package       | Version | 
 |:--------------|:--------------|
 | decorator   | 4.4.1 |
+| hpp2plantuml | 0.6 |
 | lark-parser | 0.7.8 |
 | networkx    | 2.4   |
 | pexpect     | 4.7.0 |
