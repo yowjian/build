@@ -4,7 +4,7 @@
 # native - host CPU (ie same as the machine you are compiling on)
 # arm64 - Cross compile to aarch64
 
-ORANGE_TARGET=arm64
+ORANGE_TARGET=native
 PURPLE_TARGET=native
 
 
