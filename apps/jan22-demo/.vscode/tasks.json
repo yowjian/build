@@ -4,7 +4,7 @@
       {
         "label": "0 CLOSURE Init",
         "type": "shell",
-        "command": "source initenv.sh; mkdir -p ../../src/emu/.apps; cd ../../src/capo/partitioner/src/; make; env;if [ \"$INCLUDE_AARCH64\" == \"true\" ] ; then make CC=aarch64-none-linux-gnu-gcc; fi; cd ../../../../apps/jan22-demo/; make libex1.a; cd ../../src/capo/pdg/; make",
+        "command": "source initenv.sh; mkdir -p ../../src/emu/.apps; pushd ../../src/capo/partitioner/src/; make;if [ \"$INCLUDE_AARCH64\" == \"true\" ] ; then cd ../../../mbig/;./build.sh -a arm64; fi; popd; make native/libex1.a; cd ../../src/capo/pdg/; make",
         "args": [],
         "group": {
           "kind": "build",

@@ -9,3 +9,5 @@
 !example_files/*mod.c
 ex1_orange
 ex1_purple
+arm64/
+native/
