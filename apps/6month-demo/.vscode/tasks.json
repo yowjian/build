@@ -49,7 +49,7 @@
       {
         "label": "4 Binary Generator and Packaging",
         "type": "shell",
-        "command": "make orange; make green; make packages; cp *.tar ../../src/emu/.apps/",
+        "command": "source initenv.sh; make orange; make green; make packages; cp *.tar ../../src/emu/.apps/",
         "args": [],
         "group": {
           "kind": "build",
