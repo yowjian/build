@@ -29,23 +29,39 @@ GREEN_OBJ = \
 	green_target.o \
 	green_rpc.o
 
+#include the targets.make (native/arm64) configuration
+include targets.make
+
+NATIVE_TARGET=native
+ARM64_TARGET=arm64
+
 default: all
 
 all: orange green
 
 static: static-orange static-green
 
-orange: $(ORANGE_OBJ)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+#naive object files, just symlink *.o into native/*.o
+$(NATIVE_TARGET)/%.o:%.o
+	mkdir -p $(NATIVE_TARGET)
+	ln -sf ../$^ $@
 
-green: $(GREEN_OBJ)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+#arm64 object files, build arm64 version of the c file
+$(ARM64_TARGET)/%.o:%.cpp
+	mkdir -p $(ARM64_TARGET)
+	$(CXX_ARM64) -c -o $@ $^ $(ARM64_CPPFLAGS)
 
-static-orange: $(ORANGE_OBJ)
-	$(CXX) -o orange $^ $(LIBS) $(COMPATLIBS)
+orange: $(addprefix $(ORANGE_TARGET)/,$(ORANGE_OBJ))
+	$(CXX_ORANGE) -o $@ $^ $(ORANGE_LDFLAGS)
 
-static-green: $(GREEN_OBJ)
-	$(CXX) -o green $^ $(LIBS) $(COMPATLIBS)
+green: $(addprefix $(GREEN_TARGET)/,$(GREEN_OBJ))
+	$(CXX_GREEN) -o $@ $^ $(GREEN_LDFLAGS)
+
+static-orange: $(ORANGE_TARGET)/$(ORANGE_OBJ)
+	$(CXX_ORANGE) -o orange $^ $(LIBS) $(COMPATLIBS)
+
+static-green: $(GREEN_TARGET)/$(GREEN_OBJ)
+	$(CXX_GREEN) -o green $^ $(LIBS) $(COMPATLIBS)
 
 .PHONY : force-rebuild 
 
@@ -54,6 +70,7 @@ static-green: $(GREEN_OBJ)
 
 clean:
 	-rm -f *.o *~ orange green
+	-rm -rf native arm64
 
 
 #### LLVM Partitioner 
@@ -115,10 +132,13 @@ capotags:
 
 packages:
 	mkdir -p appgen
-	cp ${HAL}/api/libxdcomms.so ./appgen
-	cp ${HAL}/appgen/6month-demo/*.so ./appgen
-	cp ${HAL}/appgen/6month-demo/*.a ./appgen
+	cp ${GREEN_HAL}/api/libxdcomms.so ./appgen
+	cp ${GREEN_HAL}/appgen/6month-demo/*.so ./appgen
+	cp ${GREEN_HAL}/appgen/6month-demo/*.a ./appgen
 	tar cf pnt_example-green-enclave-gw-O.tar green appgen
+	cp ${ORANGE_HAL}/api/libxdcomms.so ./appgen
+	cp ${ORANGE_HAL}/appgen/6month-demo/*.so ./appgen
+	cp ${ORANGE_HAL}/appgen/6month-demo/*.a ./appgen
 	tar cf pnt_example-orange-enclave-gw-G.tar orange appgen
 
 capoclean:
