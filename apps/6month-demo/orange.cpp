@@ -55,6 +55,8 @@ int main(int argc, char **argv)
   uav->attach(tgt);
   rfs->attach(tgt);
 
+  uav->registerSensor(rfs);
+  
   while (true)
     {
       // here we simulate sensor data streams

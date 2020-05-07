@@ -61,12 +61,17 @@ class RfSensor : public Sensor
 {
   Distance _d;
   Velocity _v; // only used for simulation
+  bool _synced = false;
 
  public:
   RfSensor(Distance const& d, Velocity const& v) : _d(d), _v(v) { }
   Distance getDistance() { return _d; };
 // CHANGE: add
 void setDistance(Distance const& d) { _d = d; }
+
+  void setSynced(bool synced) {
+    _synced = synced;
+  }
 
   void read() override {
     auto now = time_point_cast<msecs>(Clock::now());
@@ -81,6 +86,9 @@ void setDistance(Distance const& d) { _d = d; }
  private:
   void simulate(Velocity const& v, Time const& now)
   {
+    if (!_synced)
+      return;
+
     auto elapsed = duration_cast<msecs>(now - _now);
     double delta = elapsed.count() / 1000.0;
     _d._dx += v._dx * delta;

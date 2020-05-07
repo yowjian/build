@@ -11,6 +11,7 @@ class OwnShip: public Observer, public Subject
   Track _track;
   int _frequency;
   int _cycle;
+  RfSensor *_rfs;
 
 public:
   OwnShip(int rate = 1) : _frequency(rate) {
@@ -37,6 +38,9 @@ public:
   }
   // CHANGE: from protected
   void setPosition(Position const& p) { _track._pos = p; }
+    
+  void registerSensor(RfSensor *rfs) { _rfs = rfs; }
+  
 protected:
   void setVelocity(Velocity const& v) { _track._v = v; }
 };

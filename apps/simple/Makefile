@@ -6,7 +6,7 @@ DIRS =
 
 HAL=../../src/hal
 HAL_API_INCLUDE=-I${HAL}/api
-HAL_APPGEN_INCLUDE=-I${HAL}/appgen
+HAL_APPGEN_INCLUDE=-I${HAL}/appgen/6month-demo
 HAL_LIBS=-lpnt -lxdcomms
 HAL_LIB_PATH=-L${HAL}/api -L${HAL}/appgen
 

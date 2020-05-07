@@ -49,7 +49,7 @@ public:
   void *send_dis_socket = NULL;
   void *send_pos_socket = NULL;
 
-  TargetShadow(int rate = 1) {
+  TargetShadow(int rate = 1) : Target(rate) {
   };
   ~TargetShadow() {
     if (send_dis_socket != NULL)

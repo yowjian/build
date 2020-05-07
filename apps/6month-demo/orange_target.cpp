@@ -38,6 +38,11 @@ void TargetShadow::update(Subject *s) {
     xdc_asyn_send(send_pos_socket, &pos, &t_tag);
   }
   else if (rf) {
+    static int cnt = 0;
+    if (_cycle == 0 || 0 != ++cnt % _cycle) {
+      return;
+    }
+
     Distance distance  = rf->getDistance();
     distance_datatype dis;
     dis.x = distance._dx;
