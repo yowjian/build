@@ -31,6 +31,8 @@ CLOSURE will keep current with the latest LLVM and Clang releases, periodically 
 |[CORE](https://github.com/coreemu/core/releases/tag/release-5.5.2)| 5.5.2 | 
 | ebtables | 2.0.10.4+snapshot20181205-1ubuntu1|
 | ethtool |1:4.19-1 |
+| fakeroot      | 1.24-1 |
+| fakechroot    | 2.19-3.2 |
 | iproute2 |5.2.0-1ubuntu2|
 | libconfig-dev | 1.5-0.4   |
 | libffi-dev |3.2.1-9 |
