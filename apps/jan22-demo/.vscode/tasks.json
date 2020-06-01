@@ -92,7 +92,7 @@
       {
         "label": "EMULATE",
         "type": "shell",
-        "command": "cd ../../src/emu/; ./start.sh 2",
+        "command": "cd ../../src/emu/; ./start.sh 2enclave",
         "args": [],
         "group": {
           "kind": "build",
