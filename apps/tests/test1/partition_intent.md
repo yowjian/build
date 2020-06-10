@@ -13,14 +13,13 @@ Case 2:
 
 Variable `a` in `get_a()` is in ORANGE and can be shared with PURPLE
 Variable `b` in `get_b()` is in PURPLE and cannot be shared
-However, calculated EWMA can be shared from PURPLE to ORANGE
 Calculated EWMA must be available on ORANGE side (for printing there)
 
 Case 3:
 
 Variable `a` in `get_a()` is in ORANGE and cannot be shared 
 Variable `b` in `get_b()` is in ORANGE and cannot be shared 
-However, calculated EWMA can be shared from ORANGE to PURPLE
+EWMA is therefore computed on ORANGE and EWMA must be sharable to PURPLE.
 Calculated EWMA must be available on PURPLE side (for printing there)
 
 
