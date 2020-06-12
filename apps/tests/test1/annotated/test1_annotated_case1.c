@@ -27,7 +27,7 @@ double get_a() {
 double get_b() {
 #pragma cle begin PURPLE
   static double b = 1.0;
-#pragma cle begin PURPLE
+#pragma cle end PURPLE
   b += b;
   return b;
 }

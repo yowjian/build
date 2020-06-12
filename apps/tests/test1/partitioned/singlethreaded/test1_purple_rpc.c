@@ -14,17 +14,16 @@ double _rpc_get_a() {
 
     reqA.x = 0;
     tag_write(&t_tag, MUX_REQUESTA, SEC_REQUESTA, DATA_TYP_REQUESTA);
+    tag_write(&o_tag, MUX_RESPONSEA, SEC_RESPONSEA, DATA_TYP_RESPONSEA);
 
     if (!inited) {
       inited = 1;
       psocket = xdc_pub_socket();
-      ssocket = xdc_sub_socket(t_tag); // XXX: t_tag or o_tag shouldn't this subscribe to reponse?
+      ssocket = xdc_sub_socket(o_tag);
     }
 
     _notify_next_tag(&t_tag);
     xdc_asyn_send(psocket, &reqA, &t_tag);
-  
-    tag_write(&o_tag, MUX_RESPONSEA, SEC_RESPONSEA, DATA_TYP_RESPONSEA);
     xdc_blocking_recv(ssocket, &resA, &o_tag);
 
     return (resA.a);
@@ -45,14 +44,15 @@ void _notify_next_tag(gaps_tag* n_tag) {
     nxt.typ = n_tag->typ;
 
     tag_write(&t_tag, MUX_NEXTRPC, SEC_NEXTRPC, DATA_TYP_NEXTRPC);
-    xdc_asyn_send(psocket, &nxt, &t_tag);
+    tag_write(&o_tag, MUX_OKAY, SEC_OKAY, DATA_TYP_OKAY);
+
     if (!inited) {
       inited = 1;
       psocket = xdc_pub_socket();
-      ssocket = xdc_sub_socket(t_tag); // XXX: should this be o_tag?
+      ssocket = xdc_sub_socket(o_tag);
     }
 
-    tag_write(&o_tag, MUX_OKAY, SEC_OKAY, DATA_TYP_OKAY);
+    xdc_asyn_send(psocket, &nxt, &t_tag);
     xdc_blocking_recv(ssocket, &okay, &o_tag); // XXX: check that we got valid OK?
 }
 
