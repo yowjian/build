@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-double calc_ewma(a,b) {
+double calc_ewma(double a, double b) {
   const  double alpha = 0.25;
   static double c = 0.0;
   c = alpha * (a + b) + (1 - alpha) * c;
