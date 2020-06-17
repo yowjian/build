@@ -12,8 +12,7 @@ int _slave_rpc_loop() {
   gaps_tag n_tag;
   gaps_tag tag_nexttag, tag_requesta;
 
-  // XXX: move to test_orange main?
-  _hal_init((char *)"ipc:///tmp/halsubbworange", (char *)"ipc:///tmp/halpubbwpurple");
+  _hal_init((char *)"ipc:///tmp/test1suborange", (char *)"ipc:///tmp/test1puborange");
  
   // XXX: write tag NEXTTAG into tag_nexttag
   // XXX: write tag REQUESTA into tag_requesta
@@ -22,11 +21,14 @@ int _slave_rpc_loop() {
   tag_requesta.typ = DATA_TYP_REQUESTA;
 
   while (1) {
+    printf("top of while loop");
       // XXX: Why bother matching nexttag, can we let that be handled in _get_next_tag, send OK, and use this to handle the returned tag from _get_next_tag?
     _get_next_tag(&n_tag);       // block for NEXTTAG, send OKAY
+    printf("nexttag msg received");
     if(TAG_MATCH(n_tag, tag_nexttag)) {    // next will be NEXTTAG again, continue
       continue; // XXX: left this for now but i think this case should be removed
     } else if (TAG_MATCH(n_tag, tag_requesta)) {  // next will be REQUESTA
+      printf("before _handle_requesta");
       _handle_requesta(&tag_requesta); // block for REQUESTA, get REQUESTA, run get_a, send RESPONSEA
     } else {
       // unknown/unhandled tag
@@ -55,6 +57,7 @@ void _handle_requesta(gaps_tag* tag_requesta) {
       inited = 1;
       psocket = xdc_pub_socket();
       ssocket = xdc_sub_socket(t_tag); 
+      sleep(1); /* zmq socket join delay */
     }
 
     xdc_blocking_recv(ssocket, &reqA, &t_tag);
@@ -79,7 +82,9 @@ void _get_next_tag(gaps_tag* n_tag) {
       inited = 1;
       psocket = xdc_pub_socket();
       ssocket = xdc_sub_socket(t_tag); 
+      sleep(1); /* zmq socket join delay */
     }
+
     xdc_blocking_recv(ssocket, &nxt, &t_tag); 
     // XXX: validate receive?
 
@@ -102,22 +107,3 @@ void _hal_init(char *inuri, char *outuri)
   xdc_register(requesta_data_encode, requesta_data_decode, DATA_TYP_REQUESTA);
   xdc_register(responsea_data_encode, responsea_data_decode, DATA_TYP_RESPONSEA);
 }
-
-
-/*
-while true:
-  block for 1,1,99       // tag here for SYNCTAG1
-  receive   1,1,99 gets next_ tag expected (e.g., 1,1,1)
-  send      1,1,100 <OK> // tag here for SYNCTAG2
-
-  switch (next_tag)
-     case (1,1,1):
-        block for 1,1,1                // tag here for matching TAG1
-        run function with 1,1,1 data and get result
-        send result with tag 1,1,2     //tag here for matching TAG2
-        continue
-
-     case(1,1,9):
-        ...
-     continue
-*/

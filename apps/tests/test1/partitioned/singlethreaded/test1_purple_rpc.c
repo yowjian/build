@@ -20,6 +20,7 @@ double _rpc_get_a() {
       inited = 1;
       psocket = xdc_pub_socket();
       ssocket = xdc_sub_socket(o_tag);
+      sleep(1); /* zmq socket join delay */
     }
 
     _notify_next_tag(&t_tag);
@@ -50,8 +51,9 @@ void _notify_next_tag(gaps_tag* n_tag) {
       inited = 1;
       psocket = xdc_pub_socket();
       ssocket = xdc_sub_socket(o_tag);
+      sleep(1); /* zmq socket join delay */
     }
-
+  
     xdc_asyn_send(psocket, &nxt, &t_tag);
     xdc_blocking_recv(ssocket, &okay, &o_tag); // XXX: check that we got valid OK?
 }
