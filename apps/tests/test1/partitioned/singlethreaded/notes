@@ -48,3 +48,19 @@ slave-REQ-handler:
 
 [reqid3,r3] [reqid,r1] [reqid2,r2]
       
+
+6/22 TODOS
+- multithreaded model
+- update CLE
+    // guardhints have changed (operation)
+    // move unused fields in current CLE spec to future (out of mainline json)
+    // additional fields for blessed function spec
+    // create schema for validation
+    // reconsider diode specification use one-way, does that work?
+- async push model
+- developer/security analysis must review the CLE def for the "blessed" functions
+    // argtaints will be list of lists [[<parm1_taints>],{<parm2_taints>],..]
+    // parm1_taints is allowed taints for arg#1 of the function, and so on
+    // unclear autogeneration can fill in taints, may involve security analyst
+    // rettaints is for the return
+    // codtaints is for heap/stack/global/data the function touches 

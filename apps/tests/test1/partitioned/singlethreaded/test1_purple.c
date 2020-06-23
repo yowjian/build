@@ -33,9 +33,8 @@ int ewma_main(int argc, char **argv) {
   return 0;
 }
  
-/* XXX: URIs should not be hardcoded */
 int main(int argc, char **argv) {
-  _hal_init((char *)"ipc:///tmp/test1subpurple", (char *)"ipc:///tmp/test1pubpurple");
+  _master_rpc_init();
   return ewma_main(argc,argv);
 }
 

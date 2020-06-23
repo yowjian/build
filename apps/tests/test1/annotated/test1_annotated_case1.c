@@ -4,9 +4,9 @@
 
 #pragma cle def ORANGE {"level":"orange",\
   "cdf": [\
-    {"remotelevel":"==purple", \
+    {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "oneway": "true"}}\
+     "guardhint": { "operation": "allow"}}\
   ] }
 
 double calc_ewma(double a, double b) {

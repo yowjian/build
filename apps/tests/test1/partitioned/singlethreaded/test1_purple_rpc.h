@@ -14,8 +14,46 @@
 # define MUX_RESPONSEA  2
 # define SEC_RESPONSEA  2
 
-extern void   _hal_init(char *inuri, char *outuri);
-extern void   _notify_next_tag(gaps_tag* n_tag);
+# define INURI  "ipc:///tmp/test1subpurple"
+# define OUTURI "ipc:///tmp/test1pubpurple"
+
+/* When receiving from the other side, only level changes 
+(our level is the remote level of our peer). Preserve
+the rest of CLE json for data provenance */
+
+#pragma cle def TAG_RESPONSEA {"level":"purple",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "egress", \
+     "guardhint": { "operation": "allow", \
+                    "gapstag": [2,2,4] }} \
+  ] }
+
+#pragma cle def TAG_REQUESTA {"level":"purple",\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "egress", \
+     "guardhint": { "operation": "allow", \
+                    "gapstag": [1,1,3] }} \
+  ] }
+
+#pragma cle def TAG_OKAY {"level":"purple",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "egress", \
+     "guardhint": { "operation": "allow", \
+                    "gapstag": [2,2,2] }} \
+  ] }
+
+#pragma cle def TAG_NEXTRPC {"level":"purple",\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "egress", \
+     "guardhint": { "operation": "allow", \
+                    "gapstag": [1,1,1] }} \
+  ] }
+
+extern void   _master_rpc_init();
 extern double _rpc_get_a();
 
 #endif /* _PURPLE_RPC_ */
