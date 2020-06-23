@@ -18,7 +18,7 @@ double get_b() {
   return b;
 }
 
-int ewma_main(int argc, char **argv) {
+int ewma_main() {
   double x;
   double y;
 #pragma cle begin PURPLE
@@ -35,6 +35,6 @@ int ewma_main(int argc, char **argv) {
  
 int main(int argc, char **argv) {
   _master_rpc_init();
-  return ewma_main(argc,argv);
+  return ewma_main();
 }
 

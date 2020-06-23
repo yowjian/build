@@ -19,7 +19,7 @@ double get_b() {
   return b;
 }
 
-int ewma_main(int argc, char **argv) {
+int ewma_main() {
   double x;
   double y;
   double ewma;
@@ -33,6 +33,6 @@ int ewma_main(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-  return ewma_main(argc,argv); 
+  return ewma_main(); 
 }
 
