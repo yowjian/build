@@ -19,9 +19,8 @@
   ] }
 
 #pragma cle begin XDLINKAGE_GET_A 
-double get_a() 
+double get_a() {
 #pragma cle end XDLINKAGE_GET_A 
-{
 #pragma cle begin ORANGE
   static double a = 0.0;
 #pragma cle end ORANGE

@@ -42,9 +42,8 @@ double get_b() {
 }
 
 #pragma cle begin PURPLE_SHAREABLE
-double get_ewma(double x) 
+double get_ewma(double x) {
 #pragma cle end PURPLE_SHAREABLE
-{
   double y = get_b();
   return calc_ewma(x,y);
 }

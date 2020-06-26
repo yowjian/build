@@ -18,9 +18,8 @@
 // later on, add to OUR/RET TAG_GETEWMA after autogen
 
 #pragma cle begin ORANGE_SHAREABLE
-double calc_ewma(double a, double b)
+double calc_ewma(double a, double b) {
 #pragma cle begin ORANGE_SHAREABLE 
-{
   const  double alpha = 0.25;
   static double c = 0.0;
   c = alpha * (a + b) + (1 - alpha) * c;
@@ -45,18 +44,16 @@ double get_b() {
 
 // blessed on orange side
 #pragma cle begin ORANGE_SHAREABLE
-double get_ewma() 
+double get_ewma() {
 #pragma cle end ORANGE_SHAREABLE
-{
   double x = get_a(); 
   double y = get_b(); 
   return calc_ewma(x,y);
 }
 
 #pragma cle begin PURPLE
-int ewma_main()
+int ewma_main() {
 #pragma cle end PURPLE
-{
   double ewma;
   for (int i=0; i < 10; i++) {
     ewma = get_ewma(); // conflict resolveable by wraping in RPC
