@@ -1,2 +1,0 @@
-gcc -c test1_purple.c test1_purple_rpc.c -I/home/mkaplan/gaps/build/src/hal/api -I./autogen 
-gcc -o tp test1_purple.o test1_purple_rpc.o ./autogen/libcodecs.a -L /home/mkaplan/gaps/build/src/hal/api -lxdcomms 
