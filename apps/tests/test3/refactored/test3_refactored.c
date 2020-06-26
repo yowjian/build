@@ -2,12 +2,12 @@
 
 #pragma cle def PURPLE {"level":"purple"}
 #pragma cle def ORANGE {"level":"orange"}
-#pragma cle def ORANGE_SHAREABLE level":"orange",\
+#pragma cle def ORANGE_SHAREABLE {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"},
-     "argtaints": ["ORANGE", "ORANGE"], \
+     "guardhint": { "operation": "allow"}, \
+     "argtaints": [["ORANGE"], ["ORANGE"]], \
      "codtaints": ["ORANGE"], \
      "rettaints": ["ORANGE_SHAREABLE"] } \
   ] }
@@ -57,6 +57,7 @@ double get_ewma()
 int ewma_main()
 #pragma cle end PURPLE
 {
+  double ewma;
   for (int i=0; i < 10; i++) {
     ewma = get_ewma(); // conflict resolveable by wraping in RPC
     printf("%f\n", ewma);
