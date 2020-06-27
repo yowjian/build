@@ -19,7 +19,7 @@
 
 #pragma cle begin ORANGE_SHAREABLE
 double calc_ewma(double a, double b) {
-#pragma cle begin ORANGE_SHAREABLE 
+#pragma cle end ORANGE_SHAREABLE 
   const  double alpha = 0.25;
   static double c = 0.0;
   c = alpha * (a + b) + (1 - alpha) * c;
