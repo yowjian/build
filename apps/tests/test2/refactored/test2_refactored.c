@@ -1,17 +1,17 @@
 #include <stdio.h>
 
 #pragma cle def PURPLE {"level":"purple"}
-#pragma cle def PURPLE_SHAREABLE {"level":"purple"},\
+#pragma cle def PURPLE_SHAREABLE {"level":"purple",\
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "egress", \
      "guardhint": { "operation": "allow"}, \
-     "argtaints": ["ORANGE"], \
+     "argtaints": [["ORANGE"]], \
      "codtaints": ["ORANGE", "PURPLE"], \
      "rettaints": ["PURPLE_SHAREABLE"] }\
   ] }
 
-#pragma cle def ORANGE {"level":"orange"},\
+#pragma cle def ORANGE {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
