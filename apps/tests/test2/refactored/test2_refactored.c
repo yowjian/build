@@ -4,11 +4,11 @@
 #pragma cle def PURPLE_SHAREABLE {"level":"purple",\
   "cdf": [\
     {"remotelevel":"orange", \
-     "direction": "egress", \
+     "direction": "bidirectional", \
      "guardhint": { "operation": "allow"}, \
-     "argtaints": [["ORANGE"]], \
-     "codtaints": ["ORANGE", "PURPLE"], \
-     "rettaints": ["PURPLE_SHAREABLE"] }\
+     "argtaints": [["TAG_REQUEST_GET_EWMA"]], \
+     "codtaints": ["PURPLE"], \
+     "rettaints": ["TAG_RESPONSE_GET_EWMA"] }\
   ] }
 
 #pragma cle def ORANGE {"level":"orange",\

@@ -22,7 +22,7 @@
 (our level is the remote level of our peer). Preserve
 the rest of CLE json for data provenance. gapstag is [mux,sec,typ]. */
 
-#pragma cle def TAG_RESPONSEA {"level":"orange",\
+#pragma cle def TAG_RESPONSE_GET_A {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
@@ -30,7 +30,7 @@ the rest of CLE json for data provenance. gapstag is [mux,sec,typ]. */
                     "gapstag": [2,2,4] }} \
   ] }
 
-#pragma cle def TAG_REQUESTA {"level":"orange",\
+#pragma cle def TAG_REQUEST_GET_A {"level":"orange",\
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "egress", \
@@ -42,7 +42,7 @@ the rest of CLE json for data provenance. gapstag is [mux,sec,typ]. */
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow", \
+     "guardhint": { "operation":S "allow", \
                     "gapstag": [2,2,2] }} \
   ] }
 

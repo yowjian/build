@@ -10,12 +10,12 @@ void _handle_requesta(__attribute__((unused))void* tag) {
     static void *ssocket;
     gaps_tag t_tag;
     gaps_tag o_tag;
-    #pragma cle begin TAG_REQUESTA
+    #pragma cle begin TAG_REQUEST_GET_A
     requesta_datatype  reqA; 
-    #pragma cle end TAG_REQUESTA
-    #pragma cle begin TAG_RESPONSEA
+    #pragma cle end TAG_REQUEST_GET_A
+    #pragma cle begin TAG_RESPONSE_GET_A
     responsea_datatype resA;
-    #pragma cle end TAG_RESPONSEA
+    #pragma cle end TAG_RESPONSE_GET_A
                                
     tag_write(&t_tag, MUX_REQUESTA, SEC_REQUESTA, DATA_TYP_REQUESTA);
     if (!inited) {

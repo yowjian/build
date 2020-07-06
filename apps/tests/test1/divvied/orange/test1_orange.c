@@ -7,14 +7,14 @@
      "guardhint": { "operation": "allow"}} \
   ] }
 
-  #pragma cle def XDLINKAGE_GET_A {"level":"orange",\
+#pragma cle def XDLINKAGE_GET_A {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
-     "direction": "egress", \
+     "direction": "bidirectional", \
      "guardhint": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints": ["ORANGE"], \
-     "rettaints": ["TAG_RESPONSEA"] \
+     "rettaints": ["TAG_RESPONSE_GET_A"] \
     } \
   ] }
 

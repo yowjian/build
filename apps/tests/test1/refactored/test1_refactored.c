@@ -9,6 +9,17 @@
      "guardhint": { "operation": "allow"}}\
   ] }
 
+#pragma cle def XDLINKAGE_GET_A {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guardhint": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["ORANGE"], \
+     "rettaints": ["TAG_RESPONSE_GET_A"] \
+    } \
+  ] }
+  
 double calc_ewma(double a, double b) {
   const  double alpha = 0.25;
   static double c = 0.0;
@@ -16,7 +27,9 @@ double calc_ewma(double a, double b) {
   return c;
 }
 
+#pragma cle begin XDLINKAGE_GET_A 
 double get_a() {
+#pragma cle end XDLINKAGE_GET_A 
 #pragma cle begin ORANGE
   static double a = 0.0;
 #pragma cle end ORANGE

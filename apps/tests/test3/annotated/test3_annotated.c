@@ -2,19 +2,19 @@
 
 #pragma cle def PURPLE {"level":"purple"}
 #pragma cle def ORANGE {"level":"orange"}
-#pragma cle def ORANGE_SHAREABLE {"level":"orange",\
+#pragma cle def EWMA_SHAREABLE {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}, \
+     "guardhint": { "operation": "allow"} \
      "argtaints": [["ORANGE"], ["ORANGE"]], \
-     "codtaints": ["ORANGE"], \
-     "rettaints": ["ORANGE_SHAREABLE"] }\
+     "codtaints": [], \
+     "rettaints": ["ORANGE_SHAREABLE"] } \
   ] }
 
-#pragma cle begin ORANGE_SHAREABLE
+#pragma cle begin EWMA_SHAREABLE
 double calc_ewma(double a, double b) {
-#pragma cle begin ORANGE_SHAREABLE 
+#pragma cle end EWMA_SHAREABLE
   const  double alpha = 0.25;
   static double c = 0.0;
   c = alpha * (a + b) + (1 - alpha) * c;
