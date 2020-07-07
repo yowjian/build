@@ -6,7 +6,7 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"} \
+     "guardhint": { "operation": "allow"}, \
      "argtaints": [["ORANGE"], ["ORANGE"]], \
      "codtaints": [], \
      "rettaints": ["EWMA_SHAREABLE"] } \
