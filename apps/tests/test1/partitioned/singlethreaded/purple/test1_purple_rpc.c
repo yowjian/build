@@ -2,6 +2,7 @@
 
 #include "test1_purple_rpc.h"
 
+//XXX: revisit taint tracking for _notify_next_tag; 
 void _notify_next_tag(gaps_tag* n_tag) {
     static int inited = 0;
     static void *psocket;
@@ -34,7 +35,9 @@ void _notify_next_tag(gaps_tag* n_tag) {
     // XXX: check that we got valid OK?
 }
 
+#pragma cle begin XDLINKAGE_RPC_GET_A
 double _rpc_get_a() {
+#pragma cle end XDLINKAGE_RPC_GET_A
     static int inited = 0;
     static void *psocket;
     static void *ssocket;

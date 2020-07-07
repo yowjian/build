@@ -9,7 +9,7 @@
      "guardhint": { "operation": "allow"} \
      "argtaints": [["ORANGE"], ["ORANGE"]], \
      "codtaints": [], \
-     "rettaints": ["ORANGE_SHAREABLE"] } \
+     "rettaints": ["EWMA_SHAREABLE"] } \
  ] }
 
 #pragma cle def XDLINKAGE_GET_EWMA {"level":"orange",\
@@ -18,7 +18,7 @@
      "direction": "bidirectional", \
      "guardhint": { "operation": "allow"} \
      "argtaints": [], \
-     "codtaints": ["ORANGE","ORANGE_SHAREABLE"], \
+     "codtaints": ["ORANGE","EWMA_SHAREABLE"], \
      "rettaints": ["TAG_RESPONSE_GET_EWMA"] } \
   ] }
 

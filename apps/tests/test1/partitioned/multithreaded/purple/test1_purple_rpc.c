@@ -2,39 +2,9 @@
 
 #include "test1_purple_rpc.h"
 
-void _notify_next_tag(gaps_tag* n_tag) {
-    static int inited = 0;
-    static void *psocket;
-    static void *ssocket;
-    gaps_tag t_tag;
-    gaps_tag o_tag;
-    #pragma cle begin TAG_NEXTRPC
-    nextrpc_datatype nxt;
-    #pragma cle end TAG_NEXTRPC
-    #pragma cle begin TAG_OKAY
-    okay_datatype okay;
-    #pragma cle end TAG_OKAY
-
-    nxt.mux = n_tag->mux;
-    nxt.sec = n_tag->sec;
-    nxt.typ = n_tag->typ;
-
-    tag_write(&t_tag, MUX_NEXTRPC, SEC_NEXTRPC, DATA_TYP_NEXTRPC);
-    tag_write(&o_tag, MUX_OKAY, SEC_OKAY, DATA_TYP_OKAY);
-
-    if (!inited) {
-      inited = 1;
-      psocket = xdc_pub_socket();
-      ssocket = xdc_sub_socket(o_tag);
-      sleep(1); /* zmq socket join delay */
-    }
-  
-    xdc_asyn_send(psocket, &nxt, &t_tag);
-    xdc_blocking_recv(ssocket, &okay, &o_tag); 
-    // XXX: check that we got valid OK?
-}
-
+#pragma cle begin XDLINKAGE_RPC_GET_A
 double _rpc_get_a() {
+#pragma cle end XDLINKAGE_RPC_GET_A
     static int inited = 0;
     static void *psocket;
     static void *ssocket;
@@ -58,7 +28,6 @@ double _rpc_get_a() {
       sleep(1); /* zmq socket join delay */
     }
 
-    //_notify_next_tag(&t_tag);
     xdc_asyn_send(psocket, &reqA, &t_tag);
     xdc_blocking_recv(ssocket, &resA, &o_tag);
 

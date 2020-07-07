@@ -19,7 +19,9 @@ double get_b() {
 }
 
 int ewma_main() {
+#pragma cle begin TAG_RESPONSE_GET_A
   double x;
+#pragma cle end TAG_RESPONSE_GET_A
   double y;
 #pragma cle begin PURPLE
   double ewma;

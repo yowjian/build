@@ -9,7 +9,7 @@
      "guardhint": { "operation": "allow"} \
      "argtaints": [["ORANGE"], ["ORANGE"]], \
      "codtaints": [], \
-     "rettaints": ["ORANGE_SHAREABLE"] } \
+     "rettaints": ["EWMA_SHAREABLE"] } \
   ] }
 
 #pragma cle begin EWMA_SHAREABLE

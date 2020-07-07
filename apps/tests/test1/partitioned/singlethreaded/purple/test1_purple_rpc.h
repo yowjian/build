@@ -53,6 +53,17 @@ the rest of CLE json for data provenance */
                     "gapstag": [1,1,1] }} \
   ] }
 
+#pragma cle def XDLINKAGE_RPC_GET_A {"level":"purple",\
+ "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "bidirectional", \
+     "guardhint": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["TAG_REQUEST_GET_A", "TAG_RESPONSE_GET_A"], \
+     "rettaints": ["TAG_RESPONSE_GET_A"] \
+    } \
+  ] }
+
 extern void   _master_rpc_init();
 extern double _rpc_get_a();
 

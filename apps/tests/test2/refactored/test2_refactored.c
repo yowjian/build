@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #pragma cle def PURPLE {"level":"purple"}
-#pragma cle def PURPLE_SHAREABLE {"level":"purple",\
+#pragma cle def XDLINKAGE_GET_EWMA {"level":"purple",\
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
@@ -41,9 +41,9 @@ double get_b() {
   return b;
 }
 
-#pragma cle begin PURPLE_SHAREABLE
+#pragma cle begin XDLINKAGE_GET_EWMA
 double get_ewma(double x) {
-#pragma cle end PURPLE_SHAREABLE
+#pragma cle end XDLINKAGE_GET_EWMA
   double y = get_b();
   return calc_ewma(x,y);
 }
