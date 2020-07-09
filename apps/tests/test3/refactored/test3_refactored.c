@@ -6,7 +6,7 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"} \
+     "guardhint": { "operation": "allow"}, \
      "argtaints": [["ORANGE"], ["ORANGE"]], \
      "codtaints": [], \
      "rettaints": ["EWMA_SHAREABLE"] } \
@@ -16,7 +16,7 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
-     "guardhint": { "operation": "allow"} \
+     "guardhint": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints": ["ORANGE","EWMA_SHAREABLE"], \
      "rettaints": ["TAG_RESPONSE_GET_EWMA"] } \
@@ -68,7 +68,7 @@ int ewma_main() {
 }
 
 int main(int argc, char **argv) {
-  return ewma_main(argc,argv);
+  return ewma_main();
 }
 
 // purple master: main, ewma_main

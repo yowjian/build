@@ -63,7 +63,7 @@ int ewma_main() {
 }
 
 int main(int argc, char **argv) {
-  return ewma_main(argc,argv);
+  return ewma_main();
 }
 
 // orange master: main, ewma_main, get_a
