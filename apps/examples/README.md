@@ -25,3 +25,86 @@ sample output, and intermediate artifacts, which include:
      DFDL, DAGR, Refactoring methodology, and CLOSURE tool versions to 
      be used for this example
 
+# Cheatsheet for examples 1-3
+
+## Example 1
+
+```
+// get_b.b, ewma_main.ewma
+#pragma cle def PURPLE {"level":"purple"}
+
+// get_a.a
+#pragma cle def ORANGE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "egress", \
+     "guardhint": { "operation": "allow"}}\
+  ] }
+
+// get_a
+#pragma cle def XDLINKAGE_GET_A {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guardhint": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["ORANGE"], \
+     "rettaints": ["TAG_RESPONSE_GET_A"] \
+    } \
+  ] }
+```
+  
+## Example 2
+
+```
+// get_b.b
+#pragma cle def PURPLE {"level":"purple"}
+
+// get_a.a, ewma_main.ewma
+#pragma cle def ORANGE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "egress", \
+     "guardhint": { "operation": "allow"}}\
+  ] }
+
+// get_ewma
+#pragma cle def XDLINKAGE_GET_EWMA {"level":"purple",\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "bidirectional", \
+     "guardhint": { "operation": "allow"}, \
+     "argtaints": [["TAG_REQUEST_GET_EWMA"]], \
+     "codtaints": ["PURPLE"], \
+     "rettaints": ["TAG_RESPONSE_GET_EWMA"] }\
+  ] }
+```
+
+## Example 3
+
+```
+#pragma cle def PURPLE {"level":"purple"}
+
+#pragma cle def ORANGE {"level":"orange"}
+
+#pragma cle def EWMA_SHAREABLE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "egress", \
+     "guardhint": { "operation": "allow"}, \
+     "argtaints": [["ORANGE"], ["ORANGE"]], \
+     "codtaints": [], \
+     "rettaints": ["EWMA_SHAREABLE"] } \
+ ] }
+
+#pragma cle def XDLINKAGE_GET_EWMA {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guardhint": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["ORANGE","EWMA_SHAREABLE"], \
+     "rettaints": ["TAG_RESPONSE_GET_EWMA"] } \
+  ] }
+```
+
