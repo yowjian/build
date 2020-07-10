@@ -1,39 +1,38 @@
 CLOSURE_DIR=~/gaps/build
-PROG_DIR=$(CLOSURE_DIR)/apps/examples/example1/annotated
-PROG=$(PROG_DIR)/example1
+PROG=example1
+EXT=c
 
-CC=gcc
-INCLUDE_DIRS=
-CFLAGS=-Wall -g $(INCLUDE_DIRS)
-CLE_PRE=$(CLOSURE_DIR)/src/mules/cle-preprocessor/src
-PARTITIONER_DIR=$(CLOSURE_DIR)/src/capo/partitioner/src
+PREPROCESSOR=$(CLOSURE_DIR)/src/mules/cle-preprocessor/src/qd_cle_preprocessor.py
+PARTITIONER=$(CLOSURE_DIR)/src/capo/partitioner/src/partitioner.py
 LIBPDG=$(CLOSURE_DIR)/src/capo/pdg/build/libpdg.so
+
+CLANG=/usr/local/bin/clang-10
+CLANG_FLAGS=-S -g -emit-llvm
+OPT=/usr/local/bin/opt
+LLVM_AS=/usr/local/bin/llvm-as
 
 all: enclaves
 
 .SECONDARY:
 
 enclaves: pdgragh.main.dot
-	python3 $(PARTITIONER_DIR)/partitioner.py $(PROG).$(EXT)
+	python3 $(PARTITIONER) $(PROG).$(EXT)
 
 dot: $(PROG).mod.bc
-	opt-debug -load $(LIBPDG) -dot-pdg $<
+	$(OPT) -load $(LIBPDG) -dot-pdg $<
 
 remdot: dot
 	gvpr -c "N[$.degree==0]{delete(root,$$)}" pdgragh.main.dot -o tmp.dot
 	mv tmp.dot pdgragh.main.dot
 
-mod: $(PROG).mod.$(EXT)
-
 %.mod.bc: %.mod.ll
-	llvm-as $<
+	$(LLVM_AS) $<
 
 %.mod.c: %.c
-	$(CLE_PRE)/qd_cle_preprocessor.py -f $<
+	$(PREPROCESSOR) -f $<
 
 %.mod.ll: %.mod.c
-	clang -S -g $(INCLUDE_DIRS) -emit-llvm $<
+	$(CLANG) $(CLANG_FLAGS) $<
 
 clean:
-	rm -f *.o *clemap.json *.dot *.ll *.bc *.mod.cpp *.puml *.mod.c
-	rm -rf out
+	rm -f *.o *clemap.json *.dot *.ll *.bc *.mod.cpp *.puml *.mod.c *~

@@ -13,7 +13,7 @@
         "problemMatcher": []
       },
       {
-        "label": "1 Annotation",
+        "label": "ANNOTATED",
         "type": "shell",
         "command": "mkdir annotated; cp -R plain/* annotated; echo Prepared sources for CLE annotation by developer under ./annotated; echo Move to Conflict Analysis when done annotating",
         "args": [],
@@ -24,9 +24,9 @@
         "problemMatcher": []
       },
       {
-        "label": "2 Conflict Analysis",
+        "label": "CONFLICT ANALYSIS",
         "type": "shell",
-        "command": "make -f .vscode/Makefile.conflicts dot",
+        "command": "cd annotated; make -f ../.vscode/Makefile.conflicts dot; make -f ../.vscode/Makefile.conflicts enclaves",
         "args": [],
         "group": {
           "kind": "build",
@@ -60,7 +60,18 @@
       {
         "label": "CLEAN",
         "type": "shell",
-        "command": "rm -rf out; rm -f *.puml; rm -rf ../../src/emu/.apps/*; make clean; make capoclean",
+        "command": "rm -rf annotated partitioned divvied refactored; cd ../../../src/capo/pdg; make clean; cd ../compliance; make clean;",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "CLEAN SOURCE",
+        "type": "shell",
+        "command": "rm -rf annotated partitioned divvied refactored;",
         "args": [],
         "group": {
           "kind": "build",
