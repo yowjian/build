@@ -1,0 +1,7 @@
+CLOSURE_DIR=~/gaps/build
+PROG=example1
+
+DIV=$(CLOSURE_DIR)/src/capo/divider/program_divider.py
+
+all:
+	python3 $(DIV) -f refactored/$(PROG)_topology.json

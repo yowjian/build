@@ -34,7 +34,17 @@
         },
         "problemMatcher": []
       },
-      
+      {
+        "label": "DIVIDE",
+        "type": "shell",
+        "command": "make -f .vscode/Makefile.divvied",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
       {
         "label": "4 Binary Generator and Packaging",
         "type": "shell",
