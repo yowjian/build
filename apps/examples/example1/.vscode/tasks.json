@@ -1,0 +1,122 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "0 Init",
+        "type": "shell",
+        "command": "echo Welcome to GAPS CLOSURE Toolchain; cd ../../../src/capo/pdg; make; cd ../compliance; make",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "1 Annotation",
+        "type": "shell",
+        "command": "mkdir annotated; cp -R plain/* annotated; echo Prepared sources for CLE annotation by developer under ./annotated; echo Move to Conflict Analysis when done annotating",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "2 Conflict Analysis",
+        "type": "shell",
+        "command": "make -f .vscode/Makefile.conflicts dot",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      
+      {
+        "label": "4 Binary Generator and Packaging",
+        "type": "shell",
+        "command": "source initenv.sh; make orange; make green; make packages; cp *.tar ../../src/emu/.apps/",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Verifier",
+        "type": "shell",
+        "command": "../../../src/capo/compliance/verifier -v refactored partitioned/multithreaded/orange partitioned/multithreaded/purple",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "CLEAN",
+        "type": "shell",
+        "command": "rm -rf out; rm -f *.puml; rm -rf ../../src/emu/.apps/*; make clean; make capoclean",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "EMULATE",
+        "type": "shell",
+        "command": "cd ../../src/emu/; ./start.sh 6month-demo",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "BUILD ALL",
+        "type": "shell",
+        "command": "",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+          "CLEAN",
+          "0 CLOSURE Init",
+          "1 CLOSURE PreProcessor",
+          "2 CLOSURE Compile to LLVM-IR",
+          "3 CLOSURE Program Dependency Graph",
+          "4 CLOSURE Partitioner/Analysis"
+        ],
+        "problemMatcher": []
+      },
+      {
+        "label": "BUILD FAST",
+        "type": "shell",
+        "command": "",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+          "CLEAN",
+          "0 CLOSURE Init",
+          "5 CLOSURE Binary Generator",
+          "6 CLOSURE Packager",
+          "EMULATE"
+        ],
+        "problemMatcher": []
+      }
+    ]
+  }

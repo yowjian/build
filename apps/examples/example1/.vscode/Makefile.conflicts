@@ -1,0 +1,39 @@
+CLOSURE_DIR=~/gaps/build
+PROG_DIR=$(CLOSURE_DIR)/apps/examples/example1/annotated
+PROG=$(PROG_DIR)/example1
+
+CC=gcc
+INCLUDE_DIRS=
+CFLAGS=-Wall -g $(INCLUDE_DIRS)
+CLE_PRE=$(CLOSURE_DIR)/src/mules/cle-preprocessor/src
+PARTITIONER_DIR=$(CLOSURE_DIR)/src/capo/partitioner/src
+LIBPDG=$(CLOSURE_DIR)/src/capo/pdg/build/libpdg.so
+
+all: enclaves
+
+.SECONDARY:
+
+enclaves: pdgragh.main.dot
+	python3 $(PARTITIONER_DIR)/partitioner.py $(PROG).$(EXT)
+
+dot: $(PROG).mod.bc
+	opt-debug -load $(LIBPDG) -dot-pdg $<
+
+remdot: dot
+	gvpr -c "N[$.degree==0]{delete(root,$$)}" pdgragh.main.dot -o tmp.dot
+	mv tmp.dot pdgragh.main.dot
+
+mod: $(PROG).mod.$(EXT)
+
+%.mod.bc: %.mod.ll
+	llvm-as $<
+
+%.mod.c: %.c
+	$(CLE_PRE)/qd_cle_preprocessor.py -f $<
+
+%.mod.ll: %.mod.c
+	clang -S -g $(INCLUDE_DIRS) -emit-llvm $<
+
+clean:
+	rm -f *.o *clemap.json *.dot *.ll *.bc *.mod.cpp *.puml *.mod.c
+	rm -rf out
