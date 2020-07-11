@@ -1,5 +1,5 @@
 PYTHON=/usr/bin/python3
-CLOSURE_DIR=/home/mkaplan/gaps/build
+CLOSURE_DIR=~/gaps/build
 PROG=example1
 ODIR=./partitioned/multithreaded
 EDIR=./divvied
