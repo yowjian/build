@@ -2,9 +2,9 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "0 Init",
+        "label": "INITIALIZE",
         "type": "shell",
-        "command": "echo Welcome to GAPS CLOSURE Toolchain; cd ../../../src/capo/pdg; make; cd ../compliance; make",
+        "command": "echo Welcome to GAPS CLOSURE Toolchain",
         "args": [],
         "group": {
           "kind": "build",
@@ -26,7 +26,7 @@
       {
         "label": "CONFLICT ANALYSIS",
         "type": "shell",
-        "command": "cd annotated; make -f ../.vscode/Makefile.conflicts dot; make -f ../.vscode/Makefile.conflicts enclaves",
+        "command": "cd annotated; make -f ../.vscode/Makefile.conflicts dot && make -f ../.vscode/Makefile.conflicts enclaves && mkdir -p ../refactored && cp topology.json ../ && make -f ../.vscode/Makefile.conflicts clean && cp -r * ../refactored",
         "args": [],
         "group": {
           "kind": "build",
@@ -46,9 +46,9 @@
         "problemMatcher": []
       },
       {
-        "label": "4 Binary Generator and Packaging",
+        "label": "GEDL, RPCs, IDL, Codecs",
         "type": "shell",
-        "command": "source initenv.sh; make orange; make green; make packages; cp *.tar ../../src/emu/.apps/",
+        "command": "mkdir -p partitioned; cp -r ../../../src/capo/gedl/heuristics ./partitioned; make -f .vscode/Makefile.gedl rpc;",
         "args": [],
         "group": {
           "kind": "build",
@@ -57,9 +57,20 @@
         "problemMatcher": []
       },
       {
-        "label": "Verifier",
+        "label": "VERIFIER",
         "type": "shell",
-        "command": "../../../src/capo/compliance/verifier -v refactored partitioned/multithreaded/orange partitioned/multithreaded/purple",
+        "command": "make -f .vscode/Makefile.verifier verify",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "BUILD",
+        "type": "shell",
+        "command": "make -f .vscode/Makefile.verifier clean; make -f .vscode/Makefile.mbig build",
         "args": [],
         "group": {
           "kind": "build",
@@ -81,7 +92,29 @@
       {
         "label": "CLEAN SOURCE",
         "type": "shell",
-        "command": "rm -rf annotated partitioned divvied refactored;",
+        "command": "rm -rf annotated partitioned divvied refactored *.json;",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "HALCONFIG",
+        "type": "shell",
+        "command": "#TODO",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "CUTZOOM VISUALIZATION",
+        "type": "shell",
+        "command": "#TODO",
         "args": [],
         "group": {
           "kind": "build",
@@ -92,7 +125,7 @@
       {
         "label": "EMULATE",
         "type": "shell",
-        "command": "cd ../../src/emu/; ./start.sh 6month-demo",
+        "command": "make -f .vscode/Makefile.mbig pkg; cd ~/gaps/build/src/emu/; ./start.sh example1",
         "args": [],
         "group": {
           "kind": "build",
