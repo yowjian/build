@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "test1_purple_rpc.h"
+#include "example1_purple_rpc.h"
 
 #pragma cle def PURPLE {"level":"purple"}
 

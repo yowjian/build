@@ -5,9 +5,9 @@ LIB_OBJ     = $(OBJDIR)/float754.o $(OBJDIR)/codec.o
 OBJDIR ?= .
 CFLAGS      = -O2 -Wall -Wstrict-prototypes
 
-autogen: test1.idl
-	python3 ~/gaps/build/src/hal/autogen/autogen.py -i test1.idl -g bw_v1 -d test1_bw.dfdl -e codec
-	python3 ~/gaps/build/src/hal/autogen/autogen.py -i test1.idl -g be_v1 -d test1_be.dfdl -e codec
+autogen: example1.idl
+	python3 ~/gaps/build/src/hal/autogen/autogen.py -i example1.idl -g bw_v1 -d example1_bw.dfdl -e codec
+	python3 ~/gaps/build/src/hal/autogen/autogen.py -i example1.idl -g be_v1 -d example1_be.dfdl -e codec
 	
 
 libraries: slibs libs
