@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "INITIALIZE",
+        "label": "0 INITIALIZE",
         "type": "shell",
         "command": "echo Welcome to GAPS CLOSURE Toolchain; cd ~/gaps/build/src/hal; make clean; make",
         "args": [],
@@ -13,7 +13,7 @@
         "problemMatcher": []
       },
       {
-        "label": "ANNOTATED",
+        "label": "1 ANNOTATE",
         "type": "shell",
         "command": "mkdir annotated; cp -R plain/* annotated; echo Prepared sources for CLE annotation by developer under ./annotated; echo Move to Conflict Analysis when done annotating",
         "args": [],
@@ -25,7 +25,7 @@
         
       },
       {
-        "label": "CONFLICT ANALYSIS",
+        "label": "2 ANALYZE PARTITION CONFLICTS",
         "type": "shell",
         "command": "cd annotated; make -f ../.vscode/Makefile.conflicts dot && make -f ../.vscode/Makefile.conflicts enclaves && mkdir -p ../refactored && cp topology.json ../ && make -f ../.vscode/Makefile.conflicts clean && cp -r * ../refactored",
         "args": [],
@@ -36,7 +36,7 @@
         "problemMatcher": []
       },
       {
-        "label": "DIVIDE",
+        "label": "3 DIVIDE",
         "type": "shell",
         "command": "make -f .vscode/Makefile.divvied",
         "args": [],
@@ -47,7 +47,7 @@
         "problemMatcher": []
       },
       {
-        "label": "GEDL, RPCs, IDL, Codecs",
+        "label": "4 AUTOGEN GEDL, RPCs, IDL, Codecs",
         "type": "shell",
         "command": "mkdir -p partitioned; cp -r ../../../src/capo/gedl/heuristics ./partitioned; make -f .vscode/Makefile.gedl rpc;",
         "args": [],
@@ -58,7 +58,7 @@
         "problemMatcher": []
       },
       {
-        "label": "VERIFIER",
+        "label": "5 VERIFY",
         "type": "shell",
         "command": "make -f .vscode/Makefile.verifier verify",
         "args": [],
@@ -69,7 +69,7 @@
         "problemMatcher": []
       },
       {
-        "label": "BUILD",
+        "label": "7 BUILD",
         "type": "shell",
         "command": "make -f .vscode/Makefile.verifier clean; make -f .vscode/Makefile.mbig build",
         "args": [],
@@ -80,7 +80,7 @@
         "problemMatcher": []
       },
       {
-        "label": "BUILD PLAIN",
+        "label": "8 BUILD PLAIN",
         "type": "shell",
         "command": "cd plain; make clean; make; ./example1; make clean",
         "args": [],
@@ -91,7 +91,7 @@
         "problemMatcher": []
       },
       {
-        "label": "CLEAN SOURCE",
+        "label": "0 CLEAN SOURCE",
         "type": "shell",
         "command": "rm -rf annotated partitioned divvied refactored *.json;",
         "args": [],
@@ -102,7 +102,7 @@
         "problemMatcher": []
       },
       {
-        "label": "HALCONFIG",
+        "label": "90 HALCONFIG",
         "type": "shell",
         "command": "#TODO",
         "args": [],
@@ -113,7 +113,7 @@
         "problemMatcher": []
       },
       {
-        "label": "CUTZOOM VISUALIZATION",
+        "label": "6 VISUALIZE CROSS-DOMAIN CUT",
         "type": "shell",
         "command": "bash .vscode/cutzoom.sh",
         "args": [],
@@ -124,7 +124,7 @@
         "problemMatcher": []
       },
       {
-        "label": "EMULATE",
+        "label": "9 EMULATE",
         "type": "shell",
         "command": "make -f .vscode/Makefile.mbig pkg; cd ~/gaps/build/src/emu/; ./start.sh example1",
         "args": [],
@@ -135,7 +135,7 @@
         "problemMatcher": []
       },
       {
-        "label": "BUILD ALL",
+        "label": "91 BUILD ALL",
         "type": "shell",
         "command": "",
         "args": [],
@@ -155,7 +155,7 @@
         "problemMatcher": []
       },
       {
-        "label": "BUILD FAST",
+        "label": "92 BUILD FAST",
         "type": "shell",
         "command": "",
         "args": [],
