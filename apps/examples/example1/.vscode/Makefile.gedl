@@ -18,7 +18,8 @@ CLANG=$(LLVM_SANDBOX)/bin/clang
 CLANG_FLAGS=-emit-llvm -S -g
 OPT=$(LLVM_SANDBOX)/bin/opt
 LLVMLINK=$(LLVM_SANDBOX)/bin/llvm-link
-LIBGEDL=$(CLOSURE_DIR)/src/capo/gedl/build/libgedl.so
+#LIBGEDL=$(CLOSURE_DIR)/src/capo/gedl/build/libgedl.so
+LIBGEDL=~/lib/libgedl.mk20200710.so
 LLVM_INCLUDE=$(LLVM_SANDBOX)/lib/clang/9.0.0/include
 
 build_folder := $(shell mkdir -p $(ODIR))

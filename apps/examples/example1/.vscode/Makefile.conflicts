@@ -6,11 +6,11 @@ EXT=c
 
 PREPROCESSOR=$(CLOSURE_DIR)/src/mules/cle-preprocessor/src/qd_cle_preprocessor.py
 PARTITIONER=$(CLOSURE_DIR)/src/capo/partitioner/src/partitioner.py
-LIBPDG=$(CLOSURE_DIR)/src/capo/pdg/build/libpdg.so
+LIBPDG=~/lib/libpdg.ta20200710-new.so
 
 CLANG=/usr/local/bin/clang-10
 CLANG_FLAGS=-S -g -emit-llvm
-OPT=/usr/local/bin/opt
+OPT=/usr/local/bin/opt-debug
 
 all: enclaves
 

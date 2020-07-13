@@ -2,13 +2,13 @@ PYTHON=/usr/bin/python3
 CLOSURE_DIR=~/gaps/build
 
 LLVM_SANDBOX=/usr/local
-OPT=$(LLVM_SANDBOX)/bin/opt
+OPT=$(LLVM_SANDBOX)/bin/opt-debug
 LLVMLINK=$(LLVM_SANDBOX)/bin/llvm-link
 LLVMDIS=$(LLVM_SANDBOX)/bin/llvm-dis
 
-TAGPROC=$(CLOSURE_DIR)/src/capo/partitioner/src/tag_procesory.py
-CUTZOOM=$(CLOSURE_DIR)/src/capo/cutzoom/cutzoom.py
-LIBPDG=$(CLOSURE_DIR)/src/capo/pdg/build/libpdg.so
+TAGPROC=$(CLOSURE_DIR)/src/capo/partitioner/src/tag_processor.py
+CUTZOOM=$(CLOSURE_DIR)/src/capo/partitioner/src/cutzoom/cutzoom.py
+LIBPDG=~/lib/libpdg.ta20200710-new.so
 
 IPCMODE=multithreaded
 ODIR=./partitioned/$(IPCMODE)
@@ -17,11 +17,6 @@ ENCLAVES=orange purple
 
 ALL_LL = $(wildcard $(PROG)/*.mod.ll)
 
-default: all
-
-all:
-	$(foreach enclave,$(ENCLAVES), cd $(ODIR) && PROG=$(enclave) make -f ../../.vscode/Makefile.cutzoom dot && cd ../../)
- 
 dot: $(PROG)_all.mod.bc
 	$(OPT) -load $(LIBPDG) -dot-pdg $(PROG)/$^
 	mv pdgragh.main.dot $(PROG)_all.pdgragh.main.dot
@@ -37,4 +32,7 @@ capotags:
 	$(PYTHON) $(CUTZOOM) -f join_graph.dot -k2 -o abridged_2_colored.dot
 
 clean:
-	cd ./partitioned/$(IPCMODE) && $(foreach enclave,$(ENCLAVES),rm -f $(enclave)/*.bc $(enclave)/*.dot $(enclave)/*pdgragh* $(enclave)/$(enclave)_all.mod.ll join_graph.* abridged*)
+	rm -f $(PROG)/*.bc $(PROG)/*.dot $(PROG)/*pdgragh* $(PROG)/$(PROG)_all.mod.ll join_graph.*
+
+realclean: clean
+	rm -f abridged*
