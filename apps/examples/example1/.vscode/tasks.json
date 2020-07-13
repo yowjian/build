@@ -2,14 +2,27 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "0 INITIALIZE",
+        "label": "0a CLEAN SOURCE",
+        "type": "shell",
+        "command": "rm -rf annotated partitioned divvied refactored *.json;",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "0b INITIALIZE",
         "type": "shell",
         "command": "echo Welcome to GAPS CLOSURE Toolchain; cd ~/gaps/build/src/hal; make clean; make",
         "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "0c BUILD PLAIN",
+        "type": "shell",
+        "command": "cd plain; make clean; make; ./example1; make clean",
+        "args": [],
+        "group": "build",
         "problemMatcher": []
       },
       {
@@ -17,12 +30,8 @@
         "type": "shell",
         "command": "mkdir annotated; cp -R plain/* annotated; echo Prepared sources for CLE annotation by developer under ./annotated; echo Move to Conflict Analysis when done annotating",
         "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
+        "group": "build",
         "problemMatcher": []
-        
       },
       {
         "label": "2 ANALYZE PARTITION CONFLICTS",
@@ -36,14 +45,31 @@
         "problemMatcher": []
       },
       {
-        "label": "3 DIVIDE",
+        "label": "2+ MAGIC BUTTON",
         "type": "shell",
-        "command": "make -f .vscode/Makefile.divvied",
+        "command": "",
         "args": [],
         "group": {
           "kind": "build",
           "isDefault": true
         },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+          "3 DIVIDE",
+          "4 AUTOGEN GEDL, RPCs, IDL, Codecs",
+          "5 VERIFY",
+          "6 VISUALIZE CROSS-DOMAIN CUT",
+          "7 BUILD",
+          "8 EMULATE"
+        ],
+        "problemMatcher": []
+      },
+      {
+        "label": "3 DIVIDE",
+        "type": "shell",
+        "command": "make -f .vscode/Makefile.divvied",
+        "args": [],
+        "group": "build",
         "problemMatcher": []
       },
       {
@@ -51,10 +77,7 @@
         "type": "shell",
         "command": "mkdir -p partitioned; cp -r ../../../src/capo/gedl/heuristics ./partitioned; make -f .vscode/Makefile.gedl rpc;",
         "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
+        "group": "build",
         "problemMatcher": []
       },
       {
@@ -62,10 +85,15 @@
         "type": "shell",
         "command": "make -f .vscode/Makefile.verifier verify",
         "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "6 VISUALIZE CROSS-DOMAIN CUT",
+        "type": "shell",
+        "command": "bash .vscode/cutzoom.sh; xdot -f fdp partitioned/multithreaded/abridged_1_colored.dot",
+        "args": [],
+        "group": "build",
         "problemMatcher": []
       },
       {
@@ -73,104 +101,23 @@
         "type": "shell",
         "command": "make -f .vscode/Makefile.verifier clean; make -f .vscode/Makefile.mbig build",
         "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
+        "group": "build",
         "problemMatcher": []
       },
       {
-        "label": "8 BUILD PLAIN",
-        "type": "shell",
-        "command": "cd plain; make clean; make; ./example1; make clean",
-        "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": []
-      },
-      {
-        "label": "0 CLEAN SOURCE",
-        "type": "shell",
-        "command": "rm -rf annotated partitioned divvied refactored *.json;",
-        "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": []
-      },
-      {
-        "label": "90 HALCONFIG",
-        "type": "shell",
-        "command": "#TODO",
-        "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": []
-      },
-      {
-        "label": "6 VISUALIZE CROSS-DOMAIN CUT",
-        "type": "shell",
-        "command": "bash .vscode/cutzoom.sh",
-        "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": []
-      },
-      {
-        "label": "9 EMULATE",
+        "label": "8 EMULATE",
         "type": "shell",
         "command": "make -f .vscode/Makefile.mbig pkg; cd ~/gaps/build/src/emu/; ./start.sh example1",
         "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
+        "group": "build",
         "problemMatcher": []
       },
       {
-        "label": "91 BUILD ALL",
+        "label": "9 HALCONFIG",
         "type": "shell",
-        "command": "",
+        "command": "#TODO",
         "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "dependsOrder": "sequence",
-        "dependsOn": [
-          "CLEAN",
-          "0 CLOSURE Init",
-          "1 CLOSURE PreProcessor",
-          "2 CLOSURE Compile to LLVM-IR",
-          "3 CLOSURE Program Dependency Graph",
-          "4 CLOSURE Partitioner/Analysis"
-        ],
-        "problemMatcher": []
-      },
-      {
-        "label": "92 BUILD FAST",
-        "type": "shell",
-        "command": "",
-        "args": [],
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "dependsOrder": "sequence",
-        "dependsOn": [
-          "CLEAN",
-          "0 CLOSURE Init",
-          "5 CLOSURE Binary Generator",
-          "6 CLOSURE Packager",
-          "EMULATE"
-        ],
+        "group": "build",
         "problemMatcher": []
       }
     ]
