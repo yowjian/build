@@ -1,0 +1,26 @@
+CLOSURE_DIR=~/gaps/build
+PROG=example2
+ENCLAVES=orange purple
+ODIR=./partitioned/multithreaded
+
+HAL_API_DIR=$(CLOSURE_DIR)/src/hal/api
+CLANG=/usr/local/bin/clang-10
+CLANG_FLAGS=
+
+autogen_dir := $(ODIR)/autogen
+LIB_OBJ= $(autogen_dir)/float754.o $(autogen_dir)/codec.o 
+
+INCLUDES=-I $(HAL_API_DIR) -I ../autogen 
+LDLIBS=-L $(HAL_API_DIR)
+LIBS=../autogen/libcodecs.a -lpthread
+
+build: 
+	cd $(ODIR) && $(foreach enclave,$(ENCLAVES), cd $(enclave); $(CLANG) -c *.c $(INCLUDES); cd ../;)
+	cd $(ODIR) && $(foreach enclave,$(ENCLAVES), cd $(enclave); $(CLANG) -o $(enclave) *.o  $(LIBS) $(LDLIBS) -lxdcomms;cd ../;)
+	
+pkg:
+	tar cf example2-orange-enclave-gw-P.tar -C partitioned/multithreaded/orange/ orange -C $(HAL_API_DIR)/ libxdcomms.so
+	tar cf example2-purple-enclave-gw-O.tar -C partitioned/multithreaded/purple/ purple -C $(HAL_API_DIR)/ libxdcomms.so
+	rm -rf $(CLOSURE_DIR)/src/emu/.apps
+	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
+	mv *.tar $(CLOSURE_DIR)/src/emu/.apps/
