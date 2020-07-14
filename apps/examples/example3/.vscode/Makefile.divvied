@@ -1,0 +1,7 @@
+PYTHON=/usr/bin/python3
+CLOSURE_DIR=~/gaps/build
+
+DIV=$(CLOSURE_DIR)/src/capo/divider/program_divider.py
+
+all:
+	$(PYTHON) $(DIV) -f topology.json

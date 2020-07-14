@@ -1,0 +1,48 @@
+PYTHON=/usr/bin/python3
+CLOSURE_DIR=~/gaps/build
+ENCLAVES=orange purple
+PREPROCESSOR=$(CLOSURE_DIR)/src/mules/cle-preprocessor/src/qd_cle_preprocessor.py
+VERIFIER=$(CLOSURE_DIR)/src/capo/compliance/verifier
+CLANG=/usr/local/bin/clang-10
+CLANG_FLAGS=-S -g -emit-llvm
+CLANG_INCLUDES=-I $(CLOSURE_DIR)/src/hal/api -I partitioned/multithreaded/autogen
+
+SRC=./partitioned/multithreaded/purple/example3_purple_rpc.c \
+./partitioned/multithreaded/purple/example3_purple.c \
+./partitioned/multithreaded/orange/example3_orange_rpc.c \
+./partitioned/multithreaded/orange/example3_orange.c \
+./refactored/example3.c
+
+HDR=./partitioned/multithreaded/purple/example3_purple_rpc.h \
+./partitioned/multithreaded/orange/example3_orange_rpc.h
+
+MODC=$(patsubst %.c, %.mod.c, $(SRC)) 
+MODH=$(patsubst %.h, %.mod.h, $(HDR)) 
+MODLL=$(patsubst %.mod.c, %.mod.ll, $(MODC))
+MODCJC=$(patsubst %.c, %.c.clemap.json,$(SRC))
+MODCJH=$(patsubst %.h,%.h.clemap.json,$(HDR))
+
+all:
+	echo done
+
+clean:
+	rm -f $(MODC) $(MODH) $(MODLL) $(MODCJC) $(MODCJH)
+
+.SECONDARY:
+
+verify: prep
+	$(VERIFIER) -v refactored partitioned/multithreaded/purple partitioned/multithreaded/orange
+
+prep: $(MODC) $(MODH) $(MODLL)
+	# rename foo.mod.? to foo.? 
+	# invoke llvm-link?
+	echo Done
+
+%.mod.ll: %.mod.c
+	$(CLANG) $(CLANG_FLAGS) $(CLANG_INCLUDES) -o $@ $<
+
+%.mod.c: %.c
+	$(PYTHON) $(PREPROCESSOR) -f $<
+
+%.mod.h: %.h
+	$(PYTHON) $(PREPROCESSOR) -f $<
