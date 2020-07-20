@@ -9,7 +9,7 @@ FACILOBJ=$(patsubst %.c, %.o, $(FACILSRC))
 FACILINCL=-I facilio/include
 FACILLIB=facilio/facilio.a
 
-app: $(APPOBJ) $(FACILLIB)
+$(APPEXE): $(APPOBJ) $(FACILLIB)
 	clang -o $@ $^ $(MYLIB)
 
 $(FACILLIB): $(FACILOBJ)

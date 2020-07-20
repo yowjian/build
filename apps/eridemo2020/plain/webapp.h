@@ -8,8 +8,7 @@
 #include "fio_cli.h"
 #include "http.h"
 
-void initialize_cli(int argc, char const *argv[]);
-void free_cli(void);
-void initialize_http_service(void);
+void initialize_http_service(int argc, char const *argv[]);
+void housekeep_http_service(void);
 
 #endif /* _WEBAPP_H_ */
