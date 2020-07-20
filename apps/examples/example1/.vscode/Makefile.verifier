@@ -7,14 +7,14 @@ CLANG=/usr/local/bin/clang-10
 CLANG_FLAGS=-S -g -emit-llvm
 CLANG_INCLUDES=-I $(CLOSURE_DIR)/src/hal/api -I partitioned/multithreaded/autogen
 
-SRC=./partitioned/multithreaded/purple/example1_purple_rpc.c \
-./partitioned/multithreaded/purple/example1_purple.c \
-./partitioned/multithreaded/orange/example1_orange_rpc.c \
-./partitioned/multithreaded/orange/example1_orange.c \
+SRC=./partitioned/multithreaded/purple/example1_rpc.c \
+./partitioned/multithreaded/purple/example1.c \
+./partitioned/multithreaded/orange/example1_rpc.c \
+./partitioned/multithreaded/orange/example1.c \
 ./refactored/example1.c
 
-HDR=./partitioned/multithreaded/purple/example1_purple_rpc.h \
-./partitioned/multithreaded/orange/example1_orange_rpc.h
+HDR=./partitioned/multithreaded/purple/example1_rpc.h \
+./partitioned/multithreaded/orange/example1_rpc.h
 
 MODC=$(patsubst %.c, %.mod.c, $(SRC)) 
 MODH=$(patsubst %.h, %.mod.h, $(HDR)) 
