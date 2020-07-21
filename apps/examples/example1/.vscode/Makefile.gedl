@@ -1,5 +1,6 @@
 PYTHON=/usr/bin/python3
 CLOSURE_DIR=~/gaps/build
+CLOSURE_BINS=/opt/closure
 PROG=example1
 ODIR=./partitioned/multithreaded
 EDIR=./divvied
@@ -13,13 +14,12 @@ IPC_MODE=Multithreaded
 INURI="ipc:///tmp/example1sub"
 OUTURI="ipc:///tmp/example1pub"
 
-LLVM_SANDBOX=~/llvm/build
+LLVM_SANDBOX=/opt/closure/llvm/build
 CLANG=$(LLVM_SANDBOX)/bin/clang
 CLANG_FLAGS=-emit-llvm -S -g
 OPT=$(LLVM_SANDBOX)/bin/opt
 LLVMLINK=$(LLVM_SANDBOX)/bin/llvm-link
-#LIBGEDL=$(CLOSURE_DIR)/src/capo/gedl/build/libgedl.so
-LIBGEDL=~/lib/libgedl.mk20200710.so
+LIBGEDL=$(CLOSURE_BINS)/lib/libgedl.mk20200710.so
 LLVM_INCLUDE=$(LLVM_SANDBOX)/lib/clang/9.0.0/include
 
 build_folder := $(shell mkdir -p $(ODIR))
