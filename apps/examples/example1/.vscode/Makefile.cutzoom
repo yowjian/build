@@ -1,14 +1,15 @@
 PYTHON=/usr/bin/python3
 CLOSURE_DIR=~/gaps/build
+CLOSURE_BINS=/opt/closure
 
+OPT=$(CLOSURE_BINS)/bin/opt-debug
 LLVM_SANDBOX=/usr/local
-OPT=$(LLVM_SANDBOX)/bin/opt-debug
 LLVMLINK=$(LLVM_SANDBOX)/bin/llvm-link
 LLVMDIS=$(LLVM_SANDBOX)/bin/llvm-dis
 
 TAGPROC=$(CLOSURE_DIR)/src/capo/partitioner/src/tag_processor.py
 CUTZOOM=$(CLOSURE_DIR)/src/capo/partitioner/src/cutzoom/cutzoom.py
-LIBPDG=~/lib/libpdg.ta20200710-new.so
+LIBPDG=$(CLOSURE_BINS)/lib/libpdg.ta20200710-new.so
 
 IPCMODE=multithreaded
 ODIR=./partitioned/$(IPCMODE)

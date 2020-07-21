@@ -1,8 +1,9 @@
 PYTHON=/usr/bin/python3
 CLOSURE_DIR=~/gaps/build
+CLOSURE_BINS=/opt/closure
 ENCLAVES=orange purple
 PREPROCESSOR=$(CLOSURE_DIR)/src/mules/cle-preprocessor/src/qd_cle_preprocessor.py
-VERIFIER=$(CLOSURE_DIR)/src/capo/compliance/verifier
+VERIFIER=$(CLOSURE_BINS)/bin/verifier
 CLANG=/usr/local/bin/clang-10
 CLANG_FLAGS=-S -g -emit-llvm
 CLANG_INCLUDES=-I $(CLOSURE_DIR)/src/hal/api -I partitioned/multithreaded/autogen
