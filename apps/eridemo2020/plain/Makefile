@@ -9,7 +9,11 @@ FACILOBJ=$(patsubst %.c, %.o, $(FACILSRC))
 FACILINCL=-I facilio/include
 FACILLIB=facilio/facilio.a
 
-$(APPEXE): $(APPOBJ) $(FACILLIB)
+MPARTSRC=$(wildcard multipart-parser/*.c)
+MPARTOBJ=$(patsubst %.c, %.o, $(MPARTSRC)) 
+MPARTINCL=-I multipart-parser
+
+$(APPEXE): $(APPOBJ) $(MPARTOBJ) $(FACILLIB)
 	clang -o $@ $^ $(MYLIB)
 
 $(FACILLIB): $(FACILOBJ)
@@ -19,10 +23,10 @@ clean:
 	rm -f $(APPEXE) $(APPOBJ)
 
 realclean:
-	rm -f $(APPEXE) $(APPOBJ) $(FACILLIB) $(FACILOBJ)
+	rm -f $(APPEXE) $(APPOBJ) $(MPARTOBJ) $(FACILOBJ) $(FACILLIB) 
 
 .SECONDARY:
 
 %.o: %.c
-	clang -c $(FACILINCL) $< -o $@
+	clang -c $(FACILINCL) $(MPARTINCL) $< -o $@
 

@@ -15,7 +15,7 @@ void initialize_cli(int argc, char const *argv[]) {
       FIO_CLI_INT("-max-body -maxbd HTTP upload limit. default: ~50Mb"),
       FIO_CLI_BOOL("-log -v request verbosity (logging)."),
       FIO_CLI_PRINT_HEADER("Database:"),
-      FIO_CLI_STRING("-database -db The database adrress (URL)."));
+      FIO_CLI_STRING("-database -db The database adrress (URL).  default sqlite://./eridemo2020.sqlite3.db"));
 
   if (!fio_cli_get("-b")) {
     char *tmp = getenv("ADDRESS");
@@ -74,10 +74,10 @@ static void on_http_request(http_s *h) {
 
   if ((strcmp(path.data,"/check_person") != 0) 
       || (strcmp(method.data,"POST") != 0)
-      || (http_parse_body(h) == -1)) { ERRCLN(NULL) }
+      || (http_parse_body(h) == -1)) { ERRCLN("ERROR: Invalid request") }
 
-  tmp = fiobj_obj2cstr(http_req2str(h));
-  fprintf(stderr, "%s",  tmp.data);
+  tmp = fiobj_obj2cstr(h->body); 
+  if (multipart_helper(tmp.data) !=0) { ERRCLN("ERROR: Failed multipart") }
 
   /* get image file, extract features from image and call recognizer */
 
