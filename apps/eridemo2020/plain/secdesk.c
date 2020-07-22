@@ -16,7 +16,7 @@ static void initialize_cli(int argc, char const *argv[]) {
       FIO_CLI_INT("-max-body -maxbd HTTP upload limit. default: ~50Mb"),
       FIO_CLI_BOOL("-log -v request verbosity (logging)."),
       FIO_CLI_PRINT_HEADER("Database:"),
-      FIO_CLI_STRING("-database -db Database URL.  default sqlite://./eridemo2020.db"));
+      FIO_CLI_STRING("-database -db Database file.  default ./db/eridemo2020.db"));
 
   if (!fio_cli_get("-b")) {
     char *tmp = getenv("ADDRESS");
@@ -40,7 +40,7 @@ static void initialize_cli(int argc, char const *argv[]) {
   }
   if (!fio_cli_get("-db")) {
     char *tmp = getenv("DBURI");
-    if (!tmp) tmp = "sqlite://./eridemo2020.db";
+    if (!tmp) tmp = "./db/eridemo2020.db";
     fio_cli_set("-database", tmp);
     fio_cli_set("-db", tmp);
   }
@@ -69,16 +69,27 @@ static int get_fields(FIOBJ o, void *arg) {
 }
 
 static int process_secinput(struct secinput *s) {
-  fprintf(stderr, "%s\n", fiobj_obj2cstr(s->fname).data);
-  fprintf(stderr, "%s\n", fiobj_obj2cstr(s->mi).data);
-  fprintf(stderr, "%s\n", fiobj_obj2cstr(s->lname).data);
-  fprintf(stderr, "%s\n", fiobj_obj2cstr(s->filename).data);
-  /* XXX: create temp file and write s->filedata to it */
-  /* get image file, extract features from image and call recognizer */
-  /* get form fields, query metadata lookup() */
-  /* check if image ID and metadata ID match */
-  /* construct response and send depending on outcome */
-  return 0;
+  fio_str_info_s tmp = fiobj_obj2cstr(s->filedata);
+  char *filename     = fiobj_obj2cstr(s->filename).data;
+  char tmpfile[]     = "secdesk_img_XXXXXX";
+  FILE * fp          = fdopen(mkstemp(tmpfile), "wb"); 
+  if (!fp) perror("Error opening tempfile");
+  if (fwrite(tmp.data, tmp.len, 1, fp) != 1) {
+    fprintf(stderr, "Error writing image file %s into %s\n", filename, tmpfile);
+  }
+  fclose(fp);
+  
+  double embedding[128];
+  get_features(tmpfile, embedding);
+  remove(tmpfile);
+
+  int i;
+  i = recognize(embedding);
+
+  int j;
+  j = lookup(fiobj_obj2cstr(s->fname).data, fiobj_obj2cstr(s->mi).data, fiobj_obj2cstr(s->lname).data);
+
+  return (i > 0 && j > 0 && i == j) ? 1 : 0;
 }
 
 static void on_http_request(http_s *h) {

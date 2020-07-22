@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 void stop_database(void);
-void start_database(char *dbfile);
-int  lookup(char *fname, char *mi, char *lname);
+void start_database(const char *dbfile);
+int  lookup(const char *fname, const char *mi, const char *lname);
 
 #endif /* _MDLOOKUP_H_ */
