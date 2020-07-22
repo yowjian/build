@@ -75,8 +75,6 @@ static void on_http_request(http_s *h) {
   FIOBJ json = fiobj_obj2json(h->params,1); 
   fprintf(stderr, "%s\n", fiobj_obj2cstr(json).data);
 
-  if (multipart_helper(fiobj_obj2cstr(h->body).data) !=0) { ERRCLN("Failed multipart") }
-
   /* get image file, extract features from image and call recognizer */
 
   /* get form fields, query metadata */
