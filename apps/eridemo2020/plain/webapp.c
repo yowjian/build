@@ -68,16 +68,14 @@ void initialize_http_service(int argc, char const *argv[]) {
 
 static void on_http_request(http_s *h) {
   #define ERRCLN(x) if(x) perror(x);http_send_error(h,404);goto cleanup;
-  fio_str_info_s path, method, tmp;
-  path = fiobj_obj2cstr(h->path);
-  method = fiobj_obj2cstr(h->method);
+  http_parse_query(h);
+  if ((strcmp(fiobj_obj2cstr(h->path).data,"/check_person") != 0) 
+      || (strcmp(fiobj_obj2cstr(h->method).data,"POST") != 0)
+      || (http_parse_body(h) == -1)) { ERRCLN("Invalid request") }
+  FIOBJ json = fiobj_obj2json(h->params,1); 
+  fprintf(stderr, "%s\n", fiobj_obj2cstr(json).data);
 
-  if ((strcmp(path.data,"/check_person") != 0) 
-      || (strcmp(method.data,"POST") != 0)
-      || (http_parse_body(h) == -1)) { ERRCLN("ERROR: Invalid request") }
-
-  tmp = fiobj_obj2cstr(h->body); 
-  if (multipart_helper(tmp.data) !=0) { ERRCLN("ERROR: Failed multipart") }
+  if (multipart_helper(fiobj_obj2cstr(h->body).data) !=0) { ERRCLN("Failed multipart") }
 
   /* get image file, extract features from image and call recognizer */
 
