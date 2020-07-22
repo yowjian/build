@@ -49,11 +49,7 @@ void housekeep_http_service(void) {
   fio_cli_end(); 
 }
 
-/* TODO: edit this function to handle HTTP data and answer Websocket requests.*/
-static void on_http_request(http_s *h) {
-  /* set a response and send it (finnish vs. destroy). */
-  http_send_body(h, "Hello World!", 12);
-}
+static void on_http_request(http_s *h);
 
 /* starts a listeninng socket for HTTP connections. */
 void initialize_http_service(int argc, char const *argv[]) {
@@ -68,5 +64,36 @@ void initialize_http_service(int argc, char const *argv[]) {
     exit(1);
   }
   fio_start(.threads = fio_cli_get_i("-t"), .workers = fio_cli_get_i("-w"));
+}
+
+static void on_http_request(http_s *h) {
+  #define ERRCLN(x) if(x) perror(x);http_send_error(h,404);goto cleanup;
+  fio_str_info_s path, method, tmp;
+  path = fiobj_obj2cstr(h->path);
+  method = fiobj_obj2cstr(h->method);
+
+  if ((strcmp(path.data,"/check_person") != 0) 
+      || (strcmp(method.data,"POST") != 0)
+      || (http_parse_body(h) == -1)) { ERRCLN(NULL) }
+
+  tmp = fiobj_obj2cstr(http_req2str(h));
+  fprintf(stderr, "%s",  tmp.data);
+
+  /* get image file, extract features from image and call recognizer */
+
+  /* get form fields, query metadata */
+ 
+  /* check if image ID and metadata ID match */
+
+  /* construct response and send depending on outcome */
+
+  int outcome = 0;
+  if (outcome) {
+    http_send_body(h, "PERMITTED!", 10);
+  } else {
+    http_send_body(h, "DENIED!", 7);
+  }
+
+  cleanup: http_finish(h); return;
 }
 

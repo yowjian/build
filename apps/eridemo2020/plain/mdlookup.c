@@ -1,11 +1,10 @@
 #include "mdlookup.h"
-/*
-#define DBFILE "test.db" 
 
+/*
 int callback(void *, int, char **, char **);
 
-sqlite3 *open_db(sqlite *db) {
-    int rc = sqlite3_open(DBFILE, &db);
+sqlite3 *open_db(char *dbfile) {
+    int rc = sqlite3_open(dbfile, &db);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
