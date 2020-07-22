@@ -5,22 +5,48 @@
 
 int read_header_name(multipart_parser* p, const char *at, size_t length)
 {
-   /* Check if Content-Disposition and set flag */
-   printf("NAME %.*s: ", length, at);
+   /* printf("%.*s\n", length, at); */
    return 0;
 }
 
 int read_header_value(multipart_parser* p, const char *at, size_t length)
 {
-   /* check starts with form-data, get name */
-   printf("VALUE %.*s\n", length, at);
+   char *tmp = NULL;
+   char *v1  = NULL;
+   char *v2  = NULL;
+   char *v3  = NULL;
+   int len;
+   tmp = (char *) malloc(length + 1);
+   if (tmp) {
+     strncpy(tmp, at, length);
+     tmp[length]='\0';
+     if(strstr(tmp, "form-data")) {
+       v1 = strstr(tmp, "name=\"");
+       v1 += strlen("name=\"");
+       if (v1) {
+         v2 = strchr(v1, '"');
+         if (v2) {
+           len  = v2 - v1;
+           v3 = (char *) malloc(len + 1);
+           if (v3) {
+             strncpy(v3, v1, len);
+             v3[len] = '\0';
+           }
+         }
+       }
+     }
+     free(tmp);
+   }
+   if (v3) printf("%s: ", v3);
+   /* save v3 */
    return 0;
 }
 
 int read_part_data(multipart_parser* p, const char *at, size_t length)
 {
    /* associate data with field */
-   printf("DATA %.*s", length, at);
+   printf("%.*s\n", (int)length, at);
+   fflush(stdout);
    return 0;
 }
 
