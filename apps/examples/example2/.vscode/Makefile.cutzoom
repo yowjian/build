@@ -1,24 +1,8 @@
-PYTHON=/usr/bin/python3
-CLOSURE_DIR=~/gaps/build
-
-LLVM_SANDBOX=/usr/local
-OPT=$(LLVM_SANDBOX)/bin/opt-debug
-LLVMLINK=$(LLVM_SANDBOX)/bin/llvm-link
-LLVMDIS=$(LLVM_SANDBOX)/bin/llvm-dis
-
-TAGPROC=$(CLOSURE_DIR)/src/capo/partitioner/src/tag_processor.py
-CUTZOOM=$(CLOSURE_DIR)/src/capo/partitioner/src/cutzoom/cutzoom.py
-LIBPDG=~/lib/libpdg.ta20200710-new.so
-
-IPCMODE=multithreaded
 ODIR=./partitioned/$(IPCMODE)
-
-ENCLAVES=orange purple
-
 ALL_LL = $(wildcard $(PROG)/*.mod.ll)
 
 dot: $(PROG)_all.mod.bc
-	$(OPT) -load $(LIBPDG) -dot-pdg $(PROG)/$^
+	$(OPT_DBG) -load $(LIBPDG) -dot-pdg $(PROG)/$^
 	mv pdgragh.main.dot $(PROG)_all.pdgragh.main.dot
 	mv *.dot $(PROG)
 	$(LLVMDIS) -o $(PROG)/$(PROG)_all.mod.ll $(PROG)/$^

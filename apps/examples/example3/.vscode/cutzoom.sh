@@ -1,7 +1,5 @@
 #!/bin/bash
-ENCLAVES="orange purple"
-
-cd ./partitioned/multithreaded
+cd ./partitioned/${IPCMODE}
 
 for i in $ENCLAVES
 do

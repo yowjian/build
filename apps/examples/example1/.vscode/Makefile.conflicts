@@ -1,18 +1,3 @@
-PYTHON=/usr/bin/python3
-EXT=c
-CLOSURE_DIR=~/gaps/build
-CLOSURE_BINS=/opt/closure
-PROG=example1
-EXT=c
-
-PREPROCESSOR=$(CLOSURE_DIR)/src/mules/cle-preprocessor/src/qd_cle_preprocessor.py
-PARTITIONER=$(CLOSURE_DIR)/src/capo/partitioner/src/partitioner.py
-LIBPDG=$(CLOSURE_BINS)/lib/libpdg.ta20200710-new.so
-
-CLANG=/usr/local/bin/clang-10
-CLANG_FLAGS=-S -g -emit-llvm
-OPT=$(CLOSURE_BINS)/bin/opt-debug
-
 all: enclaves
 
 clean:
@@ -24,11 +9,10 @@ enclaves: pdgragh.main.dot
 	$(PYTHON) $(PARTITIONER) $(PROG).$(EXT)
 
 dot: $(PROG).mod.ll
-	$(OPT) -load $(LIBPDG) -dot-pdg $<
+	$(OPT_DBG) -load $(LIBPDG) -dot-pdg $<
 
 %.mod.c: %.c
-	$(PYTHON) $(PREPROCESSOR) -f $<
+	$(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $<
 
 %.mod.ll: %.mod.c
 	$(CLANG) $(CLANG_FLAGS) -o $@ $<
-

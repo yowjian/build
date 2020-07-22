@@ -1,26 +1,16 @@
-PYTHON=/usr/bin/python3
-CLOSURE_DIR=~/gaps/build
-PROG=example2
-ODIR=./partitioned/multithreaded
+ODIR=./partitioned/$(IPCMODE)
 EDIR=./divvied
+ENCLAVES=
 
-PREPROCESSOR=$(CLOSURE_DIR)/src/mules/cle-preprocessor/src/qd_cle_preprocessor.py
-IDLGENERATOR=$(CLOSURE_DIR)/src/capo/gedl/IDLGenerator.py
-RPCGENERATOR=$(CLOSURE_DIR)/src/capo/gedl/RPCGenerator.py
-AUTOGEN=$(CLOSURE_DIR)/src/hal/autogen/autogen.py
-HAL_API_DIR=$(CLOSURE_DIR)/src/hal/api
 IPC_MODE=Multithreaded
-INURI="ipc:///tmp/example2sub"
-OUTURI="ipc:///tmp/example2pub"
+INURI="ipc:///tmp/${PROG}sub"
+OUTURI="ipc:///tmp/${PROG}pub"
 
-LLVM_SANDBOX=~/llvm/build
-CLANG=$(LLVM_SANDBOX)/bin/clang
+CLANG=$(LLVM9)/bin/clang
 CLANG_FLAGS=-emit-llvm -S -g
-OPT=$(LLVM_SANDBOX)/bin/opt
-LLVMLINK=$(LLVM_SANDBOX)/bin/llvm-link
-#LIBGEDL=$(CLOSURE_DIR)/src/capo/gedl/build/libgedl.so
-LIBGEDL=~/lib/libgedl.mk20200710.so
-LLVM_INCLUDE=$(LLVM_SANDBOX)/lib/clang/9.0.0/include
+OPT=$(LLVM9)/bin/opt
+LLVMLINK=$(LLVM9)/bin/llvm-link
+LLVM_INCLUDE=$(LLVM9)/lib/clang/9.0.0/include
 
 build_folder := $(shell mkdir -p $(ODIR))
 autogen_folder := $(shell mkdir -p $(ODIR)/autogen)
@@ -31,27 +21,20 @@ CFLAGS = -O2 -Wall -Wstrict-prototypes
 autogen_dir := $(ODIR)/autogen
 LIB_OBJ= $(autogen_dir)/float754.o $(autogen_dir)/codec.o 
 
-INCLUDES=-I$(LLVM_INCLUDE) -I$(HAL_API_DIR) -I../autogen 
-LDLIBS=-L$(HAL_API_DIR)
+INCLUDES=-I$(LLVM_INCLUDE) -I$(CLOSURE_INCLUDES) -I../autogen 
 LIBS=../autogen/libcodecs.a -lpthread
-
-# I removed plugin building
 
 # Hard clean cleans whole build directory and compiled files in example directory
 clean: eclean
 	@rm -rf $(ODIR)
 	rm -rf $(EDIR)/*/*.mod.c $(EDIR)/*/*.ll
-
-# 
-#	* Rules for running the EDL pass on the project
-# #########################################################################
-
+	
 # Do GEDL generation pass
 gedl: compile gen $(ODIR)/gedl.ll
 	cd $(ODIR) && $(OPT) -disable-output -load $(LIBGEDL) -accinfo-track -d 1 -u "untrusted/" -t "trusted/" < gedl.ll
 
 idl: gedl
-	$(PYTHON) $(IDLGENERATOR) -g "$(ODIR)/Closure.gedl" -o "$(ODIR)/autogen/Closure.idl" -i $(IPC_MODE)
+	$(PYTHON) $(IDLGENERATOR) -s $(CLOSURE_SCHEMAS)/gedl-schema.json -g "$(ODIR)/Closure.gedl" -o "$(ODIR)/autogen/Closure.idl" -i $(IPC_MODE)
 	
 #Do autogeneration
 autogen: idl
@@ -74,17 +57,10 @@ slibs: $(autogen_dir)/libcodecs.so
 $(autogen_dir)/%.o:	%.c
 	gcc $(CFLAGS) -fPIC -c $< -o $@
 
-#Compile partitioned code	
-# Why??
-compilePartitioned: rpc
-	cd $(ODIR) && $(foreach enclave,$(ENCLAVES), cd $(enclave); $(CLANG) -c *.c $(INCLUDES); cd ../;)
-	cd $(ODIR) && $(foreach enclave,$(ENCLAVES), cd $(enclave); $(CLANG) -o $(enclave) *.o  $(LDLIBS) $(LIBS) -lxdcomms;cd ../;)
-	
-	
 #Do RPC Generation
 rpc: autogen libraries
 	$(foreach enclave,$(ENCLAVES), $(eval ENCLAVEFL += $(EDIR)/$(enclave)/*.mod.c ))
-	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/Closure.gedl -i $(IPC_MODE) -a $(HAL_API_DIR) -n $(INURI) -t $(OUTURI) -f $(ENCLAVEFL) -x xdconf.ini
+	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/Closure.gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -f $(ENCLAVEFL) -x xdconf.ini
 
 	
 #Generates the defined_func and imported_func files for each enclave
@@ -103,8 +79,8 @@ compile: compEncs
 	$(LLVMLINK) $(ENCLAVELL) -S -o $(ODIR)/gedl.ll
 
 compEncs:
-	rm -rf $(EDIR)/*/*.mod.c $(EDIR)/*/*.ll $(EDIR)/*/*.json
-	$(foreach enclave,$(ENCLAVES),	$(PREPROCESSOR) -L -f $(EDIR)/$(enclave)/*.c;)
+	rm -f $(EDIR)/*/*.mod.c $(EDIR)/*/*.ll $(EDIR)/*/*.json
+	$(foreach enclave,$(ENCLAVES),	$(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $(EDIR)/$(enclave)/*.c;)
 	$(foreach enclave,$(ENCLAVES),	$(CLANG) $(CLANG_FLAGS) $(INCLUDES) $(EDIR)/$(enclave)/*.mod.c -o $(EDIR)/$(enclave)/$(enclave).ll;)
 
 

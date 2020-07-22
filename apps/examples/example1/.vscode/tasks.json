@@ -28,7 +28,7 @@
       {
         "label": "2 ANALYZE PARTITION CONFLICTS",
         "type": "shell",
-        "command": "cd annotated; make -f ../.vscode/Makefile.conflicts dot && make -f ../.vscode/Makefile.conflicts enclaves && mkdir -p ../refactored && cp topology.json ../ && make -f ../.vscode/Makefile.conflicts clean && cp -r * ../refactored",
+        "command": "source .vscode/closure_env.sh; cd annotated; make -f ../.vscode/Makefile.conflicts dot && make -f ../.vscode/Makefile.conflicts enclaves && mkdir -p ../refactored && cp topology.json ../ && make -f ../.vscode/Makefile.conflicts clean && cp -r * ../refactored",
         "args": [],
         "group": {
           "kind": "build",
@@ -59,7 +59,7 @@
       {
         "label": "9a DIVIDE",
         "type": "shell",
-        "command": "make -f .vscode/Makefile.divvied",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.divvied",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -67,7 +67,7 @@
       {
         "label": "9b AUTOGEN GEDL, RPCs, IDL, Codecs",
         "type": "shell",
-        "command": "mkdir -p partitioned; cp -r ../../../src/capo/gedl/heuristics ./partitioned; make -f .vscode/Makefile.gedl rpc;",
+        "command": "source .vscode/closure_env.sh; mkdir -p partitioned; cp -r ../../../src/capo/gedl/heuristics ./partitioned; make -f .vscode/Makefile.gedl rpc;",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -75,7 +75,7 @@
       {
         "label": "9c VERIFY",
         "type": "shell",
-        "command": "make -f .vscode/Makefile.verifier verify",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier verify",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -83,7 +83,7 @@
       {
         "label": "9d VISUALIZE CROSS-DOMAIN CUT",
         "type": "shell",
-        "command": "bash .vscode/cutzoom.sh; xdot -f fdp partitioned/multithreaded/abridged_1_colored.dot",
+        "command": "source .vscode/closure_env.sh; bash .vscode/cutzoom.sh; xdot -f fdp partitioned/multithreaded/abridged_1_colored.dot",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -91,7 +91,7 @@
       {
         "label": "9e BUILD",
         "type": "shell",
-        "command": "make -f .vscode/Makefile.verifier clean; make -f .vscode/Makefile.mbig build",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier clean; make -f .vscode/Makefile.mbig build",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -99,7 +99,7 @@
       {
         "label": "9f EMULATE",
         "type": "shell",
-        "command": "make -f .vscode/Makefile.mbig pkg; cd ~/gaps/build/src/emu/; ./start.sh example1",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig pkg; cd ~/gaps/build/src/emu/; ./start.sh ${PROG}",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -107,7 +107,7 @@
       {
         "label": "4 BUILD PLAIN",
         "type": "shell",
-        "command": "cd plain; make clean; make; ./example1; make clean",
+        "command": "source .vscode/closure_env.sh; cd plain; make clean; make; ./${PROG}B; make clean",
         "args": [],
         "group": "build",
         "problemMatcher": []

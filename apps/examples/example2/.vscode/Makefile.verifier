@@ -1,20 +1,13 @@
-PYTHON=/usr/bin/python3
-CLOSURE_DIR=~/gaps/build
-ENCLAVES=orange purple
-PREPROCESSOR=$(CLOSURE_DIR)/src/mules/cle-preprocessor/src/qd_cle_preprocessor.py
-VERIFIER=$(CLOSURE_DIR)/src/capo/compliance/verifier
-CLANG=/usr/local/bin/clang-10
-CLANG_FLAGS=-S -g -emit-llvm
-CLANG_INCLUDES=-I $(CLOSURE_DIR)/src/hal/api -I partitioned/multithreaded/autogen
+CLANG_INCLUDES=-I $(CLOSURE_INCLUDES) -I partitioned/$(IPCMODE)/autogen
 
-SRC=./partitioned/multithreaded/purple/example2_purple_rpc.c \
-./partitioned/multithreaded/purple/example2_purple.c \
-./partitioned/multithreaded/orange/example2_orange_rpc.c \
-./partitioned/multithreaded/orange/example2_orange.c \
-./refactored/example2.c
+SRC=./partitioned/$(IPCMODE)/purple/${PROG}_rpc.c \
+./partitioned/$(IPCMODE)/purple/${PROG}.c \
+./partitioned/$(IPCMODE)/orange/${PROG}_rpc.c \
+./partitioned/$(IPCMODE)/orange/${PROG}.c \
+./refactored/${PROG}.c
 
-HDR=./partitioned/multithreaded/purple/example2_purple_rpc.h \
-./partitioned/multithreaded/orange/example2_orange_rpc.h
+HDR=./partitioned/$(IPCMODE)/purple/${PROG}_rpc.h \
+./partitioned/$(IPCMODE)/orange/${PROG}_rpc.h
 
 MODC=$(patsubst %.c, %.mod.c, $(SRC)) 
 MODH=$(patsubst %.h, %.mod.h, $(HDR)) 
@@ -31,7 +24,7 @@ clean:
 .SECONDARY:
 
 verify: prep
-	$(VERIFIER) -v refactored partitioned/multithreaded/purple partitioned/multithreaded/orange
+	$(VERIFIER) -v refactored partitioned/$(IPCMODE)/purple partitioned/$(IPCMODE)/orange
 
 prep: $(MODC) $(MODH) $(MODLL)
 	# rename foo.mod.? to foo.? 
@@ -42,7 +35,7 @@ prep: $(MODC) $(MODH) $(MODLL)
 	$(CLANG) $(CLANG_FLAGS) $(CLANG_INCLUDES) -o $@ $<
 
 %.mod.c: %.c
-	$(PYTHON) $(PREPROCESSOR) -f $<
+	$(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $<
 
 %.mod.h: %.h
-	$(PYTHON) $(PREPROCESSOR) -f $<
+	$(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $<
