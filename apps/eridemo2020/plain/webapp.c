@@ -66,30 +66,58 @@ void initialize_http_service(int argc, char const *argv[]) {
   fio_start(.threads = fio_cli_get_i("-t"), .workers = fio_cli_get_i("-w"));
 }
 
+static int get_file(FIOBJ o, void *arg) {
+  struct secinput *s = arg;
+  if (o) {
+    char * key = fiobj_obj2cstr(fiobj_hash_key_in_loop()).data;
+    if (strcmp(key,"name") == 0) { s->filename = o; } 
+    else if (strcmp(key,"data") == 0) { s->filedata = o; }
+  }
+  return 0;
+}
+
+static int get_fields(FIOBJ o, void *arg) {
+  struct secinput *s = arg;
+  if (o) {
+    char * key = fiobj_obj2cstr(fiobj_hash_key_in_loop()).data;
+    if (strcmp(key,"imageFile") == 0)  { fiobj_each1(o, 0, get_file, arg); } 
+    else if (strcmp(key,"fname") == 0) { s->fname = o; }
+    else if (strcmp(key,"mi") == 0)    { s->mi = o; }
+    else if (strcmp(key,"lname") == 0) { s->lname = o; }
+  }
+  return 0;
+}
+
+int process_secinput(struct secinput *s) {
+  fprintf(stderr, "%s\n", fiobj_obj2cstr(s->fname).data);
+  fprintf(stderr, "%s\n", fiobj_obj2cstr(s->mi).data);
+  fprintf(stderr, "%s\n", fiobj_obj2cstr(s->lname).data);
+  fprintf(stderr, "%s\n", fiobj_obj2cstr(s->filename).data);
+  /* XXX: create temp file and write s->filedata to it */
+  /* get image file, extract features from image and call recognizer */
+  /* get form fields, query metadata */
+  /* check if image ID and metadata ID match */
+  /* construct response and send depending on outcome */
+  return 0;
+}
+
 static void on_http_request(http_s *h) {
   #define ERRCLN(x) if(x) perror(x);http_send_error(h,404);goto cleanup;
   http_parse_query(h);
   if ((strcmp(fiobj_obj2cstr(h->path).data,"/check_person") != 0) 
       || (strcmp(fiobj_obj2cstr(h->method).data,"POST") != 0)
       || (http_parse_body(h) == -1)) { ERRCLN("Invalid request") }
+  /*
   FIOBJ json = fiobj_obj2json(h->params,1); 
   fprintf(stderr, "%s\n", fiobj_obj2cstr(json).data);
-
-  /* get image file, extract features from image and call recognizer */
-
-  /* get form fields, query metadata */
- 
-  /* check if image ID and metadata ID match */
-
-  /* construct response and send depending on outcome */
-
-  int outcome = 0;
-  if (outcome) {
+  */
+  struct secinput s;
+  fiobj_each1(h->params, 0, get_fields, &s);
+  if (process_secinput(&s)) {
     http_send_body(h, "PERMITTED!", 10);
   } else {
     http_send_body(h, "DENIED!", 7);
   }
-
   cleanup: http_finish(h); return;
 }
 
