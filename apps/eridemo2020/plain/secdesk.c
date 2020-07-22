@@ -1,6 +1,7 @@
 #include "secdesk.h"
 
-void initialize_cli(int argc, char const *argv[]) {
+/* Set up command line interface and defaults */
+static void initialize_cli(int argc, char const *argv[]) {
   fio_cli_start(
       argc, argv, 0, 0, NULL, 
       FIO_CLI_PRINT_HEADER("Address binding:"),
@@ -15,7 +16,7 @@ void initialize_cli(int argc, char const *argv[]) {
       FIO_CLI_INT("-max-body -maxbd HTTP upload limit. default: ~50Mb"),
       FIO_CLI_BOOL("-log -v request verbosity (logging)."),
       FIO_CLI_PRINT_HEADER("Database:"),
-      FIO_CLI_STRING("-database -db The database adrress (URL).  default sqlite://./eridemo2020.sqlite3.db"));
+      FIO_CLI_STRING("-database -db Database URL.  default sqlite://./eridemo2020.db"));
 
   if (!fio_cli_get("-b")) {
     char *tmp = getenv("ADDRESS");
@@ -39,31 +40,10 @@ void initialize_cli(int argc, char const *argv[]) {
   }
   if (!fio_cli_get("-db")) {
     char *tmp = getenv("DBURI");
-    if (!tmp) tmp = "sqlite://./eridemo2020.sqlite3.db";
+    if (!tmp) tmp = "sqlite://./eridemo2020.db";
     fio_cli_set("-database", tmp);
     fio_cli_set("-db", tmp);
   }
-}
-
-void housekeep_http_service(void) { 
-  fio_cli_end(); 
-}
-
-static void on_http_request(http_s *h);
-
-/* starts a listeninng socket for HTTP connections. */
-void initialize_http_service(int argc, char const *argv[]) {
-  initialize_cli(argc, argv);
-  if (http_listen(fio_cli_get("-p"), fio_cli_get("-b"),
-                  .on_request    = on_http_request,
-                  .public_folder = fio_cli_get("-www"),
-                  .timeout       = fio_cli_get_i("-k"),
-                  .max_body_size = fio_cli_get_i("-maxbd") * 1024 * 1024,
-                  .log           = fio_cli_get_bool("-v")) == -1) {
-    perror("ERROR: facil couldn't initialize HTTP service (already running?)");
-    exit(1);
-  }
-  fio_start(.threads = fio_cli_get_i("-t"), .workers = fio_cli_get_i("-w"));
 }
 
 static int get_file(FIOBJ o, void *arg) {
@@ -88,14 +68,14 @@ static int get_fields(FIOBJ o, void *arg) {
   return 0;
 }
 
-int process_secinput(struct secinput *s) {
+static int process_secinput(struct secinput *s) {
   fprintf(stderr, "%s\n", fiobj_obj2cstr(s->fname).data);
   fprintf(stderr, "%s\n", fiobj_obj2cstr(s->mi).data);
   fprintf(stderr, "%s\n", fiobj_obj2cstr(s->lname).data);
   fprintf(stderr, "%s\n", fiobj_obj2cstr(s->filename).data);
   /* XXX: create temp file and write s->filedata to it */
   /* get image file, extract features from image and call recognizer */
-  /* get form fields, query metadata */
+  /* get form fields, query metadata lookup() */
   /* check if image ID and metadata ID match */
   /* construct response and send depending on outcome */
   return 0;
@@ -107,10 +87,6 @@ static void on_http_request(http_s *h) {
   if ((strcmp(fiobj_obj2cstr(h->path).data,"/check_person") != 0) 
       || (strcmp(fiobj_obj2cstr(h->method).data,"POST") != 0)
       || (http_parse_body(h) == -1)) { ERRCLN("Invalid request") }
-  /*
-  FIOBJ json = fiobj_obj2json(h->params,1); 
-  fprintf(stderr, "%s\n", fiobj_obj2cstr(json).data);
-  */
   struct secinput s;
   fiobj_each1(h->params, 0, get_fields, &s);
   if (process_secinput(&s)) {
@@ -121,17 +97,29 @@ static void on_http_request(http_s *h) {
   cleanup: http_finish(h); return;
 }
 
+void run_secdesk_service(int argc, char const *argv[]) {
+  initialize_cli(argc, argv);
+  if (http_listen(fio_cli_get("-p"), fio_cli_get("-b"),
+                  .on_request    = on_http_request,
+                  .public_folder = fio_cli_get("-www"),
+                  .timeout       = fio_cli_get_i("-k"),
+                  .max_body_size = fio_cli_get_i("-maxbd") * 1024 * 1024,
+                  .log           = fio_cli_get_bool("-v")) == -1) {
+    perror("ERROR: facil couldn't initialize HTTP service (already running?)");
+    exit(1);
+  }
+
+  start_database(fio_cli_get("-db"));
+  start_imageprocessor();
+  start_recognizer();
+  fio_start(.threads = fio_cli_get_i("-t"), .workers = fio_cli_get_i("-w"));
+  stop_recognizer();
+  stop_imageprocessor();
+  stop_database();
+  fio_cli_end(); 
+}
+
 int main(int argc, char const **argv) {
-  /* Initialize web application */
-  initialize_http_service(argc, argv);
-
-  /* XXX: Initialize database */
-  /* XXX: Initialize image processing */
-
-  /* XXX: Close image processing */
-  /* XXX: Close database */
-
-  /* Cleanup web application */
-  housekeep_http_service();
+  run_secdesk_service(argc, argv);
   return 0;
 }

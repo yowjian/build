@@ -1,1 +1,13 @@
 #include "imageproc.h"
+
+void start_imageprocessor(void) {
+}
+
+void stop_imageprocessor(void) {
+}
+
+void start_recognizer(void) {
+}
+
+void stop_recognizer(void) {
+}
