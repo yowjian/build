@@ -23,6 +23,7 @@ export DIV=${CLOSURE_SCRIPTS}/program_divider.py
 export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
 export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator.py
 export AUTOGEN=${CLOSURE_SCRIPTS}/autogen.py
+export HALGEN=${CLOSURE_SCRIPTS}/hal_autoconfig.py
 
 LLVM_RELEASE=/usr/local
 export CLANG=${LLVM_RELEASE}/bin/clang-10

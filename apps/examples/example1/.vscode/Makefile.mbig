@@ -1,5 +1,6 @@
 CLOSURE_DIR=~/gaps/build
 ODIR=./partitioned/$(IPCMODE)
+CFG_DIR=$(CLOSURE_DIR)/src/emu/config/example1
 
 autogen_dir := $(ODIR)/autogen
 LIB_OBJ= $(autogen_dir)/float754.o $(autogen_dir)/codec.o 
@@ -18,3 +19,4 @@ pkg:
 	rm -rf $(CLOSURE_DIR)/src/emu/.apps
 	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
 	mv *.tar $(CLOSURE_DIR)/src/emu/.apps/
+	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x $(ODIR)/xdconf.ini -d $(CFG_DIR)/devices.json -p $(PROG)_hal
