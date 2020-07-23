@@ -12,8 +12,8 @@ export CLOSURE_SCHEMAS=${CLOSURE_TOOLS}/schemas
 export OPT_DBG=${CLOSURE_BINS}/opt-debug
 export VERIFIER=${CLOSURE_BINS}/verifier
 
-export LIBPDG=${CLOSURE_LIBS}/libpdg.ta20200710-new.so
-export LIBGEDL=${CLOSURE_LIBS}/libgedl.mk20200710.so
+export LIBPDG=${CLOSURE_LIBS}/libpdg.so
+export LIBGEDL=${CLOSURE_LIBS}/libgedl.so
 
 export PREPROCESSOR=${CLOSURE_SCRIPTS}/qd_cle_preprocessor.py
 export PARTITIONER=${CLOSURE_SCRIPTS}/partitioner.py
