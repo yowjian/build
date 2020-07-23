@@ -12,8 +12,8 @@ export CLOSURE_SCHEMAS=${CLOSURE_TOOLS}/schemas
 export OPT_DBG=${CLOSURE_BINS}/opt-debug
 export VERIFIER=${CLOSURE_BINS}/verifier
 
-export LIBPDG=${CLOSURE_LIBS}/libpdg.ta20200710-new.so
-export LIBGEDL=${CLOSURE_LIBS}/libgedl.mk20200710.so
+export LIBPDG=${CLOSURE_LIBS}/libpdg.so
+export LIBGEDL=${CLOSURE_LIBS}/libgedl.so
 
 export PREPROCESSOR=${CLOSURE_SCRIPTS}/qd_cle_preprocessor.py
 export PARTITIONER=${CLOSURE_SCRIPTS}/partitioner.py
@@ -23,6 +23,7 @@ export DIV=${CLOSURE_SCRIPTS}/program_divider.py
 export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
 export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator.py
 export AUTOGEN=${CLOSURE_SCRIPTS}/autogen.py
+export HALGEN=${CLOSURE_SCRIPTS}/hal_autoconfig.py
 
 LLVM_RELEASE=/usr/local
 export CLANG=${LLVM_RELEASE}/bin/clang-10

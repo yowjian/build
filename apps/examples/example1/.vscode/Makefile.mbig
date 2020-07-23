@@ -1,6 +1,6 @@
 CLOSURE_DIR=~/gaps/build
 ODIR=./partitioned/$(IPCMODE)
-CFG_DIR=$(CLOSURE_DIR)/src/emu/config/example1
+CFG_DIR=$(CLOSURE_DIR)/src/emu/config/$(PROG)
 
 autogen_dir := $(ODIR)/autogen
 LIB_OBJ= $(autogen_dir)/float754.o $(autogen_dir)/codec.o 
