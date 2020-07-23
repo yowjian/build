@@ -31,15 +31,15 @@ clean: eclean
 	
 # Do GEDL generation pass
 gedl: compile gen $(ODIR)/gedl.ll
-	cd $(ODIR) && $(OPT) -disable-output -load $(LIBGEDL) -accinfo-track -d 1 -u "untrusted/" -t "trusted/" < gedl.ll
+	cd $(ODIR) && $(OPT) -disable-output -load $(LIBGEDL) -accinfo-track -d 1 -prog $(PROG) -he ./heuristics < gedl.ll
 
 idl: gedl
-	$(PYTHON) $(IDLGENERATOR) -s $(CLOSURE_SCHEMAS)/gedl-schema.json -g "$(ODIR)/Closure.gedl" -o "$(ODIR)/autogen/Closure.idl" -i $(IPC_MODE)
+	$(PYTHON) $(IDLGENERATOR) -s $(CLOSURE_SCHEMAS)/gedl-schema.json -g "$(ODIR)/$(PROG).gedl" -o "$(ODIR)/autogen/$(PROG).idl" -i $(IPC_MODE)
 	
 #Do autogeneration
 autogen: idl
-	cd $(autogen_dir) && $(PYTHON) $(AUTOGEN) -i "Closure.idl" -g bw_v1 -d $(PROG)_bw.dfdl -e codec
-	cd $(autogen_dir) && $(PYTHON) $(AUTOGEN) -i "Closure.idl" -g be_v1 -d $(PROG)_be.dfdl -e codec
+	cd $(autogen_dir) && $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g bw_v1 -d $(PROG)_bw.dfdl -e codec
+	cd $(autogen_dir) && $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g be_v1 -d $(PROG)_be.dfdl -e codec
 
 #Do autogen libraries
 libraries: slibs libs
@@ -60,7 +60,7 @@ $(autogen_dir)/%.o:	%.c
 #Do RPC Generation
 rpc: autogen libraries
 	$(foreach enclave,$(ENCLAVES), $(eval ENCLAVEFL += $(EDIR)/$(enclave)/*.mod.c ))
-	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/Closure.gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -f $(ENCLAVEFL) -x xdconf.ini
+	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -f $(ENCLAVEFL) -x xdconf.ini
 
 	
 #Generates the defined_func and imported_func files for each enclave
