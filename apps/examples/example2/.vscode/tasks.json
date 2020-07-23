@@ -107,7 +107,7 @@
       {
         "label": "4 BUILD PLAIN",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; cd plain; make clean; make; ./${PROG}B; make clean",
+        "command": "source .vscode/closure_env.sh; cd plain; make clean; make; ./${PROG}; make clean",
         "args": [],
         "group": "build",
         "problemMatcher": []
