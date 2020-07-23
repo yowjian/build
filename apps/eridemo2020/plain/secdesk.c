@@ -78,6 +78,11 @@ static int process_secinput(struct secinput *s) {
     fprintf(stderr, "Error writing image file %s into %s\n", filename, tmpfile);
   }
   fclose(fp);
+
+  char *f, *m, *l;
+  f = strdup(fiobj_obj2cstr(s->fname).data);
+  m = strdup(fiobj_obj2cstr(s->mi).data);
+  l = strdup(fiobj_obj2cstr(s->lname).data);
   
   double embedding[128];
   get_features(tmpfile, embedding);
@@ -87,7 +92,8 @@ static int process_secinput(struct secinput *s) {
   i = recognize(embedding);
 
   int j;
-  j = lookup(fiobj_obj2cstr(s->fname).data, fiobj_obj2cstr(s->mi).data, fiobj_obj2cstr(s->lname).data);
+  j = lookup(f,m,l);
+  free(f); free(m); free(l);
 
   return (i > 0 && j > 0 && i == j) ? 1 : 0;
 }
@@ -120,7 +126,8 @@ void run_secdesk_service(int argc, char const *argv[]) {
     exit(1);
   }
 
-  start_database(fio_cli_get("-db"));
+  const char *d = fio_cli_get("-db");
+  start_database(d);
   start_imageprocessor();
   start_recognizer();
   fio_start(.threads = fio_cli_get_i("-t"), .workers = fio_cli_get_i("-w"));
