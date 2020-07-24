@@ -1,6 +1,8 @@
 #ifndef _IMAGEPROC_H_
 #define _IMAGEPROC_H_
 
+#include <string.h>
+
 void start_imageprocessor(void);
 void stop_imageprocessor(void);
 void start_recognizer(void);
