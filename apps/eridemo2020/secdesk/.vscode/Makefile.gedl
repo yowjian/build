@@ -29,7 +29,7 @@ OPT=$(LLVM9)/bin/opt
 LLVMLINK=$(LLVM9)/bin/llvm-link
 
 # Build arguments
-LLVM_INCLUDE=$(LLVM9)/lib/clang/9.0.0/include
+LLVM_INCLUDE=$(LLVM9)/lib/clang/9.0.1/include
 CFLAGS = -O2 -Wall -Wstrict-prototypes
 LIB_OBJ= $(AUTOGENDIR)/float754.o $(AUTOGENDIR)/codec.o 
 INCLUDES=-I$(LLVM_INCLUDE) -I$(CLOSURE_INCLUDES) -I../autogen 
