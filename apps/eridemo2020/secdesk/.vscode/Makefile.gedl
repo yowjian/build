@@ -135,7 +135,7 @@ $(EDIR)/cleancopy.done:
 # Autogeneration post GEDL generation
 ############################################################################
 rpc: autogen slibs libs
-	$(foreach enclave,$(ENCLAVES), $(eval ENCLAVEFL += $(EDIR)/$(enclave)/*.mod.c ))
+	$(foreach enclave,$(ENCLAVES), $(eval ENCLAVEFL += $(EDIR)/$(enclave)/*.c ))
 	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -f $(ENCLAVEFL) -x xdconf.ini
 
 autogen: idl
