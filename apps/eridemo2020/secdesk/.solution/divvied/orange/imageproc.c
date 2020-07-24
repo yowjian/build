@@ -36,10 +36,12 @@
     } \
   ] }
  
-void start_imageprocessor(void) {
+int start_imageprocessor(void) {
+  return 0;
 }
 
-void stop_imageprocessor(void) {
+int stop_imageprocessor(void) {
+  return 0;
 }
 
 #pragma cle begin ORANGE 

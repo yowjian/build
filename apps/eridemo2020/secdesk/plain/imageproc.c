@@ -1,15 +1,19 @@
 #include "imageproc.h"
 
-void start_imageprocessor(void) {
+int start_imageprocessor(void) {
+  return 0;
 }
 
-void stop_imageprocessor(void) {
+int stop_imageprocessor(void) {
+  return 0;
 }
 
-void start_recognizer(void) {
+int start_recognizer(void) {
+  return 0;
 }
 
-void stop_recognizer(void) {
+int stop_recognizer(void) {
+  return 0;
 }
 
 int get_features(char *imagefile, double embedding[static 128]) {

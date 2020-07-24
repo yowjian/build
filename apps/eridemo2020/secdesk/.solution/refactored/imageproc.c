@@ -36,20 +36,24 @@
     } \
   ] }
  
-void start_imageprocessor(void) {
+int start_imageprocessor(void) {
+  return 0;
 }
 
-void stop_imageprocessor(void) {
+int stop_imageprocessor(void) {
+  return 0;
 }
 
 #pragma cle begin XDLINKAGE_START_RECOGNIZER
-void start_recognizer(void) {
+int start_recognizer(void) {
 #pragma cle end XDLINKAGE_START_RECOGNIZER
+  return 0;
 }
 
 #pragma cle begin XDLINKAGE_STOP_RECOGNIZER
-void stop_recognizer(void) {
+int stop_recognizer(void) {
 #pragma cle end XDLINKAGE_STOP_RECOGNIZER
+  return 0;
 }
 
 #pragma cle begin ORANGE 

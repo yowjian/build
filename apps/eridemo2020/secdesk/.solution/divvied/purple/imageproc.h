@@ -3,8 +3,8 @@
 
 #include <string.h>
 
-void start_recognizer(void);
-void stop_recognizer(void);
+int start_recognizer(void);
+int stop_recognizer(void);
 
 int recognize(double embedding[static 128]);
 
