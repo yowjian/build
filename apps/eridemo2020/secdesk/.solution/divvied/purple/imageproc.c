@@ -53,7 +53,8 @@ int stop_recognizer(void) {
 int recognize(double embedding[static 128]) {
 #pragma cle end XDLINKAGE_RECOGNIZE
   double d[128];
-  memcpy(d,embedding,128*sizeof(double));
+  memset(d,0,128*sizeof(double));
+  int i = memcmp(d,embedding,128*sizeof(double));
   return 666;
   /* return -1; */
 }

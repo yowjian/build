@@ -87,7 +87,9 @@ $(call check_defined, OUTURI, zmq outuri for hal configuration)
 ############################################################################
 # GEDL generation
 ############################################################################
-gedl: $(ODIR)/gedl.ll
+gedl: $(ODIR)/$(PROG).gedl
+
+$(ODIR)/$(PROG).gedl: $(ODIR)/gedl.ll
 	cd $(ODIR) && $(OPT) -disable-output -load $(LIBGEDL) -accinfo-track -d 1 -prog $(PROG) -he ./heuristics < gedl.ll
 
 gedlir: $(ODIR)/gedl.ll
