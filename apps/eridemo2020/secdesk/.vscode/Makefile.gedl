@@ -5,15 +5,12 @@
 # STATUS:
 # cd ~/gaps/build/apps/eridemo2020/secdesk
 # source .vscode/closure_env.sh && make -f .vscode/Makefile.gedl clean
-
-# Currently breaking LLVM IR generation because per-enclave include paths are missing
-# source .vscode/closure_env.sh && make -f .vscode/Makefile.gedl preprocll | tee err
+# source .vscode/closure_env.sh && make -f .vscode/Makefile.gedl gedl | tee err
 
 # Set or override variables from environment
 # Directories
 IDIR=./divvied
 EDIR=./divvied-working
-build_folder_create := $(shell cp -r $(IDIR) $(EDIR))
 
 ODIR=./partitioned/$(IPCMODE)
 output_folder_create := $(shell mkdir -p $(ODIR))
@@ -22,7 +19,7 @@ AUTOGENDIR := $(ODIR)/autogen
 autogen_folder_create := $(shell mkdir -p $(ODIR)/autogen)
 
 ENCLAVES=
-enclaves_set := $(foreach enclave,$(sort $(dir $(wildcard $(EDIR)//*/))), $(eval ENCLAVES+=$(notdir $(enclave:%/=%))))
+enclaves_set := $(foreach enclave,$(sort $(dir $(wildcard $(IDIR)//*/))), $(eval ENCLAVES+=$(notdir $(enclave:%/=%))))
 enclave_folders_create := $(foreach enclave,$(ENCLAVES), $(shell mkdir -p $(ODIR)/$(enclave)))
 
 # Tools
@@ -90,34 +87,47 @@ $(call check_defined, OUTURI, zmq outuri for hal configuration)
 ############################################################################
 # GEDL generation
 ############################################################################
-gedl: linkedll 
+gedl: $(ODIR)/gedl.ll
 	cd $(ODIR) && $(OPT) -disable-output -load $(LIBGEDL) -accinfo-track -d 1 -prog $(PROG) -he ./heuristics < gedl.ll
 
-linkedll: perencll
+gedlir: $(ODIR)/gedl.ll
+
+$(ODIR)/gedl.ll: $(EDIR)/perencll.done
 	$(foreach enclave,$(ENCLAVES), $(eval ENCLAVELL += $(EDIR)/$(enclave)/$(enclave).ll ))
 	$(LLVMLINK) $(ENCLAVELL) -S -o $(ODIR)/gedl.ll
 
-# determine functions imported/exported by each enclave
-perencll: compEncs
+perencll: $(EDIR)/perencll.done
+
+# create combined LL for each enclave, and do an opt pass to determine functions imported/exported by each enclave
+$(EDIR)/perencll.done: $(EDIR)/compencs.done
+	$(foreach enclave,$(ENCLAVES), $(LLVMLINK) $(shell find $(EDIR)/$(enclave) -name *.ll;) -S -o $(EDIR)/$(enclave)/$(enclave).ll;)
 	$(foreach enclave,$(ENCLAVES), $(OPT) -disable-output -load $(LIBGEDL) -llvm-test -prefix $(ODIR)/$(enclave)/ < $(EDIR)/$(enclave)/$(enclave).ll;)
+	touch $(EDIR)/perencll.done
 
-# link each enclave into its own combined LL
-compEncs: preprocll
-	$(foreach enclave,$(ENCLAVES), $(LLVMLINK) $(shell find $(EDIR)/$(enclave) -name *.ll;) -S -o $(EDIR)/$(enclave)/$(encalve).ll;)
+compencs: $(EDIR)/compencs.done
 
-# preprocess each C and H file, rename them back, then compile to LLVM IR
-preprocll:
+# compile to LLVM IR
+$(EDIR)/compencs.done: $(EDIR)/preproc.done
+	$(foreach enclave,$(ENCLAVES), $(foreach p,$(shell find $(EDIR)/$(enclave) -name *.c;), $(CLANG) $(CLANG_FLAGS) $(INCLUDES) -I $(EDIR)/$(enclave)/facilio/include $p -o $(basename $p).ll;))
+	touch $(EDIR)/compencs.done
+
+preproc: $(EDIR)/preproc.done
+
+# preprocess each C and H file, rename them back
+$(EDIR)/preproc.done: $(EDIR)/cleancopy.done
 	$(foreach enclave,$(ENCLAVES), $(eval PREPROCC += $(shell find $(EDIR)/$(enclave) -name *.c;)))
 	$(foreach enclave,$(ENCLAVES), $(eval PREPROCH += $(shell find $(EDIR)/$(enclave) -name *.h;)))
 	$(foreach p,$(PREPROCC), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
 	$(foreach p,$(PREPROCH), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
 	$(foreach p,$(PREPROCC), mv $(basename $p).mod.c $p;)
 	$(foreach p,$(PREPROCH), mv $(basename $p).mod.h $p;)
-	$(foreach p,$(PREPROCC), $(CLANG) $(CLANG_FLAGS) $(INCLUDES) $p -o $(basename $p).ll;)
+	touch $(EDIR)/preproc.done
 
-# XXX: above LLVM IR generation breaks because <EDIR>/<enclave>/facilio/include is not provided
-# may need to call make recursively for each enclave
+cleancopy: $(EDIR)/cleancopy.done
 
+$(EDIR)/cleancopy.done:
+	rm -rf $(EDIR) && cp -r $(IDIR) $(EDIR)
+	touch $(EDIR)/cleancopy.done
 
 ############################################################################
 # Autogeneration post GEDL generation
