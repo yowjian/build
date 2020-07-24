@@ -22,8 +22,8 @@ int get_features(char *imagefile, double embedding[static 128]) {
 }
 
 int recognize(double embedding[static 128]) {
-  double d = 0;
-  for (int i=0; i<128; i++) d += embedding[i];
+  double d[128];
+  memcpy(d,embedding,128*sizeof(double));
   return 666;
   /* return -1; */
 }
