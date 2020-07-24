@@ -30,7 +30,7 @@ export CLANG_FLAGS="-S -g -emit-llvm"
 export LLVMLINK=${LLVM_RELEASE}/bin/llvm-link
 export LLVMDIS=${LLVM_RELEASE}/bin/llvm-dis
 
-export LLVM9=/opt/closure/llvm/build
+export LLVM9=/opt/closure/runtime/9.0.1/llvm/build
 
 export IPCMODE=multithreaded
 export ENCLAVES="orange purple"

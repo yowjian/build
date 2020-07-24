@@ -10,7 +10,7 @@ CLANG=$(LLVM9)/bin/clang
 CLANG_FLAGS=-emit-llvm -S -g
 OPT=$(LLVM9)/bin/opt
 LLVMLINK=$(LLVM9)/bin/llvm-link
-LLVM_INCLUDE=$(LLVM9)/lib/clang/9.0.0/include
+LLVM_INCLUDE=$(LLVM9)/lib/clang/9.0.1/include
 
 build_folder := $(shell mkdir -p $(ODIR))
 autogen_folder := $(shell mkdir -p $(ODIR)/autogen)
