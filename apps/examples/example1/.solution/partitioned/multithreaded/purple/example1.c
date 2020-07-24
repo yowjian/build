@@ -7,20 +7,20 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}}\
+     "guarddirective": { "operation": "allow"}}\
   ] }
 
 #pragma cle def XDLINKAGE_GET_A {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints": ["ORANGE"], \
      "rettaints": ["TAG_RESPONSE_GET_A"] \
     } \
   ] }
-  
+
 double calc_ewma(double a, double b) {
   const  double alpha = 0.25;
   static double c = 0.0;
@@ -58,6 +58,6 @@ int ewma_main() {
 
 int main(int argc, char **argv) {
 	_master_rpc_init();
-  return ewma_main();
+  return ewma_main(); 
 }
 

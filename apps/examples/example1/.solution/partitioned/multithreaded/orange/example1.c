@@ -7,20 +7,20 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}}\
+     "guarddirective": { "operation": "allow"}}\
   ] }
 
 #pragma cle def XDLINKAGE_GET_A {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints": ["ORANGE"], \
      "rettaints": ["TAG_RESPONSE_GET_A"] \
     } \
   ] }
-  
+
 
 #pragma clang attribute push (__attribute__((annotate("XDLINKAGE_GET_A"))), apply_to = any(function,type_alias,record,enum,variable,field))
 #pragma cle begin XDLINKAGE_GET_A 

@@ -6,7 +6,7 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}}\
+     "guarddirective": { "operation": "allow"}}\
   ] }
 
 double calc_ewma(double a, double b) {
@@ -48,6 +48,6 @@ int ewma_main() {
 }
 
 int main(int argc, char **argv) {
-  return ewma_main();
+  return ewma_main(); 
 }
 
