@@ -8,7 +8,7 @@
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
      "guardhint": {"operation": "allow"}, \
-     "argtaints": ["TAG_REQUEST_RECOGNIZE"], \
+     "argtaints": [["TAG_REQUEST_RECOGNIZE"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_RECOGNIZE"] \
     } \
