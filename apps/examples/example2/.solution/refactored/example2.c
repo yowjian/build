@@ -5,7 +5,7 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_GET_EWMA"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_GET_EWMA"] }\
@@ -15,7 +15,7 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}}\
+     "guarddirective": { "operation": "allow"}}\
   ] }
 
 double calc_ewma(double a, double b) {
