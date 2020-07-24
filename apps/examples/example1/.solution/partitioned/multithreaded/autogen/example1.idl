@@ -1,17 +1,17 @@
 struct NextRPC {
-  int mux;
-  int sec;
-  int typ;
+	int mux;
+	int sec;
+	int typ;
 };
 
 struct Okay {
-  int x;
+	int x;
 };
 
-struct RequestA {
-  int x;
+struct Request_get_a {
+	int dummy;
 };
 
-struct ResponseA {
-  double a;
+struct Response_get_a {
+	double ret;
 };
