@@ -134,16 +134,26 @@ $(EDIR)/cleancopy.done:
 ############################################################################
 # Autogeneration post GEDL generation
 ############################################################################
-rpc: autogen slibs libs
-	$(foreach enclave,$(ENCLAVES), $(eval ENCLAVEFL += $(EDIR)/$(enclave)/*.c ))
-	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -f $(ENCLAVEFL) -x xdconf.ini
+rpc: $(EDIR)/rpc.done
 
-autogen: idl
+$(EDIR)/rpc.done: rautogen slibs libs
+	#$(foreach enclave,$(ENCLAVES), $(eval ENCLAVEFL += $(EDIR)/$(enclave)/*.c ))
+	#$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -f $(ENCLAVEFL) -x xdconf.ini
+	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini
+	touch $(EDIR)/rpc.done
+
+rautogen: $(EDIR)/rautogen.done
+
+$(EDIR)/rautogen.done: idl
 	cd $(AUTOGENDIR) && $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g bw_v1 -d $(PROG)_bw.dfdl -e codec
 	cd $(AUTOGENDIR) && $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g be_v1 -d $(PROG)_be.dfdl -e codec
+	touch $(EDIR)/rautogen.done
 
-idl: gedl
+idl: $(EDIR)/idl.done
+
+$(EDIR)/idl.done: gedl
 	$(PYTHON) $(IDLGENERATOR) -s $(CLOSURE_SCHEMAS)/gedl-schema.json -g "$(ODIR)/$(PROG).gedl" -o "$(ODIR)/autogen/$(PROG).idl" -i $(IPC_MODE)
+	touch $(EDIR)/idl.done
 	
 slibs: $(AUTOGENDIR)/libcodecs.so 
 
@@ -155,12 +165,11 @@ $(AUTOGENDIR)/libcodecs.a: $(LIB_OBJ)
 $(AUTOGENDIR)/libcodecs.so: $(LIB_OBJ)
 	$(CLANG) $(CFLAGS) -fPIC -shared -o $@ $<
 
+clean: 
+	rm -rf $(EDIR) $(ODIR)
+
+.SECONDARY:
 $(AUTOGENDIR)/%.o: $(AUTOGENDIR)/%.c
 	$(CLANG) $(CFLAGS) -fPIC -c $< -o $@
 
-############################################################################
-# Housekeeping
-############################################################################
-clean: 
-	rm -rf $(EDIR) $(ODIR)
 
