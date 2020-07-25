@@ -6,7 +6,7 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [["ORANGE"], ["ORANGE"]], \
      "codtaints": [], \
      "rettaints": ["EWMA_SHAREABLE"] } \
@@ -16,7 +16,7 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints": ["ORANGE","EWMA_SHAREABLE"], \
      "rettaints": ["TAG_RESPONSE_GET_EWMA"] } \
