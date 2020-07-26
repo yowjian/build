@@ -137,9 +137,7 @@ $(EDIR)/cleancopy.done:
 rpc: $(EDIR)/rpc.done
 
 $(EDIR)/rpc.done: rautogen slibs libs
-	#$(foreach enclave,$(ENCLAVES), $(eval ENCLAVEFL += $(EDIR)/$(enclave)/*.c ))
-	#$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -f $(ENCLAVEFL) -x xdconf.ini
-	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini
+	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini -m $(PROG)
 	touch $(EDIR)/rpc.done
 
 rautogen: $(EDIR)/rautogen.done

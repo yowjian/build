@@ -21,7 +21,8 @@ export TAGPROC=${CLOSURE_SCRIPTS}/tag_processor.py
 export CUTZOOM=${CLOSURE_SCRIPTS}/cutzoom.py
 export DIV=${CLOSURE_SCRIPTS}/program_divider.py
 export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
-export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator.py
+#export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator.py
+export RPCGENERATOR=~/gaps/build/src/capo/gedl/RPCGenerator_rk.py
 export AUTOGEN=${CLOSURE_SCRIPTS}/autogen.py
 
 LLVM_RELEASE=/usr/local
