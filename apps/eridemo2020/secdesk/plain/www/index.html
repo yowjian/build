@@ -13,8 +13,9 @@ table            { border-collapse: collapse; table-layout: fixed; }
 tr               { border: solid medium; }
 td               { border: solid thin; }
 input            { font-size: 16px; }
-.leftcol         { width:  350px; }
-.rightcol        { width:  200px; }
+iframe           { width: 200px; background: yellow; height: 40px; font-size: 32px; font-color: red; }
+.leftcol         { width: 350px; }
+.rightcol        { width: 250px; }
 .hidechooser     { display: none; }
 .piccell         { height: 200px; }
 .submit          { text-align: right; }
@@ -37,7 +38,7 @@ function previewFile() {
 <h1>Security Desk</h1>
 <h5>Demonstration at DARPA MTO ERI Summit, August 2020</h5>
 
-<form action="/check_person" method="post" enctype="multipart/form-data">
+<form action="/check_person" method="post" enctype="multipart/form-data" target="outcome">
   <table>
       <td class="leftcol"> <label for="fname">First name:</label> </td>
       <td class="rightcol"> <input type="text" id="fname" name="fname" maxLength=20 size=20 value="Firstname" /> </td>
@@ -64,7 +65,9 @@ function previewFile() {
     </tr>
   </table>
 </form> 
-
+<br />
+<iframe id="outcome" name="outcome" title="Outcome"></iframe> 
+<br />
 <div class="infobox">
 <p>This is a demonstration application of Perspecta Labs' CLOSURE toolchain, developed within 
 the DARPA GAPS program, to facilitate the development and verification of cross-domain systems.</p>
