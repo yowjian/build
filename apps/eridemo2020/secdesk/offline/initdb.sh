@@ -12,7 +12,14 @@ CREATE TABLE IF NOT EXISTS "mdata"
 INSERT INTO "mdata" (anonid, fname, mi, lname)
 VALUES
 (108, "Anjeze", "G." , "Bojaxhiu"),
-(666, "Hannibal", "", "Lecter");
+(666, "Hannibal", "", "Lecter"),
+(007, "Daniel", "", "Craig"),
+(101, "Alan", "", "Grant"),
+(102, "Clare", "", "Dearing"),
+(103, "Ellie", "", "Sattler"),
+(104, "Ian", "", "Malcolm"),
+(105, "John", "", "Hammond"),
+(106, "Owen", "", "Grady");
 
 EOF
 

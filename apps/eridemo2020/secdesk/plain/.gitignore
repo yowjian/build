@@ -1,0 +1,12 @@
+*.o
+*.so
+*~
+\#*
+a.out
+packages
+*.a
+build/scratch/
+scratch
+__pycache__
+eridemo2020
+*/*.db

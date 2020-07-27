@@ -1,4 +1,11 @@
+#include <python3.7/Python.h>
+#include <stdio.h>
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include <python3.7/numpy/arrayobject.h>
+
 #include "imageproc.h"
+
+PyObject *pName, *pModule, *pDict, *pFunc, *pArgs;
 
 int start_imageprocessor(void) {
   return 0;
@@ -17,15 +24,187 @@ int stop_recognizer(void) {
 }
 
 int get_features(char *imagefile, double embedding[static 128]) {
-  memset(embedding,0,128*sizeof(double));
+
+//    PyObject *pName, *pModule, *pDict, *pFunc, *pArgs;
+    npy_intp dims[1] = { 4 };
+
+    setenv("PYTHONPATH", ".", 1);
+    Py_Initialize();
+
+    pName = PyUnicode_FromString("local");
+    if (!pName) {
+        PyErr_Print();
+        goto out;
+    }
+
+    pModule = PyImport_Import(pName);
+    if (!pModule) {
+        PyErr_Print();
+        goto out1;
+    }
+    pFunc = PyObject_GetAttrString(pModule, "calEncodings");
+    if (!pFunc) {
+        PyErr_Print();
+        goto out2;
+    }
+
+    pDict = PyModule_GetDict(pModule);
+    if (!pDict) {
+        PyErr_Print();
+        goto out3;
+    }
+
+    pArgs = PyTuple_New(2);
+
+    PyObject *obj = Py_BuildValue("s#", imagefile, strlen(imagefile));
+    PyTuple_SetItem(pArgs, 0, obj);
+
+    char t[32] = "cnn";
+    PyObject *obj2 = Py_BuildValue("s#", t, strlen(t));
+    PyTuple_SetItem(pArgs, 1, obj2);
+
+    if (!PyCallable_Check(pFunc)) {
+        printf("Function calEncodings not callable !\n");
+        goto out4;
+    }
+
+    PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+    if (!PyList_Check(pValue)) {
+        printf("return value not a list!\n");
+        goto out4;
+    }
+
+    if (!PyList_Check(pValue)) {
+        printf("Not a list\n");
+        goto out4;
+    }
+
+    int count = (int) PyList_Size(pValue);
+    for (int i = 0; i < 1; i++) {
+        PyObject *ptemp = PyList_GetItem(pValue, i);
+        if (!PyList_Check(ptemp)) {
+            printf("encoding is not a list: %d\n", i);
+            continue;
+        }
+
+        int countIn = (int) PyList_Size(ptemp);
+        if (countIn != 128) {
+            printf("unexpectd number of entries in an encoding: %d:%d\n", i, countIn);
+            continue;
+        }
+        for (int j = 0; j < countIn; j++) {
+            PyObject *pObj = PyList_GetItem(ptemp, j);
+
+            PyObject *objRepIn = PyObject_Repr(pObj);
+            PyObject* str = PyUnicode_AsEncodedString(objRepIn, "utf-8", "~E~");
+            const char *bytes = PyBytes_AS_STRING(str);
+            embedding[j] = (float) strtod(bytes, NULL);
+        }
+    }
+
+out4:
+    Py_DECREF(pDict);
+out3:
+    Py_DECREF(pFunc);
+out2:
+//    Py_DECREF(pModule);
+out1:
+//    Py_DECREF(pName);
+out:
+//    Py_FinalizeEx();
+
   return 0;
 }
 
 int recognize(double embedding[static 128]) {
-  double d[128];
-  memset(d,0,128*sizeof(double));
-  int i = memcmp(d,embedding,128*sizeof(double));
-  return 666;
-  /* return -1; */
+    // Closure: invoke the python recognize method at the remote site
+//    PyObject *pName, *pModule, *pDict, *pFunc, *pArgs;
+    npy_intp dims[2] = { 1, 128 };
+    PyObject *py_array;
+
+    int id = -1;
+
+//    setenv("PYTHONPATH", ".", 1);
+//    Py_Initialize();
+
+//    pName = PyUnicode_FromString("local");
+//    if (!pName) {
+//        PyErr_Print();
+//        goto out;
+//    }
+//
+//    pModule = PyImport_Import(pName);
+//    if (!pModule) {
+//        PyErr_Print();
+//        goto out1;
+//    }
+
+    pFunc = PyObject_GetAttrString(pModule, "recognize");
+    if (!pFunc) {
+        PyErr_Print();
+        goto out2;
+    }
+
+    pDict = PyModule_GetDict(pModule);
+    if (!pDict) {
+        PyErr_Print();
+        goto out3;
+    }
+
+    double encodings[1][128];
+    for (int i = 0; i < 128; i++)
+        encodings[0][i] = embedding[i];
+
+    // Required for the C-API : http://docs.scipy.org/doc/numpy/reference/c-api.array.html#importing-the-api
+    import_array();
+    py_array = PyArray_SimpleNewFromData(2, dims, NPY_DOUBLE, encodings);
+    if (!py_array) {
+        PyErr_Print();
+        goto out4;
+    }
+
+    pArgs = PyTuple_New(1);
+    PyTuple_SetItem(pArgs, 0, py_array);
+
+    if (!PyCallable_Check(pFunc)) {
+        PyErr_Print();
+        goto out5;
+    }
+
+    // Closure: collect and return a list, len=length(encodings) of names of recognized faces
+    // 'send' the list back to the local site.
+    PyObject* pNames = PyObject_CallObject(pFunc, pArgs);
+    if (!PyList_Check(pNames)) {
+        printf("names are not a list:\n");
+        goto out5;
+    }
+
+    int count = (int) PyList_Size(pNames);
+    // char *names = malloc(sizeof(char *) * count);
+    for (int i = 0; i < count; i++) {
+        PyObject *ptemp = PyList_GetItem(pNames, i);
+
+        char *cstr;
+        PyArg_Parse(ptemp, "s", &cstr);  /* convert to C */
+
+        id = strtol(cstr, NULL, 10);
+        printf("recognized %s, ID=%d\n", cstr, id);
+    }
+
+out5:
+    Py_DECREF(py_array);
+out4:
+    Py_DECREF(pDict);
+out3:
+    Py_DECREF(pFunc);
+out2:
+//    Py_DECREF(pModule);
+out1:
+//    Py_DECREF(pName);
+out:
+
+//    Py_FinalizeEx();
+
+  return id;
 }
 
