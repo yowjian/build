@@ -5,25 +5,25 @@ PyObject *pName, *pModule, *pDict, *pFunc, *pArgs;
 #endif
 
 int start_imageprocessor(void) {
-  return 0;
+   return 0;
 }
 
 int stop_imageprocessor(void) {
-  return 0;
+   return 0;
 }
 
 int start_recognizer(void) { 
-  /* XXX: need to call model load here and save to global var */
-  return 0;
+   /* XXX: need to call model load here and save to global var */
+   return 0;
 }
 
 int stop_recognizer(void) { 
-  /* XXX: ought to free model resources */
-  return 0;
+   /* XXX: ought to free model resources */
+   return 0;
 }
 
 int get_features(char *imagefile, double embedding[static 128]) {
-
+    memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
 #ifndef __STUBBED
     setenv("PYTHONPATH", ".", 1);
     Py_Initialize();
@@ -111,7 +111,8 @@ out:
 }
 
 int recognize(double embedding[static 128]) {
-    int id = 666;  // When stubbed, always return 666
+    int id = 666; /* When stubbed, always return 666 */
+    memcpy(embedding, embedding, 128 * sizeof (double)); /* Cue for GEDL */
 
 #ifndef __STUBBED
     id = -1; 
