@@ -1,11 +1,8 @@
-#include <python3.7/Python.h>
-#include <stdio.h>
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <python3.7/numpy/arrayobject.h>
-
 #include "imageproc.h"
 
+#ifndef __STUBBED
 PyObject *pName, *pModule, *pDict, *pFunc, *pArgs;
+#endif
 
 int start_imageprocessor(void) {
   return 0;
@@ -15,23 +12,23 @@ int stop_imageprocessor(void) {
   return 0;
 }
 
-int start_recognizer(void) {
+int start_recognizer(void) { 
+  /* XXX: need to call model load here and save to global var */
   return 0;
 }
 
-int stop_recognizer(void) {
+int stop_recognizer(void) { 
+  /* XXX: ought to free model resources */
   return 0;
 }
 
 int get_features(char *imagefile, double embedding[static 128]) {
 
-//    PyObject *pName, *pModule, *pDict, *pFunc, *pArgs;
-    npy_intp dims[1] = { 4 };
-
+#ifndef __STUBBED
     setenv("PYTHONPATH", ".", 1);
     Py_Initialize();
 
-    pName = PyUnicode_FromString("local");
+    pName = PyUnicode_FromString(RECOGNIZER_MODULE);
     if (!pName) {
         PyErr_Print();
         goto out;
@@ -42,16 +39,11 @@ int get_features(char *imagefile, double embedding[static 128]) {
         PyErr_Print();
         goto out1;
     }
-    pFunc = PyObject_GetAttrString(pModule, "calEncodings");
+
+    pFunc = PyObject_GetAttrString(pModule, "calcEncodings");
     if (!pFunc) {
         PyErr_Print();
         goto out2;
-    }
-
-    pDict = PyModule_GetDict(pModule);
-    if (!pDict) {
-        PyErr_Print();
-        goto out3;
     }
 
     pArgs = PyTuple_New(2);
@@ -65,21 +57,24 @@ int get_features(char *imagefile, double embedding[static 128]) {
 
     if (!PyCallable_Check(pFunc)) {
         printf("Function calEncodings not callable !\n");
-        goto out4;
+        goto out3;
     }
 
     PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
     if (!PyList_Check(pValue)) {
         printf("return value not a list!\n");
-        goto out4;
+        goto out3;
     }
 
-    if (!PyList_Check(pValue)) {
-        printf("Not a list\n");
-        goto out4;
+    int countArgs = (int) PyList_Size(pValue);
+    if (countArgs != 3) {
+        printf("return value not a list!\n");
+        goto out3;
     }
 
-    int count = (int) PyList_Size(pValue);
+    PyObject *encodings = PyList_GetItem(pValue, 0);
+
+    int count = (int) PyList_Size(encodings);
     for (int i = 0; i < 1; i++) {
         PyObject *ptemp = PyList_GetItem(pValue, i);
         if (!PyList_Check(ptemp)) {
@@ -102,27 +97,30 @@ int get_features(char *imagefile, double embedding[static 128]) {
         }
     }
 
-out4:
-    Py_DECREF(pDict);
 out3:
     Py_DECREF(pFunc);
 out2:
-//    Py_DECREF(pModule);
+    Py_DECREF(pModule);
 out1:
-//    Py_DECREF(pName);
+    Py_DECREF(pName);
 out:
-//    Py_FinalizeEx();
+    Py_FinalizeEx();
 
+#endif /* __STUBBED */
   return 0;
 }
 
 int recognize(double embedding[static 128]) {
+    int id = 666;  // When stubbed, always return 666
+
+#ifndef __STUBBED
+    id = -1; 
+
     // Closure: invoke the python recognize method at the remote site
 //    PyObject *pName, *pModule, *pDict, *pFunc, *pArgs;
     npy_intp dims[2] = { 1, 128 };
     PyObject *py_array;
 
-    int id = -1;
 
 //    setenv("PYTHONPATH", ".", 1);
 //    Py_Initialize();
@@ -204,6 +202,8 @@ out1:
 out:
 
 //    Py_FinalizeEx();
+
+#endif
 
   return id;
 }
