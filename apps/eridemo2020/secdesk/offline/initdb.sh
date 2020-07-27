@@ -15,7 +15,7 @@ VALUES
 (666, "Hannibal", "", "Lecter"),
 (007, "Daniel", "", "Craig"),
 (101, "Alan", "", "Grant"),
-(102, "Clare", "", "Dearing"),
+(102, "Clarie", "", "Dearing"),
 (103, "Ellie", "", "Sattler"),
 (104, "Ian", "", "Malcolm"),
 (105, "John", "", "Hammond"),
