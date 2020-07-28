@@ -152,18 +152,12 @@ int recognize(double embedding[static 128]) {
     id = -1; 
 
     // Closure: invoke the python recognize method at the remote site
-    PyObject *pName, *pModule, *pFunc, *pArgs;
+    PyObject *pModule, *pFunc, *pArgs;
 
     setenv("PYTHONPATH", ".", 1);
     Py_Initialize();
 
-    pName = PyUnicode_FromString(RECOGNIZER_MODULE);
-    if (!pName) {
-        PyErr_Print();
-        goto out;
-    }
-
-    pModule = PyImport_Import(pName);
+    pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (!pModule) {
         PyErr_Print();
         goto out1;
@@ -185,7 +179,7 @@ int recognize(double embedding[static 128]) {
         PyObject *element = PyFloat_FromDouble(embedding[i]);
         if (PyList_Append(listEnc, element) == -1) {
             PyErr_Print();
-	}
+	    }
     }
     
     pArgs = PyTuple_New(2);
@@ -199,24 +193,13 @@ int recognize(double embedding[static 128]) {
 
     // Closure: collect and return a list, len=length(encodings) of names of recognized faces
     // 'send' the list back to the local site.
-    PyObject* pNames = PyObject_CallObject(pFunc, pArgs);
-/*
-    if (!PyList_Check(pNames)) {
-        printf("names are not a list:\n");
-        goto out3;
-    }
+    PyObject* pName = PyObject_CallObject(pFunc, pArgs);
+    char *cstr;
+    PyArg_Parse(pName, "s", &cstr);  /* convert to C */
 
-    int count = (int) PyList_Size(pNames);
-    // char *names = malloc(sizeof(char *) * count);
-    for (int i = 0; i < count; i++) {
-        PyObject *ptemp = PyList_GetItem(pNames, i);
-*/
-        char *cstr;
-        PyArg_Parse(pNames, "s", &cstr);  /* convert to C */
+    id = strtol(cstr, NULL, 10);
+    printf("recognized %s, ID=%d\n", cstr, id);
 
-        id = strtol(cstr, NULL, 10);
-        printf("recognized %s, ID=%d\n", cstr, id);
-//    }
 out3:
 //    Py_DECREF(pFunc);
 out2:
