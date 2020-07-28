@@ -1,6 +1,10 @@
 #include "imageproc.h"
 
+#undef __STUBBED  // TODO: remove
+
 #ifndef __STUBBED
+#define error(msg) do { printf("%s\n", msg); PyErr_Print(); return(0); } while (1)
+
 PyObject *data;
 #endif
 
@@ -30,63 +34,50 @@ int get_features(char *imagefile, double embedding[static 128]) {
     Py_Initialize();
 
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
-    if (!pModule) {
-        PyErr_Print();
-        goto out;
-    }
+    if (pModule == NULL)
+        error("Can't load module");
 
     PyObject *pFunc = PyObject_GetAttrString(pModule, "calcEncodings");
-    if (!pFunc) {
-        PyErr_Print();
-        goto out;
-    }
+    Py_DECREF(pModule);
+    if (pFunc == NULL)
+        error("Can't fetch method");
 
-    PyObject *pValue;
-    PyObject *pArgs, *arg1, *arg2;
-    if (!PyCallable_Check(pFunc)) {
-        printf("Function calEncodings not callable !\n");
-    }
-    else {
-        pArgs = PyTuple_New(2);
+    if (!PyCallable_Check(pFunc))
+        error("not callable");
 
-        arg1 = Py_BuildValue("s#", imagefile, strlen(imagefile));
-        PyTuple_SetItem(pArgs, 0, arg1);
+    PyObject *pArgs = PyTuple_New(2);
+    PyObject *arg1 = Py_BuildValue("s#", imagefile, strlen(imagefile));
+    PyTuple_SetItem(pArgs, 0, arg1);
 
-        char t[32] = "cnn";
-        arg2 = Py_BuildValue("s#", t, strlen(t));
-        PyTuple_SetItem(pArgs, 1, arg2);
+    char t[32] = "cnn";
+    PyObject *arg2 = Py_BuildValue("s#", t, strlen(t));
+    PyTuple_SetItem(pArgs, 1, arg2);
    
-        pValue = PyObject_CallObject(pFunc, pArgs);
-        if (!PyList_Check(pValue)) {
-            printf("return value not a list!\n");
-        }
-    }
+    PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+    Py_DECREF(pFunc);
+    Py_DECREF(pArgs);
+    if (!PyList_Check(pValue))
+        error("return value not a list!");
     
     int countArgs = (int) PyList_Size(pValue);
-    if (countArgs != 3) {
-        printf("number of return values != 3: %d\n", countArgs);
-        goto out;
-    }
+    if (countArgs != 3)
+        error("number of return values != 3");
 
     PyObject *encodings = PyList_GetItem(pValue, 0);
+    if (!PyList_Check(encodings))
+        error("encodings is not a list");
     
     int count = (int) PyList_Size(encodings);
-    if (count != 1) {
-        printf("number of encodings != 1: %d\n", count);
-        goto out;
-    }
+    if (count <= 0)
+        error("number of encodings < 0");
 
     PyObject *enc = PyList_GetItem(encodings, 0);
-    if (!PyList_Check(enc)) {
-        printf("encoding is not a list\n");
-        goto out;
-    }
+    if (!PyList_Check(enc))
+        error("enc is not a list");
 
     int countIn = (int) PyList_Size(enc);
-    if (countIn != 128) {
-        printf("unexpectd number of entries in an encoding: %d\n", countIn);
-        goto out;
-    }
+    if (countIn != 128)
+        error("number of entries in an encoding is not 128");
     
     for (int j = 0; j < countIn; j++) {
         PyObject *pObj = PyList_GetItem(enc, j);
@@ -96,21 +87,11 @@ int get_features(char *imagefile, double embedding[static 128]) {
         const char *bytes = PyBytes_AS_STRING(str);
         embedding[j] = (float) strtod(bytes, NULL);
     }
-    
-out:
-/*
-    Py_DECREF(pModule);
-    Py_DECREF(arg1);
-    Py_DECREF(arg2);
-    Py_DECREF(pArgs);
-    Py_DECREF(pFunc);
-    //    Py_DECREF(enc);
     Py_DECREF(pValue);
-    Py_DECREF(encodings);
-//    Py_Finalize();  ///////////////////////////////////////////////////
-*/
+
 #endif /* __STUBBED */
-  return 0;
+
+    return 0;
 }
 
 #ifndef __STUBBED
