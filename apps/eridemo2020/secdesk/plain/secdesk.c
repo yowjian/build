@@ -83,6 +83,13 @@ static int process_secinput(struct secinput *s) {
   }
   fclose(fp);
 
+#ifndef __STUBBED
+  char overlayFile[128];
+  sprintf(overlayFile, "%s/overlay.png", fio_cli_get("-www"));
+
+  remove(overlayFile);
+#endif
+
   char *f, *m, *l;
   f = strdup(fiobj_obj2cstr(s->fname).data);
   m = strdup(fiobj_obj2cstr(s->mi).data);
@@ -99,7 +106,7 @@ static int process_secinput(struct secinput *s) {
   free(f); free(m); free(l);
 
 #ifndef __STUBBED
-  overlay(tmpfile, "www/overlay.png");
+//  overlay(tmpfile, overlayFile);
 #endif
 
   remove(tmpfile);
