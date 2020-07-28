@@ -24,26 +24,25 @@ int stop_recognizer(void) {
 
 int get_features(char *imagefile, double embedding[static 128]) {
     memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
-#ifndef __STUBBED
-    PyObject *pName, *pModule, *pDict, *pFunc, *pArgs;
 
+#ifndef __STUBBED
     setenv("PYTHONPATH", ".", 1);
     Py_Initialize();
 
-    pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
+    PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (!pModule) {
         PyErr_Print();
         goto out;
     }
 
-    pFunc = PyObject_GetAttrString(pModule, "calcEncodings");
+    PyObject *pFunc = PyObject_GetAttrString(pModule, "calcEncodings");
     if (!pFunc) {
         PyErr_Print();
         goto out;
     }
 
-    PyObject* pValue;
-    PyObject* arg1, *arg2;
+    PyObject *pValue;
+    PyObject *pArgs, *arg1, *arg2;
     if (!PyCallable_Check(pFunc)) {
         printf("Function calEncodings not callable !\n");
     }
@@ -109,7 +108,6 @@ out:
     Py_DECREF(pValue);
     Py_DECREF(encodings);
 //    Py_Finalize();  ///////////////////////////////////////////////////
-    printf("XXXXXXXXXXXXXX 2 \n");
 */
 #endif /* __STUBBED */
   return 0;
@@ -133,7 +131,7 @@ int init_recognizer(PyObject *pModule) {
     data = PyObject_CallObject(pFunc, pArgs);
     if (!data) {
         printf("data null\n");
-	goto out;
+        goto out;
     }
     ret = 1;
 
@@ -179,7 +177,7 @@ int recognize(double embedding[static 128]) {
         PyObject *element = PyFloat_FromDouble(embedding[i]);
         if (PyList_Append(listEnc, element) == -1) {
             PyErr_Print();
-	    }
+        }
     }
     
     pArgs = PyTuple_New(2);
@@ -191,12 +189,10 @@ int recognize(double embedding[static 128]) {
         goto out3;
     }
 
-    // Closure: collect and return a list, len=length(encodings) of names of recognized faces
-    // 'send' the list back to the local site.
     PyObject* pName = PyObject_CallObject(pFunc, pArgs);
+
     char *cstr;
     PyArg_Parse(pName, "s", &cstr);  /* convert to C */
-
     id = strtol(cstr, NULL, 10);
     printf("recognized %s, ID=%d\n", cstr, id);
 
