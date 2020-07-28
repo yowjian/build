@@ -99,7 +99,7 @@ static int process_secinput(struct secinput *s) {
   free(f); free(m); free(l);
 
 #ifndef __STUBBED
-  overlay(tmpfile, "overlay.png");
+  overlay(tmpfile, "www/overlay.png");
 #endif
 
   remove(tmpfile);
