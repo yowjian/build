@@ -12,6 +12,10 @@ FACILLIB=facilio/facilio.a
 CFLAGS += -g -I/usr/include/python3.7
 PYFLAGS = `python3-config --ldflags --libs`
 
+ifdef FACE
+CFLAGS += -DINC_FACE_RECOGNITION=1
+endif
+
 $(APPEXE): $(APPOBJ) $(FACILLIB)
 	clang -o $@ $^ $(MYLIB) $(PYFLAGS)
 

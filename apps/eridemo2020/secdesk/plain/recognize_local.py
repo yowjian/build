@@ -12,12 +12,13 @@ def calcEncodings(imageFile, methodName):
     # detect the (x, y)-coordinates of the bounding boxes corresponding
     # to each face in the input image, then compute the facial embeddings
     # for each face
-    print("[INFO] recognizing faces using" + method)
+    print("[INFO] recognizing faces using " + methodName)
     boxes = face_recognition.face_locations(rgb, model=methodName)
     encodings = face_recognition.face_encodings(rgb, boxes)
     
     # convert from numpy 1-d array of doubles to list of list of doubles
-    listOfEnc = [[double(j) for j in i] for i in encodings]
+    # listOfEnc = [[double(j) for j in i] for i in encodings]
+    listOfEnc = [[j for j in enc] for enc in encodings]
     listBoxes = [[m for m in n] for n in boxes]
 
     return [listOfEnc, listBoxes, image]

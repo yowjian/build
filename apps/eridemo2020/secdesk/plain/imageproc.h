@@ -5,6 +5,10 @@
 
 #define __STUBBED 1
 
+#ifdef INC_FACE_RECOGNITION
+#undef __STUBBED
+#endif
+
 #ifndef __STUBBED
 #define RECOGNIZER_MODULE "recognize_local"
 #include <stdio.h>
