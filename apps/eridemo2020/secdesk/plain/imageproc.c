@@ -149,13 +149,10 @@ int recognize(double embedding[static 128]) {
 #ifndef __STUBBED
     id = -1; 
 
-    // Closure: invoke the python recognize method at the remote site
-    PyObject *pModule, *pFunc, *pArgs;
-
     setenv("PYTHONPATH", ".", 1);
     Py_Initialize();
 
-    pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
+    PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (!pModule) {
         PyErr_Print();
         goto out1;
@@ -166,7 +163,7 @@ int recognize(double embedding[static 128]) {
         goto out1;
     }
 
-    pFunc = PyObject_GetAttrString(pModule, "recognize_one");
+    PyObject *pFunc = PyObject_GetAttrString(pModule, "recognize_one");
     if (!pFunc) {
         PyErr_Print();
         goto out2;
@@ -180,7 +177,7 @@ int recognize(double embedding[static 128]) {
         }
     }
     
-    pArgs = PyTuple_New(2);
+    PyObject *pArgs = PyTuple_New(2);
     PyTuple_SetItem(pArgs, 0, listEnc);
     PyTuple_SetItem(pArgs, 1, data);    
 
@@ -203,11 +200,10 @@ out2:
 out1:
 //    Py_DECREF(pName);
 out:
-
 //    Py_FinalizeEx();
-
 #endif
 
   return id;
 }
+
 
