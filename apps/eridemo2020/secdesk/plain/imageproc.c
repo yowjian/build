@@ -12,7 +12,6 @@ PyInterpreterState *interpreterState;
 #endif
 
 int start_imageprocessor(void) {
-    printf("start_image\n");
     setenv("PYTHONPATH", ".", 1);
     Py_Initialize();
 
@@ -147,21 +146,16 @@ int get_features(char *imagefile, double embedding[static 128]) {
     memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
 
 #ifndef __STUBBED
-    printf("enter get_features\n");
 //    setenv("PYTHONPATH", ".", 1);
 //    Py_Initialize();
 
     PyThreadState *state = PyThreadState_New(interpreterState);
-    printf(" get_features 0.0\n");
     PyEval_RestoreThread(state);
 
-    printf(" get_features 0\n");
-    
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
         error("Can't load module");
 
-    printf(" get_features 1\n");
     PyObject *pFunc = PyObject_GetAttrString(pModule, "calcEncodings");
     Py_DECREF(pModule);
     if (pFunc == NULL)
@@ -169,8 +163,6 @@ int get_features(char *imagefile, double embedding[static 128]) {
 
     if (!PyCallable_Check(pFunc))
         error("not callable");
-
-    printf(" get_features 2\n");
 
     PyObject *pArgs = PyTuple_New(2);
     PyObject *arg1 = Py_BuildValue("s#", imagefile, strlen(imagefile));
@@ -180,15 +172,11 @@ int get_features(char *imagefile, double embedding[static 128]) {
     PyObject *arg2 = Py_BuildValue("s#", t, strlen(t));
     PyTuple_SetItem(pArgs, 1, arg2);
 
-    printf(" get_features 3\n");
-
     PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
     Py_DECREF(pFunc);
     Py_DECREF(pArgs);
     if (!PyList_Check(pValue))
         error("return value not a list!");
-
-    printf(" get_features 4\n");
 
     int countArgs = (int) PyList_Size(pValue);
     if (countArgs != 3)
@@ -202,8 +190,6 @@ int get_features(char *imagefile, double embedding[static 128]) {
     if (count <= 0)
         error("number of encodings < 0");
 
-    printf(" get_features 5\n");
-
     PyObject *enc = PyList_GetItem(encodings, 0);
     if (!PyList_Check(enc))
         error("enc is not a list");
@@ -211,8 +197,6 @@ int get_features(char *imagefile, double embedding[static 128]) {
     int countIn = (int) PyList_Size(enc);
     if (countIn != 128)
         error("number of entries in an encoding is not 128");
-
-    printf(" get_features 6\n");
 
     for (int j = 0; j < countIn; j++) {
         PyObject *pObj = PyList_GetItem(enc, j);
@@ -223,20 +207,16 @@ int get_features(char *imagefile, double embedding[static 128]) {
         embedding[j] = (float) strtod(bytes, NULL);
     }
 
-    printf(" get_features 7\n");
     getBox(PyList_GetItem(pValue, 1));
-    printf(" get_features 8\n");
 
     Py_DECREF(pValue);
 
 #endif /* __STUBBED */
-    printf("exit get_features\n");
 
     return 0;
 }
 
 int recognize(double embedding[static 128]) {
-    printf("enter recognize\n");
     int id = 666; /* When stubbed, always return 666 */
     memcpy(embedding, embedding, 128 * sizeof (double)); /* Cue for GEDL */
 
@@ -286,7 +266,6 @@ int recognize(double embedding[static 128]) {
     Py_DECREF(pName);
 
 #endif
-    printf("exit recognize\n");
 
     PyEval_SaveThread();
     
