@@ -40,7 +40,7 @@ int get_features(char *imagefile, double embedding[static 128]) {
     PyObject *pFunc = PyObject_GetAttrString(pModule, "calcEncodings");
     Py_DECREF(pModule);
     if (pFunc == NULL)
-        error("Can't fetch method");
+        error("Can't fetch method calcEncodings");
 
     if (!PyCallable_Check(pFunc))
         error("not callable");
@@ -96,30 +96,21 @@ int get_features(char *imagefile, double embedding[static 128]) {
 
 #ifndef __STUBBED
 int init_recognizer(PyObject *pModule) {
-    int ret = 0;
-
     PyObject *pFunc = PyObject_GetAttrString(pModule, "init_recognizer");
-    if (!pFunc) {
-        PyErr_Print();
-        return ret;
-    }
-    if (!PyCallable_Check(pFunc)) {
-        PyErr_Print();
-        goto out;
-    }
+    if (!pFunc)
+        error("Can't fetch method init_recognizer");
+
+    if (!PyCallable_Check(pFunc))
+        error("init_recognizer not callable");
 
     PyObject *pArgs = PyTuple_New(0);
     data = PyObject_CallObject(pFunc, pArgs);
-    if (!data) {
-        printf("data null\n");
-        goto out;
-    }
-    ret = 1;
+    Py_DECREF(pFunc);
+    Py_DECREF(pArgs);
+    if (!data)
+        error("data null");
 
-out:
-//    Py_DECREF(pFunc);
-
-    return ret;
+    return 1;
 }
 #endif
 
