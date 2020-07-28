@@ -22,61 +22,6 @@ int stop_recognizer(void) {
    return 0;
 }
 
-int get_featuresY(char *imagefile, double embedding[static 128]) {
-    memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
-#ifndef __STUBBED
-    PyObject *pName, *pModule, *pDict, *pFunc, *pArgs;
-
-    setenv("PYTHONPATH", ".", 1);
-    Py_Initialize();
-
-    pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
-    if (!pModule) {
-        PyErr_Print();
-        goto out;
-    }
-
-    pFunc = PyObject_GetAttrString(pModule, "calcEncodings");
-    if (!pFunc) {
-        PyErr_Print();
-        goto out;
-    }
-
-    PyObject* pValue;
-/*
-    PyObject* arg1, *arg2;
-    if (!PyCallable_Check(pFunc)) {
-        printf("Function calEncodings not callable !\n");
-    }
-    else {
-*/
-        pArgs = PyTuple_New(0);
-/*
-        arg1 = Py_BuildValue("s#", imagefile, strlen(imagefile));
-        PyTuple_SetItem(pArgs, 0, arg1);
-
-        char t[32] = "cnn";
-        arg2 = Py_BuildValue("s#", t, strlen(t));
-        PyTuple_SetItem(pArgs, 1, arg2);
-*/   
-        pValue = PyObject_CallObject(pFunc, pArgs);
-        
-        if (!PyList_Check(pValue)) {
-            printf("return value not a list!\n");
-        }
-//    }
-out:
-    Py_DECREF(pModule);
-//    Py_DECREF(arg1);
-//    Py_DECREF(arg2);
-    Py_DECREF(pArgs);
-    Py_DECREF(pFunc);
-    Py_DECREF(pValue);
-    Py_FinalizeEx();
-#endif /* __STUBBED */
-  return 0;
-}
-
 int get_features(char *imagefile, double embedding[static 128]) {
     memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
 #ifndef __STUBBED
