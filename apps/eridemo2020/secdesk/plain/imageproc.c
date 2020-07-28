@@ -1,7 +1,5 @@
 #include "imageproc.h"
 
-#undef __STUBBED  // TODO: remove
-
 #ifndef __STUBBED
 #define error(msg) do { printf("%s\n", msg); PyErr_Print(); return(0); } while (1)
 
@@ -73,8 +71,6 @@ static int getBox(PyObject *boxes) {
         const char *bytes = PyBytes_AS_STRING(str);
 
         savedBox[j] = (float) strtol(bytes, NULL, 10);
-
-        printf("box[%d]=%ld\n", j, savedBox[j]);
     }
 
     return 1;
@@ -92,7 +88,7 @@ int overlay(char *imageFile, char *outFile) {
     if (!dataReady)
         error("data not ready");
 
-    PyObject *pFunc = PyObject_GetAttrString(pModule, "recognize_one");
+    PyObject *pFunc = PyObject_GetAttrString(pModule, "overlay");
     Py_DECREF(pModule);
     if (pFunc == NULL)
         error("Can't fetch method init_recognizer");

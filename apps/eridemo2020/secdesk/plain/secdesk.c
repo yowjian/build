@@ -90,7 +90,6 @@ static int process_secinput(struct secinput *s) {
   
   double embedding[128];
   get_features(tmpfile, embedding);
-  remove(tmpfile);
 
   int i;
   i = recognize(embedding);
@@ -98,6 +97,12 @@ static int process_secinput(struct secinput *s) {
   int j;
   j = lookup(f,m,l);
   free(f); free(m); free(l);
+
+#ifndef __STUBBED
+  overlay(tmpfile, "overlay.png");
+#endif
+
+  remove(tmpfile);
 
   return (i > 0 && j > 0 && i == j) ? 1 : 0;
 }

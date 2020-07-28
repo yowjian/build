@@ -23,7 +23,9 @@ def calcEncodings(imageFile, methodName):
 
     return [listOfEnc, listBoxes, image]
 
-def overlay(boxes, names, image, ofname):
+def overlay(boxes, names, imageFile, ofname):
+    image = cv2.imread(imageFile)
+
     # loop over the recognized faces
     for ((top, right, bottom, left), name) in zip(boxes, names):
         # draw the predicted face name on the image
@@ -31,9 +33,10 @@ def overlay(boxes, names, image, ofname):
         y = top - 15 if top - 15 > 15 else top + 15
         cv2.putText(image, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
                 0.75, (0, 255, 0), 2)
-
     # save image with face recognition overlay
-    cv2.imwrite(ofname, image)
+    try:
+        cv2.imwrite(ofname, image)
+    except Exception as e: print(e)
 
 ############################################## REMOTE ###################################################
 def init_recognizer(modelfile="encodings.pickle.id"): 
