@@ -5,7 +5,7 @@
 #ifndef __STUBBED
 #define error(msg) do { printf("%s\n", msg); PyErr_Print(); return(0); } while (1)
 
-PyObject *data;
+PyObject *data = NULL;
 #endif
 
 int start_imageprocessor(void) {
@@ -97,7 +97,7 @@ int get_features(char *imagefile, double embedding[static 128]) {
 #ifndef __STUBBED
 int init_recognizer(PyObject *pModule) {
     PyObject *pFunc = PyObject_GetAttrString(pModule, "init_recognizer");
-    if (!pFunc)
+    if (pFunc == NULL)
         error("Can't fetch method init_recognizer");
 
     if (!PyCallable_Check(pFunc))
@@ -107,7 +107,7 @@ int init_recognizer(PyObject *pModule) {
     data = PyObject_CallObject(pFunc, pArgs);
     Py_DECREF(pFunc);
     Py_DECREF(pArgs);
-    if (!data)
+    if (data == NULL)
         error("data null");
 
     return 1;
@@ -125,21 +125,20 @@ int recognize(double embedding[static 128]) {
     Py_Initialize();
 
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
-    if (!pModule) {
-        PyErr_Print();
-        goto out1;
-    }
+    if (pModule == NULL)
+        error("Can't load module");
 
     int dataReady = init_recognizer(pModule);
-    if (!dataReady) {
-        goto out1;
-    }
+    if (!dataReady)
+        error("data not ready");
 
     PyObject *pFunc = PyObject_GetAttrString(pModule, "recognize_one");
-    if (!pFunc) {
-        PyErr_Print();
-        goto out2;
-    }
+    Py_DECREF(pModule);
+    if (pFunc == NULL)
+        error("Can't fetch method init_recognizer");
+
+    if (!PyCallable_Check(pFunc))
+        error("recognize_one not callable");
 
     PyObject *listEnc = PyList_New(0);
     for (int i = 0; i < 128; i++) {
@@ -153,26 +152,16 @@ int recognize(double embedding[static 128]) {
     PyTuple_SetItem(pArgs, 0, listEnc);
     PyTuple_SetItem(pArgs, 1, data);    
 
-    if (!PyCallable_Check(pFunc)) {
-        PyErr_Print();
-        goto out3;
-    }
-
     PyObject* pName = PyObject_CallObject(pFunc, pArgs);
+    Py_DECREF(pFunc);
+    Py_DECREF(pArgs);
 
     char *cstr;
     PyArg_Parse(pName, "s", &cstr);  /* convert to C */
     id = strtol(cstr, NULL, 10);
     printf("recognized %s, ID=%d\n", cstr, id);
+    Py_DECREF(pName);
 
-out3:
-//    Py_DECREF(pFunc);
-out2:
-//    Py_DECREF(pModule);
-out1:
-//    Py_DECREF(pName);
-out:
-//    Py_FinalizeEx();
 #endif
 
   return id;
