@@ -90,7 +90,6 @@ static int getBox(PyObject *boxes) {
 }
 
 int overlay(char *imageFile, char *outFile) {
-
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
         error("Can't load module");
@@ -140,15 +139,17 @@ int overlay(char *imageFile, char *outFile) {
     return 1;
 }
 
+void releasePy()
+{
+    PyEval_SaveThread();
+}
+
 #endif
 
 int get_features(char *imagefile, double embedding[static 128]) {
     memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
 
 #ifndef __STUBBED
-//    setenv("PYTHONPATH", ".", 1);
-//    Py_Initialize();
-
     PyThreadState *state = PyThreadState_New(interpreterState);
     PyEval_RestoreThread(state);
 
@@ -223,9 +224,6 @@ int recognize(double embedding[static 128]) {
 #ifndef __STUBBED
     id = -1; 
 
-//    setenv("PYTHONPATH", ".", 1);
-//    Py_Initialize();
-
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
         error("Can't load module");
@@ -267,8 +265,6 @@ int recognize(double embedding[static 128]) {
 
 #endif
 
-    PyEval_SaveThread();
-    
   return id;
 }
 
