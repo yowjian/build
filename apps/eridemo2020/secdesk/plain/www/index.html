@@ -33,6 +33,10 @@ function previewFile() {
   reader.addEventListener("load", function () { preview.src = reader.result; }, false);
   if (file) { reader.readAsDataURL(file); }
 }
+setInterval(function() {
+    var myImageElement = document.getElementById('myImage');
+    myImageElement.src = 'overlay.png?rand=' + Math.random();
+}, 5000);
 </script>
 
 <h1>Security Desk</h1>
@@ -66,6 +70,7 @@ function previewFile() {
   </table>
 </form> 
 <br />
+<img src="overlay.png" id="myImage" /><p/>
 <iframe id="outcome" name="outcome" title="Outcome"></iframe> 
 <br />
 <div class="infobox">
