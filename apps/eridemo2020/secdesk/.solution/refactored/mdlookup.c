@@ -37,7 +37,6 @@ int lookup(const char *fname, const char *mi, const char *lname) {
     sqlite3_bind_text(res,idx,fname,strlen(fname),0);
     idx = sqlite3_bind_parameter_index(res, "@m");
     sqlite3_bind_text(res,idx,mi,strlen(mi),0);
-    sqlite3_bind_text(res,idx,"",strlen(""),0);
     idx = sqlite3_bind_parameter_index(res, "@l");
     sqlite3_bind_text(res,idx,lname,strlen(lname),0);
   } else {
