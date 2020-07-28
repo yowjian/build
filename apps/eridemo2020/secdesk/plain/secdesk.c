@@ -107,10 +107,10 @@ static int process_secinput(struct secinput *s) {
 
 #ifndef __STUBBED
   overlay(tmpfile, overlayFile);
+  releasePy();
 #endif
 
   remove(tmpfile);
-  releasePy();
 
   return (i > 0 && j > 0 && i == j) ? 1 : 0;
 }

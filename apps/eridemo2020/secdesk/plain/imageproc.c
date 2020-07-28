@@ -12,6 +12,7 @@ PyInterpreterState *interpreterState;
 #endif
 
 int start_imageprocessor(void) {
+#ifndef __STUBBED
     setenv("PYTHONPATH", ".", 1);
     Py_Initialize();
 
@@ -21,7 +22,7 @@ int start_imageprocessor(void) {
     interpreterState = state->interp;
 
     PyEval_ReleaseLock();
-    
+#endif
     return 0;
 }
 
