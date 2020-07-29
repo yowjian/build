@@ -1,10 +1,6 @@
 #include "secdesk.h"
 
-static int  msglen     = 49;
-static char denymsg[]  = "<!DOCTYPE html><html><body>DENIED! </body></html>";
-/* should not be hardcoded, create using correct temp filename for outcome */
-/* static char denymsg[]  = "<!DOCTYPE html><html><body>ALLOWED!</body></html>";*/
-static char allowmsg[] = "<!DOCTYPE html><html><body>ALLOWED!<br><img height=\"200px\" src=\"overlay.png\" id=\"myImage\" /></body></html>";
+static char *RESPONSE_FORMAT= "<!DOCTYPE html><html><body>%s<br><img height=\"200px\" src=\"%s\" id=\"myImage\" /></body></html>";
 
 /* Set up command line interface and defaults */
 static void initialize_cli(int argc, char const *argv[]) {
@@ -74,10 +70,13 @@ static int get_fields(FIOBJ o, void *arg) {
   return 0;
 }
 
-static int process_secinput(struct secinput *s) {
+static int process_secinput(struct secinput *s, char *overlayImageFile) {
   fio_str_info_s tmp = fiobj_obj2cstr(s->filedata);
   char *filename     = fiobj_obj2cstr(s->filename).data;
-  char tmpfile[]     = "secdesk_img_XXXXXX";
+  char dir[256], tmpfile[64];
+  sprintf(dir, "%s/tmp", fio_cli_get("-www"));
+  mkdir(dir, 0777);
+  sprintf(tmpfile, "%s/secdesk_img_XXXXXX", dir);
   FILE * fp          = fdopen(mkstemp(tmpfile), "wb"); 
   if (!fp) perror("Error opening tempfile");
   if (fwrite(tmp.data, tmp.len, 1, fp) != 1) {
@@ -86,10 +85,9 @@ static int process_secinput(struct secinput *s) {
   fclose(fp);
 
 #ifndef __STUBBED
-  char overlayFile[128];
-  sprintf(overlayFile, "%s/overlay.png", fio_cli_get("-www"));
-
-  remove(overlayFile);
+  char tmp2[32] = "overlay_XXXXXX";
+  mktemp(tmp2);
+  sprintf(overlayImageFile, "%s/%s.png", dir, tmp2);  // .png is necessary for python to find the right writer.
 #endif
 
   char *f, *m, *l;
@@ -108,7 +106,12 @@ static int process_secinput(struct secinput *s) {
   free(f); free(m); free(l);
 
 #ifndef __STUBBED
-  overlay(tmpfile, overlayFile);
+  overlay(tmpfile, overlayImageFile);
+
+  int n = strlen(fio_cli_get("-www")) + 1;  // e.g. www/
+  int len = strlen(overlayImageFile);
+  memmove(overlayImageFile, overlayImageFile + n, len - n + 1);
+
   releasePy();
 #endif
 
@@ -125,12 +128,13 @@ static void on_http_request(http_s *h) {
       || (http_parse_body(h) == -1)) { ERRCLN("Invalid request") }
   struct secinput s;
   fiobj_each1(h->params, 0, get_fields, &s);
-  if (process_secinput(&s)) {
-    /* http_send_body(h, allowmsg, msglen); */
-    http_send_body(h, allowmsg, strlen(allowmsg));
-  } else {
-    http_send_body(h, denymsg, msglen);
-  }
+  char overlayImageFile[128];
+  int rsp = process_secinput(&s, overlayImageFile);
+  char response[1024];
+  sprintf(response, RESPONSE_FORMAT, (rsp ? "ALLOWED!" : "DENIED!"), overlayImageFile);
+  printf("%s\n", response);
+  http_send_body(h, response, strlen(response));
+
   cleanup: http_finish(h); return;
 }
 
