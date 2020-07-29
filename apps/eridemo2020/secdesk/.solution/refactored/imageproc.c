@@ -37,16 +37,23 @@
   ] }
 
 #ifndef __STUBBED
-#define error(msg) do { printf("%s\n", msg); PyErr_Print(); releasePy(state); return(0); } while (1)
+#define error(msg) do { printf("%s\n", msg); PyErr_Print(); PyGILState_Release(state); return(0); } while (1)
 #define error2(msg) do { printf("%s\n", msg); PyErr_Print(); return(0); } while (1)
 
+// XXX: why are these global? just so we could use error2 macro?
+#pragma cle begin PURPLE 
 PyObject *data = NULL;
+#pragma cle end PURPLE 
+#pragma cle begin ORANGE 
 long savedBox[4] = { 0 };
 char savedName[32];
+#pragma cle end ORANGE 
 
 #endif
 
+#pragma cle begin ORANGE 
 int start_imageprocessor(void) {
+#pragma cle end ORANGE 
 #ifndef __STUBBED
     if (!Py_IsInitialized()) {
         setenv("PYTHONPATH", ".", 1);
@@ -59,7 +66,9 @@ int start_imageprocessor(void) {
     return 0;
 }
 
+#pragma cle begin ORANGE 
 int stop_imageprocessor(void) {
+#pragma cle end ORANGE 
    return 0;
 }
 
@@ -88,7 +97,9 @@ int stop_recognizer(void) {
 
 
 #ifndef __STUBBED
+#pragma cle begin PURPLE 
 int init_recognizer(PyObject *pModule) {
+#pragma cle end PURPLE 
     PyObject *pFunc = PyObject_GetAttrString(pModule, "init_recognizer");
     if (pFunc == NULL)
         error2("Can't fetch method init_recognizer");
@@ -107,7 +118,9 @@ int init_recognizer(PyObject *pModule) {
 }
 
 // TODO: handle only one box for now
+#pragma cle begin ORANGE 
 static int getBox(PyObject *boxes) {
+#pragma cle end ORANGE 
     if (!PyList_Check(boxes))
         error2("boxes is not a list");
 
@@ -136,8 +149,10 @@ static int getBox(PyObject *boxes) {
     return 1;
 }
 
+#pragma cle begin ORANGE 
 int overlay(char *imageFile, char *outFile) {
-    PyGILState_STATE state = acquirePy();
+#pragma cle end ORANGE 
+    PyGILState_STATE state = PyGILState_Ensure();
 
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
@@ -146,10 +161,10 @@ int overlay(char *imageFile, char *outFile) {
     PyObject *pFunc = PyObject_GetAttrString(pModule, "overlay");
     Py_DECREF(pModule);
     if (pFunc == NULL)
-        error("Can't fetch method init_recognizer");
+        error("Can't fetch method overlay");
 
     if (!PyCallable_Check(pFunc))
-        error("recognize_one not callable");
+        error("overlay not callable");
 
     PyObject *pArgs = PyTuple_New(4);
 
@@ -181,19 +196,9 @@ int overlay(char *imageFile, char *outFile) {
     Py_DECREF(pArgs);
     Py_DECREF(pName);
 
-    releasePy(state);
+    PyGILState_Release(state);
 
     return 1;
-}
-
-PyGILState_STATE acquirePy()
-{
-    return PyGILState_Ensure();
-}
-
-void releasePy(PyGILState_STATE state)
-{
-    PyGILState_Release(state);
 }
 
 #endif
@@ -204,7 +209,7 @@ int get_features(char *imagefile, double embedding[static 128]) {
     memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
 
 #ifndef __STUBBED
-    PyGILState_STATE state = acquirePy();
+    PyGILState_STATE state = PyGILState_Ensure();
 
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
@@ -216,7 +221,7 @@ int get_features(char *imagefile, double embedding[static 128]) {
         error("Can't fetch method calcEncodings");
 
     if (!PyCallable_Check(pFunc))
-        error("not callable");
+        error("calcEncodings not callable");
 
     PyObject *pArgs = PyTuple_New(2);
     PyObject *arg1 = Py_BuildValue("s#", imagefile, strlen(imagefile));
@@ -265,7 +270,7 @@ int get_features(char *imagefile, double embedding[static 128]) {
 
     Py_DECREF(pValue);
 
-    releasePy(state);
+    PyGILState_Release(state);
 #endif /* __STUBBED */
 
     return 0;
@@ -279,7 +284,7 @@ int recognize(double embedding[static 128]) {
 
 #ifndef __STUBBED
     id = -1; 
-    PyGILState_STATE state = acquirePy();
+    PyGILState_STATE state = PyGILState_Ensure();
 
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
@@ -292,7 +297,7 @@ int recognize(double embedding[static 128]) {
     PyObject *pFunc = PyObject_GetAttrString(pModule, "recognize_one");
     Py_DECREF(pModule);
     if (pFunc == NULL)
-        error("Can't fetch method init_recognizer");
+        error("Can't fetch method recognize_one");
 
     if (!PyCallable_Check(pFunc))
         error("recognize_one not callable");
@@ -320,7 +325,7 @@ int recognize(double embedding[static 128]) {
     printf("recognized %s, ID=%d\n", savedName, id);
     Py_DECREF(pName);
 
-    releasePy(state);
+    PyGILState_Release(state);
 #endif
 
   return id;
