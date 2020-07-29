@@ -73,6 +73,7 @@ int stop_imageprocessor(void) {
 }
 
 // TODO: handle only one box for now
+#ifndef __STUBBED
 #pragma cle begin ORANGE 
 static int getBox(PyObject *boxes) {
 #pragma cle end ORANGE 
@@ -103,10 +104,12 @@ static int getBox(PyObject *boxes) {
 
     return 1;
 }
+#endif
 
 #pragma cle begin ORANGE 
 int overlay(char *imageFile, char *outFile) {
-#pragma cle end ORANGE 
+#pragma cle end ORANGE
+#ifndef __STUBBED
     PyGILState_STATE state = PyGILState_Ensure();
 
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
@@ -153,10 +156,9 @@ int overlay(char *imageFile, char *outFile) {
 
     PyGILState_Release(state);
 
+#endif
     return 1;
 }
-
-#endif
 
 #pragma cle begin ORANGE 
 int get_features(char *imagefile, double embedding[static 128]) {
