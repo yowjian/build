@@ -84,12 +84,10 @@ static int process_secinput(struct secinput *s, char *overlayImageFile) {
   }
   fclose(fp);
 
-#ifndef __STUBBED
   char tmp2[32] = "overlay_XXXXXX";
   close(mkstemp(tmp2));  // returns fd open for writing, so closing
   remove(tmp2);          // remove temp file, png created with same name in www/tmp separately
   sprintf(overlayImageFile, "%s/%s.png", dir, tmp2);  // .png is necessary for python to find the right writer.
-#endif
 
   char *f, *m, *l;
   f = strdup(fiobj_obj2cstr(s->fname).data);
@@ -106,13 +104,11 @@ static int process_secinput(struct secinput *s, char *overlayImageFile) {
   j = lookup(f,m,l);
   free(f); free(m); free(l);
 
-#ifndef __STUBBED
   overlay(tmpfile, overlayImageFile);
 
   int n = strlen(fio_cli_get("-www")) + 1;  // e.g. www/
   int len = strlen(overlayImageFile);
   memmove(overlayImageFile, overlayImageFile + n, len - n + 1);
-#endif
 
   remove(tmpfile);
 

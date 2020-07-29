@@ -67,8 +67,10 @@ int init_recognizer(PyObject *pModule) {
 
     return 1;
 }
+#endif
 
 // TODO: handle only one box for now
+#ifndef __STUBBED
 static int getBox(PyObject *boxes) {
     if (!PyList_Check(boxes))
         error2("boxes is not a list");
@@ -97,8 +99,10 @@ static int getBox(PyObject *boxes) {
 
     return 1;
 }
+#endif
 
 int overlay(char *imageFile, char *outFile) {
+#ifndef __STUBBED
     PyGILState_STATE state = PyGILState_Ensure();
 
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
@@ -145,10 +149,9 @@ int overlay(char *imageFile, char *outFile) {
 
     PyGILState_Release(state);
 
+#endif
     return 1;
 }
-
-#endif
 
 int get_features(char *imagefile, double embedding[static 128]) {
     memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
