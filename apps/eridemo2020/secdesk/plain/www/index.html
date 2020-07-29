@@ -13,7 +13,7 @@ table            { border-collapse: collapse; table-layout: fixed; }
 tr               { border: solid medium; }
 td               { border: solid thin; }
 input            { font-size: 16px; }
-iframe           { width: 200px; background: yellow; height: 40px; font-size: 32px; font-color: red; }
+iframe           { width: 300px; background: yellow; height: 240px; font-size: 32px; font-color: red; }
 .leftcol         { width: 350px; }
 .rightcol        { width: 250px; }
 .hidechooser     { display: none; }
@@ -33,10 +33,6 @@ function previewFile() {
   reader.addEventListener("load", function () { preview.src = reader.result; }, false);
   if (file) { reader.readAsDataURL(file); }
 }
-setInterval(function() {
-    var myImageElement = document.getElementById('myImage');
-    myImageElement.src = 'overlay.png?rand=' + Math.random();
-}, 5000);
 </script>
 
 <h1>Security Desk</h1>
@@ -70,7 +66,6 @@ setInterval(function() {
   </table>
 </form> 
 <br />
-<img src="overlay.png" id="myImage" /><p/>
 <iframe id="outcome" name="outcome" title="Outcome"></iframe> 
 <br />
 <div class="infobox">

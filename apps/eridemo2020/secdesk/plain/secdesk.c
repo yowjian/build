@@ -1,8 +1,10 @@
 #include "secdesk.h"
 
 static int  msglen     = 49;
-static char allowmsg[] = "<!DOCTYPE html><html><body>ALLOWED!</body></html>";
 static char denymsg[]  = "<!DOCTYPE html><html><body>DENIED! </body></html>";
+/* should not be hardcoded, create using correct temp filename for outcome */
+/* static char denymsg[]  = "<!DOCTYPE html><html><body>ALLOWED!</body></html>";*/
+static char allowmsg[] = "<!DOCTYPE html><html><body>ALLOWED!<br><img height=\"200px\" src=\"overlay.png\" id=\"myImage\" /></body></html>";
 
 /* Set up command line interface and defaults */
 static void initialize_cli(int argc, char const *argv[]) {
@@ -124,7 +126,8 @@ static void on_http_request(http_s *h) {
   struct secinput s;
   fiobj_each1(h->params, 0, get_fields, &s);
   if (process_secinput(&s)) {
-    http_send_body(h, allowmsg, msglen);
+    /* http_send_body(h, allowmsg, msglen); */
+    http_send_body(h, allowmsg, strlen(allowmsg));
   } else {
     http_send_body(h, denymsg, msglen);
   }
