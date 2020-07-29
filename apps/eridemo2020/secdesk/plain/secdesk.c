@@ -95,6 +95,7 @@ static int process_secinput(struct secinput *s, char *overlayImageFile) {
   m = strdup(fiobj_obj2cstr(s->mi).data);
   l = strdup(fiobj_obj2cstr(s->lname).data);
   
+  acquirePy();
   double embedding[128];
   get_features(tmpfile, embedding);
 
@@ -106,7 +107,7 @@ static int process_secinput(struct secinput *s, char *overlayImageFile) {
   free(f); free(m); free(l);
 
 #ifndef __STUBBED
-  overlay(tmpfile, overlayImageFile);
+//  overlay(tmpfile, overlayImageFile);
 
   int n = strlen(fio_cli_get("-www")) + 1;  // e.g. www/
   int len = strlen(overlayImageFile);
@@ -132,7 +133,6 @@ static void on_http_request(http_s *h) {
   int rsp = process_secinput(&s, overlayImageFile);
   char response[1024];
   sprintf(response, RESPONSE_FORMAT, (rsp ? "ALLOWED!" : "DENIED!"), overlayImageFile);
-  printf("%s\n", response);
   http_send_body(h, response, strlen(response));
 
   cleanup: http_finish(h); return;
