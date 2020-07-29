@@ -8,7 +8,6 @@
 PyObject *data = NULL;
 long savedBox[4] = { 0 };
 char savedName[32];
-PyGILState_STATE d_gstate;
 
 #endif
 
