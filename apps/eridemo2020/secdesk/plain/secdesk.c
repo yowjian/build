@@ -94,8 +94,7 @@ static int process_secinput(struct secinput *s, char *overlayImageFile) {
   f = strdup(fiobj_obj2cstr(s->fname).data);
   m = strdup(fiobj_obj2cstr(s->mi).data);
   l = strdup(fiobj_obj2cstr(s->lname).data);
-  
-  acquirePy();
+
   double embedding[128];
   get_features(tmpfile, embedding);
 
@@ -112,8 +111,6 @@ static int process_secinput(struct secinput *s, char *overlayImageFile) {
   int n = strlen(fio_cli_get("-www")) + 1;  // e.g. www/
   int len = strlen(overlayImageFile);
   memmove(overlayImageFile, overlayImageFile + n, len - n + 1);
-
-  releasePy();
 #endif
 
   remove(tmpfile);

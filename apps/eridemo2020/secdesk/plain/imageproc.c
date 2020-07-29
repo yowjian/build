@@ -2,7 +2,8 @@
 #include <sys/types.h>
 
 #ifndef __STUBBED
-#define error(msg) do { printf("%s\n", msg); PyErr_Print(); return(0); } while (1)
+#define error(msg) do { printf("%s\n", msg); PyErr_Print(); releasePy(state); return(0); } while (1)
+#define error2(msg) do { printf("%s\n", msg); PyErr_Print(); return(0); } while (1)
 
 PyObject *data = NULL;
 long savedBox[4] = { 0 };
@@ -52,17 +53,17 @@ int stop_recognizer(void) {
 int init_recognizer(PyObject *pModule) {
     PyObject *pFunc = PyObject_GetAttrString(pModule, "init_recognizer");
     if (pFunc == NULL)
-        error("Can't fetch method init_recognizer");
+        error2("Can't fetch method init_recognizer");
 
     if (!PyCallable_Check(pFunc))
-        error("init_recognizer not callable");
+        error2("init_recognizer not callable");
 
     PyObject *pArgs = PyTuple_New(0);
     data = PyObject_CallObject(pFunc, pArgs);
     Py_DECREF(pFunc);
     Py_DECREF(pArgs);
     if (data == NULL)
-        error("data null");
+        error2("data null");
 
     return 1;
 }
@@ -70,19 +71,19 @@ int init_recognizer(PyObject *pModule) {
 // TODO: handle only one box for now
 static int getBox(PyObject *boxes) {
     if (!PyList_Check(boxes))
-        error("boxes is not a list");
+        error2("boxes is not a list");
 
     int count = (int) PyList_Size(boxes);
     if (count <= 0)
-        error("number of boxes < 0");
+        error2("number of boxes < 0");
 
     PyObject *box = PyList_GetItem(boxes, 0);
     if (!PyList_Check(box))
-        error("box is not a list");
+        error2("box is not a list");
 
     int countIn = (int) PyList_Size(box);
     if (countIn != 4)
-        error("number of entries in an box is not 4");
+        error2("number of entries in an box is not 4");
 
     for (int j = 0; j < countIn; j++) {
         PyObject *pObj = PyList_GetItem(box, j);
@@ -98,6 +99,8 @@ static int getBox(PyObject *boxes) {
 }
 
 int overlay(char *imageFile, char *outFile) {
+    PyGILState_STATE state = acquirePy();
+
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
         error("Can't load module");
@@ -140,17 +143,19 @@ int overlay(char *imageFile, char *outFile) {
     Py_DECREF(pArgs);
     Py_DECREF(pName);
 
+    releasePy(state);
+
     return 1;
 }
 
-void acquirePy()
+PyGILState_STATE acquirePy()
 {
-    d_gstate = PyGILState_Ensure();
+    return PyGILState_Ensure();
 }
 
-void releasePy()
+void releasePy(PyGILState_STATE state)
 {
-    PyGILState_Release(d_gstate);
+    PyGILState_Release(state);
 }
 
 #endif
@@ -159,6 +164,8 @@ int get_features(char *imagefile, double embedding[static 128]) {
     memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
 
 #ifndef __STUBBED
+    PyGILState_STATE state = acquirePy();
+
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
         error("Can't load module");
@@ -218,6 +225,7 @@ int get_features(char *imagefile, double embedding[static 128]) {
 
     Py_DECREF(pValue);
 
+    releasePy(state);
 #endif /* __STUBBED */
 
     return 0;
@@ -229,6 +237,7 @@ int recognize(double embedding[static 128]) {
 
 #ifndef __STUBBED
     id = -1; 
+    PyGILState_STATE state = acquirePy();
 
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
@@ -269,6 +278,7 @@ int recognize(double embedding[static 128]) {
     printf("recognized %s, ID=%d\n", savedName, id);
     Py_DECREF(pName);
 
+    releasePy(state);
 #endif
 
   return id;

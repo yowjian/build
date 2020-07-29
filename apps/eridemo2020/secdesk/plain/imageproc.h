@@ -23,8 +23,11 @@ int stop_recognizer(void);
 int get_features(char *imagefile, double embedding[static 128]);
 int recognize(double embedding[static 128]);
 int overlay(char *imageFile, char *outFile);
-void acquirePy();
-void releasePy();
+
+#ifndef __STUBBED
+PyGILState_STATE acquirePy();
+void releasePy(PyGILState_STATE state);
+#endif
 
 #endif /* _IMAGEPROC_H_ */
 
