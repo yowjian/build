@@ -44,7 +44,6 @@
 #pragma cle begin PURPLE 
 PyObject *data = NULL;
 #pragma cle end PURPLE 
-
 #endif
 
 #pragma cle begin XDLINKAGE_START_RECOGNIZER

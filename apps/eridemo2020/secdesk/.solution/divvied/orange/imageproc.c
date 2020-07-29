@@ -41,6 +41,7 @@
 #define error2(msg) do { printf("%s\n", msg); PyErr_Print(); return(0); } while (1)
 
 // XXX: why are these global? just so we could use error2 macro?
+#endif
 #pragma cle begin ORANGE 
 long savedBox[4] = { 0 };
 #pragma cle end ORANGE
@@ -49,7 +50,6 @@ long savedBox[4] = { 0 };
 char savedName[32];
 #pragma cle end ORANGE 
 
-#endif
 
 #pragma cle begin ORANGE 
 int start_imageprocessor(void) {

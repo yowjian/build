@@ -7,10 +7,9 @@
 
 // XXX: why are these global? just so we could use error2 macro?
 PyObject *data = NULL;
+#endif
 long savedBox[4] = { 0 };
 char savedName[32];
-
-#endif
 
 int start_imageprocessor(void) {
 #ifndef __STUBBED

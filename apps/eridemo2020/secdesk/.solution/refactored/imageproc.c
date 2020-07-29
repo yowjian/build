@@ -44,6 +44,7 @@
 #pragma cle begin PURPLE 
 PyObject *data = NULL;
 #pragma cle end PURPLE 
+#endif
 #pragma cle begin ORANGE 
 long savedBox[4] = { 0 };
 #pragma cle end ORANGE
@@ -52,7 +53,6 @@ long savedBox[4] = { 0 };
 char savedName[32];
 #pragma cle end ORANGE 
 
-#endif
 
 #pragma cle begin ORANGE 
 int start_imageprocessor(void) {
