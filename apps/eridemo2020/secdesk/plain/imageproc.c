@@ -7,19 +7,19 @@
 PyObject *data = NULL;
 long savedBox[4] = { 0 };
 char savedName[32];
-PyThreadState *state;
-PyInterpreterState *interpreterState;
 PyGILState_STATE d_gstate;
 
 #endif
 
 int start_imageprocessor(void) {
 #ifndef __STUBBED
-    setenv("PYTHONPATH", ".", 1);
-    Py_Initialize();
-    PyEval_InitThreads();
+    if (!Py_IsInitialized()) {
+        setenv("PYTHONPATH", ".", 1);
+        Py_Initialize();
+        PyEval_InitThreads();
 
-    PyEval_ReleaseLock();
+        PyEval_ReleaseLock();
+    }
 #endif
     return 0;
 }
@@ -30,6 +30,15 @@ int stop_imageprocessor(void) {
 
 int start_recognizer(void) { 
    /* XXX: need to call model load here and save to global var */
+#ifndef __STUBBED
+    if (!Py_IsInitialized()) {
+        setenv("PYTHONPATH", ".", 1);
+        Py_Initialize();
+        PyEval_InitThreads();
+
+        PyEval_ReleaseLock();
+    }
+#endif
    return 0;
 }
 
@@ -92,10 +101,6 @@ int overlay(char *imageFile, char *outFile) {
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
         error("Can't load module");
-//
-//    int dataReady = init_recognizer(pModule);
-//    if (!dataReady)
-//        error("data not ready");
 
     PyObject *pFunc = PyObject_GetAttrString(pModule, "overlay");
     Py_DECREF(pModule);
