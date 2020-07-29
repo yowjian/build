@@ -15,24 +15,11 @@ PyGILState_STATE d_gstate;
 
 int start_imageprocessor(void) {
 #ifndef __STUBBED
-    printf("enter start_imageprocessor %d %d\n", getpid(), gettid());
-
     setenv("PYTHONPATH", ".", 1);
     Py_Initialize();
     PyEval_InitThreads();
-//
-//    acquirePy();
-//    releasePy();
 
-    printf("end start_imageprocessor %d %d\n", getpid(), gettid());
-
-//    d_gstate = PyGILState_Ensure();
-
-//    state = PyThreadState_Get();
-//    interpreterState = state->interp;
-//
     PyEval_ReleaseLock();
-//    PyGILState_Release(d_gstate);
 #endif
     return 0;
 }
@@ -105,10 +92,10 @@ int overlay(char *imageFile, char *outFile) {
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
         error("Can't load module");
-
-    int dataReady = init_recognizer(pModule);
-    if (!dataReady)
-        error("data not ready");
+//
+//    int dataReady = init_recognizer(pModule);
+//    if (!dataReady)
+//        error("data not ready");
 
     PyObject *pFunc = PyObject_GetAttrString(pModule, "overlay");
     Py_DECREF(pModule);
@@ -153,28 +140,20 @@ int overlay(char *imageFile, char *outFile) {
 
 void acquirePy()
 {
-//    PyEval_SaveThread();
     d_gstate = PyGILState_Ensure();
 }
 
 void releasePy()
 {
-//    PyEval_SaveThread();
     PyGILState_Release(d_gstate);
 }
 
 #endif
 
 int get_features(char *imagefile, double embedding[static 128]) {
-    printf("enter get_features %d %d\n", getpid(), gettid());
     memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
 
 #ifndef __STUBBED
-//    d_gstate = PyGILState_Ensure();
-
-//    PyThreadState *state = PyThreadState_New(interpreterState);
-//    PyEval_RestoreThread(state);
-
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
     if (pModule == NULL)
         error("Can't load module");
@@ -195,9 +174,7 @@ int get_features(char *imagefile, double embedding[static 128]) {
     PyObject *arg2 = Py_BuildValue("s#", t, strlen(t));
     PyTuple_SetItem(pArgs, 1, arg2);
 
-    printf("enter get_features 1\n");
     PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
-    printf("enter get_features 2\n");
     Py_DECREF(pFunc);
     Py_DECREF(pArgs);
     if (!PyList_Check(pValue))
@@ -235,7 +212,7 @@ int get_features(char *imagefile, double embedding[static 128]) {
     getBox(PyList_GetItem(pValue, 1));
 
     Py_DECREF(pValue);
-printf("exit get_features\n");
+
 #endif /* __STUBBED */
 
     return 0;
