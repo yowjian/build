@@ -46,6 +46,9 @@ PyObject *data = NULL;
 #pragma cle end PURPLE 
 #pragma cle begin ORANGE 
 long savedBox[4] = { 0 };
+#pragma cle end ORANGE
+
+#pragma cle begin ORANGE
 char savedName[32];
 #pragma cle end ORANGE 
 
