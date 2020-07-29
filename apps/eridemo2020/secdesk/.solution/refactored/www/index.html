@@ -1,22 +1,89 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta charset="UTF-8"/>
+<link rel="icon" type="image/png" href="./favicon-16x16.png" />
+</head>
 <body>
 
-<h2>Security Desk</h2>
+<style>
+h1               { font-size: 24px; }
+h5               { font-size: 14px; }
+table            { border-collapse: collapse; table-layout: fixed; }
+tr               { border: solid medium; }
+td               { border: solid thin; }
+input            { font-size: 16px; }
+iframe           { width: 300px; background: yellow; height: 240px; font-size: 32px; font-color: red; }
+.leftcol         { width: 350px; }
+.rightcol        { width: 250px; }
+.hidechooser     { display: none; }
+.piccell         { height: 200px; }
+.submit          { text-align: right; }
+.infobox         { width:  600px; text-align: justify; font-size: 12px}
+</style>
 
-<form action="/check_person" method="post" enctype="multipart/form-data">
-  <label for="fname">First name:</label>
-  <input type="text" id="fname" name="fname" maxLength=20 size=20 value="Firstname">&nbsp;&nbsp;
-  <label for="fname">Middle initial:</label>
-  <input type="text" id="mi" name="mi" maxLength=6 size=6 value="M.I.">&nbsp;&nbsp;
-  <label for="lname">Last name:</label>
-  <input type="text" id="lname" name="lname" maxLength=20 size=20 value="Lastname"><br><br>
-  <label for="imageFile">Choose photograph file to upload:</label>
-  <input type="file" name="imageFile" id="imageFile"><br><br>
+<script>
+function pickFile() {
+  document.getElementById('imageFile').click();
+}
+function previewFile() {
+  const preview = document.querySelector('img');
+  const file    = document.querySelector('input[type=file]').files[0];
+  const reader  = new FileReader();
+  reader.addEventListener("load", function () { preview.src = reader.result; }, false);
+  if (file) { reader.readAsDataURL(file); }
+}
+</script>
 
-  <p>Check your input and then submit.</p>
-  <input type="submit" value="Submit" name="submit">
+<h1>Security Desk</h1>
+<h5>Demonstration at DARPA MTO ERI Summit, August 2020</h5>
+
+<form action="/check_person" method="post" enctype="multipart/form-data" target="outcome">
+  <table>
+      <td class="leftcol"> <label for="fname">First name:</label> </td>
+      <td class="rightcol"> <input type="text" id="fname" name="fname" maxLength=20 size=20 value="Firstname" /> </td>
+    </tr>
+    <tr>
+      <td> <label for="fname">Middle initial:</label> </td>
+      <td> <input type="text" id="mi" name="mi" maxLength=6 size=6 value="M.I." /> </td>
+    </tr>
+    <tr>
+      <td> <label for="lname">Last name:</label> </td>
+      <td> <input type="text" id="lname" name="lname" maxLength=20 size=20 value="Lastname" /> </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="imageFile">Photograph:</label>
+        <input class= "hidechooser" type="file" name="imageFile" id="imageFile" onchange="previewFile()" /> 
+        <input type="button" value="Choose..." onclick="pickFile()" />
+      </td> 
+      <td class="piccell"> <img src="" height="100%" alt="Image preview..." /> </td>
+    </tr>
+    <tr>
+      <td> Check input and click button to submit.</td>
+      <td class="submit"> <input type="submit" value="Submit" name="submit" /> </td>
+    </tr>
+  </table>
 </form> 
+<br />
+<iframe id="outcome" name="outcome" title="Outcome"></iframe> 
+<br />
+<div class="infobox">
+<p>This is a demonstration application of Perspecta Labs' CLOSURE toolchain, developed within 
+the DARPA GAPS program, to facilitate the development and verification of cross-domain systems.</p>
+
+<p>In this toy application, a user provides the name and photograph of a person using a web form. The 
+back-end web application looks up the name in a database to obtain an anonymizing ID, and separately 
+invokes a face recogntion software which classifies the photograph and also provides an anonymizing
+ID. If the two IDs match, the person is permitted access. The back-end is built using the facil.io 
+framework, the database is Sqlite3, and the face recognition is implemented in Python using 
+dlib, face-recognition, opencv, and scikit-learn packages.</p>
+
+<p>In this demonstration, we show how CLOSURE tools can help a developer annotate the code and
+rapidly refactor the application to run portions of the system (e.g., the face recognition subsystem) 
+in a separate security enclave isolated from the main application. The cross-domain data exchange 
+will be mediated by GAPS devices that provide controlled data flow with strong physical isolation.</p>
+</div>
 
 </body>
 </html>

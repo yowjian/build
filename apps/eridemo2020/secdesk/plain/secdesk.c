@@ -86,7 +86,8 @@ static int process_secinput(struct secinput *s, char *overlayImageFile) {
 
 #ifndef __STUBBED
   char tmp2[32] = "overlay_XXXXXX";
-  mktemp(tmp2);
+  close(mkstemp(tmp2));  // returns fd open for writing, so closing
+  remove(tmp2);          // remove temp file, png created with same name in www/tmp separately
   sprintf(overlayImageFile, "%s/%s.png", dir, tmp2);  // .png is necessary for python to find the right writer.
 #endif
 
