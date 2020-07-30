@@ -41,6 +41,11 @@ IPC_MODE=Multithreaded
 INURI="ipc:///tmp/${PROG}sub"
 OUTURI="ipc:///tmp/${PROG}pub"
 
+ifdef FACE
+CFLAGS += -DINC_FACE_RECOGNITION=1
+CLANG_FLAGS += -DINC_FACE_RECOGNITION=1
+endif
+
 ############################################################################
 # Check if required variables are set
 ############################################################################
@@ -136,22 +141,22 @@ $(EDIR)/cleancopy.done:
 ############################################################################
 rpc: $(EDIR)/rpc.done
 
-$(EDIR)/rpc.done: rautogen slibs libs
-	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini -m $(PROG)
-	touch $(EDIR)/rpc.done
+$(EDIR)/rpc.done: rautogen $(AUTOGENDIR)/libcodecs.so $(AUTOGENDIR)/libcodecs.a
+	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini -m $(PROG) \
+	&& touch $(EDIR)/rpc.done
 
 rautogen: $(EDIR)/rautogen.done
 
 $(EDIR)/rautogen.done: idl
-	cd $(AUTOGENDIR) && $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g bw_v1 -d $(PROG)_bw.dfdl -e codec
-	cd $(AUTOGENDIR) && $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g be_v1 -d $(PROG)_be.dfdl -e codec
-	touch $(EDIR)/rautogen.done
+	cd $(AUTOGENDIR) && $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g bw_v1 -d $(PROG)_bw.dfdl -e codec \
+	&& $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g be_v1 -d $(PROG)_be.dfdl -e codec \
+	&& echo $(PWD) && cd $(PWD) && touch $(EDIR)/rautogen.done
 
 idl: $(EDIR)/idl.done
 
 $(EDIR)/idl.done: gedl
-	$(PYTHON) $(IDLGENERATOR) -s $(CLOSURE_SCHEMAS)/gedl-schema.json -g "$(ODIR)/$(PROG).gedl" -o "$(ODIR)/autogen/$(PROG).idl" -i $(IPC_MODE)
-	touch $(EDIR)/idl.done
+	$(PYTHON) $(IDLGENERATOR) -s $(CLOSURE_SCHEMAS)/gedl-schema.json -g "$(ODIR)/$(PROG).gedl" -o "$(ODIR)/autogen/$(PROG).idl" -i $(IPC_MODE) \
+	&& touch $(EDIR)/idl.done
 	
 slibs: $(AUTOGENDIR)/libcodecs.so 
 

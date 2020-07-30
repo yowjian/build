@@ -9,7 +9,6 @@
 PyObject *data = NULL;
 #endif
 long savedBox[4] = { 0 };
-char savedName[32];
 
 int start_imageprocessor(void) {
 #ifndef __STUBBED
@@ -100,7 +99,7 @@ static int getBox(PyObject *boxes) {
 }
 #endif
 
-int overlay(char *imageFile, char *outFile) {
+int overlay(char *imageFile, char *outFile, int id) {
 #ifndef __STUBBED
     PyGILState_STATE state = PyGILState_Ensure();
 
@@ -128,6 +127,8 @@ int overlay(char *imageFile, char *outFile) {
     PyTuple_SetItem(pArgs, 0, boxes);
 
     // arg 2: list of names
+    char savedName[32];
+    sprintf(savedName, "%03d", id);
     PyObject *name = Py_BuildValue("s#", savedName, strlen(savedName));
     PyObject *names = PyList_New(0);
     PyList_Append(names, name);
@@ -266,8 +267,7 @@ int recognize(double embedding[static 128]) {
     char *cstr;
     PyArg_Parse(pName, "s", &cstr);  /* convert to C */
     id = strtol(cstr, NULL, 10);
-    strcpy(savedName, cstr);
-    printf("recognized %s, ID=%d\n", savedName, id);
+    printf("recognized ID=%d\n", id);
     Py_DECREF(pName);
 
     PyGILState_Release(state);

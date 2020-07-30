@@ -19,7 +19,7 @@ int start_imageprocessor(void);
 int stop_imageprocessor(void);
 
 int get_features(char *imagefile, double embedding[static 128]);
-int overlay(char *imageFile, char *outFile);
+int overlay(char *imageFile, char *outFile, int id);
 
 #endif /* _IMAGEPROC_H_ */
 

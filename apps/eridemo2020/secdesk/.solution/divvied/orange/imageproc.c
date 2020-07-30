@@ -107,7 +107,7 @@ static int getBox(PyObject *boxes) {
 #endif
 
 #pragma cle begin ORANGE 
-int overlay(char *imageFile, char *outFile) {
+int overlay(char *imageFile, char *outFile, int id) {
 #pragma cle end ORANGE
 #ifndef __STUBBED
     PyGILState_STATE state = PyGILState_Ensure();
@@ -136,6 +136,8 @@ int overlay(char *imageFile, char *outFile) {
     PyTuple_SetItem(pArgs, 0, boxes);
 
     // arg 2: list of names
+    char savedName[32];
+    sprintf(savedName, "%03d", id);
     PyObject *name = Py_BuildValue("s#", savedName, strlen(savedName));
     PyObject *names = PyList_New(0);
     PyList_Append(names, name);

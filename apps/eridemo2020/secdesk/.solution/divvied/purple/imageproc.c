@@ -136,8 +136,7 @@ int recognize(double embedding[static 128]) {
     char *cstr;
     PyArg_Parse(pName, "s", &cstr);  /* convert to C */
     id = strtol(cstr, NULL, 10);
-    strcpy(savedName, cstr);
-    printf("recognized %s, ID=%d\n", savedName, id);
+    printf("recognized ID=%d\n", id);
     Py_DECREF(pName);
 
     PyGILState_Release(state);

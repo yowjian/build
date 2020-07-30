@@ -117,7 +117,7 @@ static int process_secinput(struct secinput *s, char *overlayImageFile) {
   j = lookup(f,m,l);
   free(f); free(m); free(l);
 
-  overlay(tmpfile, overlayImageFile);
+  overlay(tmpfile, overlayImageFile, i);
 
   int n = strlen(fio_cli_get("-www")) + 1;  // e.g. www/
   int len = strlen(overlayImageFile);
