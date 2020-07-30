@@ -12,11 +12,9 @@
 #define MY_IPC_ADDR_DEFAULT_IN  "ipc:///tmp/halpub1"
 #define MY_IPC_ADDR_DEFAULT_OUT "ipc:///tmp/halsub1"
 
-
 #define ADU_SIZE_MAX_C  2000
 #define MY_DATA_TYP_MAX 200
 #define RX_FILTER_LEN   12
-
 
 /* Closure tag structure */
 typedef struct _tag {

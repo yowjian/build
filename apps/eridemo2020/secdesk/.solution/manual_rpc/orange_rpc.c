@@ -39,7 +39,6 @@ void my_len_decode (size_t *out, uint32_t in) {
   *out = (uint32_t) htonl(in);
 }
 
-
 void my_gaps_data_encode(sdh_ha_v1 *p, size_t *p_len, uint8_t *buff_in, size_t *len_out, gaps_tag *tag, codec_map *cmap) {
   uint32_t typ = tag->typ;
   my_type_check(typ, cmap);
@@ -48,7 +47,6 @@ void my_gaps_data_encode(sdh_ha_v1 *p, size_t *p_len, uint8_t *buff_in, size_t *
   my_len_encode(&(p->data_len), *len_out);
   *p_len = (*len_out) + sizeof(p->tag) + sizeof(p->data_len);
 }
-
 
 /*
  * Decode data from packet
@@ -83,6 +81,7 @@ void my_xdc_blocking_recv(void *socket, void *adu, gaps_tag *tag, codec_map *cma
     size_t adu_len;
     my_gaps_data_decode(p, size, adu, &adu_len, tag, cmap);
 }
+
 void *my_xdc_pub_socket(void *ctx)
 {
     int err;
@@ -102,54 +101,7 @@ void *my_xdc_sub_socket(gaps_tag tag, void *ctx)
     my_tag_encode(&tag4filter, &tag);
     err = zmq_setsockopt(socket, ZMQ_SUBSCRIBE, (void *) &tag4filter, RX_FILTER_LEN);
     assert(err == 0);
-
     return socket;
-}
-
-char *my_xdc_set_in(char *addr) {
-  int do_once = 1;
-  char my_xdc_addr_in[256];
-  if (do_once == 1) {
-    if (strlen(MY_IPC_ADDR_DEFAULT_IN) >= 255) {
-      log_fatal("API IPC_ADDR_DEFAULT_IN too long");
-      exit(1);
-    }
-    strcpy(my_xdc_addr_in, MY_IPC_ADDR_DEFAULT_IN);
-    do_once = 0;
-  }
-  if (addr != NULL) {
-    if (strlen(addr) >= 255) {
-      log_warn("%s: Input too long, not changing", __func__);
-    } else {
-      strcpy(my_xdc_addr_in, addr);
-    }
-  }
-  return NULL; //  my_xdc_addr_in; //XXX: return a local array?
-}
-
-char *my_xdc_set_out(char *addr) {
-  int do_once = 1;
-  char my_xdc_addr_out[256];
-  if (do_once == 1) {
-    if (strlen(MY_IPC_ADDR_DEFAULT_OUT) >= 255) {
-      log_fatal("API IPC_ADDR_DEFAULT_IN too long");
-      exit(1);
-    }
-    strcpy(my_xdc_addr_out, MY_IPC_ADDR_DEFAULT_OUT);
-    do_once = 0;
-    
-    /* TODO - Pass logging requirements in as a parameter */
-    log_set_quiet(0);
-    log_set_level(LOG_INFO);
-  }
-  if (addr != NULL) {
-    if (strlen(addr) >= 255) {
-      log_warn("%s: Output too long, not changing", __func__);
-    } else {
-      strcpy(my_xdc_addr_out, addr);
-    }
-  }
-  return NULL; // my_xdc_addr_out; XXX: Return a local array?
 }
 
 void my_tag_write (gaps_tag *tag, uint32_t mux, uint32_t sec, uint32_t typ) {
@@ -158,23 +110,7 @@ void my_tag_write (gaps_tag *tag, uint32_t mux, uint32_t sec, uint32_t typ) {
   tag->typ = typ;
 }
 
-void _hal_init(char *inuri, char *outuri) {
-    my_xdc_set_in(inuri);
-    my_xdc_set_out(outuri);
-    /*
-    xdc_register(nextrpc_data_encode, nextrpc_data_decode, DATA_TYP_NEXTRPC);
-    xdc_register(okay_data_encode, okay_data_decode, DATA_TYP_OKAY);
-    xdc_register(request_recognize_data_encode, request_recognize_data_decode, DATA_TYP_REQUEST_RECOGNIZE);
-    xdc_register(response_recognize_data_encode, response_recognize_data_decode, DATA_TYP_RESPONSE_RECOGNIZE);
-    xdc_register(request_start_recognizer_data_encode, request_start_recognizer_data_decode, DATA_TYP_REQUEST_START_RECOGNIZER);
-    xdc_register(response_start_recognizer_data_encode, response_start_recognizer_data_decode, DATA_TYP_RESPONSE_START_RECOGNIZER);
-    xdc_register(request_stop_recognizer_data_encode, request_stop_recognizer_data_decode, DATA_TYP_REQUEST_STOP_RECOGNIZER);
-    xdc_register(response_stop_recognizer_data_encode, response_stop_recognizer_data_decode, DATA_TYP_RESPONSE_STOP_RECOGNIZER);
-    */
-}
-
 void _notify_next_tag(gaps_tag* n_tag) {
-    int inited = 0;
     void *psocket;
     void *ssocket;
     gaps_tag t_tag;
@@ -197,23 +133,16 @@ void _notify_next_tag(gaps_tag* n_tag) {
     okay_datatype okay;
     #pragma cle end TAG_OKAY
     my_tag_write(&o_tag, MUX_OKAY, SEC_OKAY, DATA_TYP_OKAY);
-    if (!inited) {
-        inited = 1;
-        // psocket = xdc_pub_socket();
-        // ssocket = xdc_sub_socket(o_tag);
-        // sleep(1); /* zmq socket join delay */
-    }
-        void * ctx = zmq_ctx_new();
-        psocket = my_xdc_pub_socket(ctx);
-        ssocket = my_xdc_sub_socket(o_tag,ctx);
-        sleep(1); /* zmq socket join delay */
+
+    void * ctx = zmq_ctx_new();
+    psocket = my_xdc_pub_socket(ctx);
+    ssocket = my_xdc_sub_socket(o_tag,ctx);
+    sleep(1); /* zmq socket join delay */
 
     nxt.mux = n_tag->mux;
     nxt.sec = n_tag->sec;
     nxt.typ = n_tag->typ;
     my_xdc_asyn_send(psocket, &nxt, &t_tag, mycmap);
-
-    sleep(1);
     my_xdc_blocking_recv(ssocket, &okay, &o_tag, mycmap);
     zmq_close(psocket);
     zmq_close(ssocket);
@@ -222,7 +151,6 @@ void _notify_next_tag(gaps_tag* n_tag) {
 }
 
 int _rpc_recognize(double embedding[]) {
-    int inited = 0;
     void *psocket;
     void *ssocket;
     gaps_tag t_tag;
@@ -246,20 +174,12 @@ int _rpc_recognize(double embedding[]) {
     #pragma cle end TAG_RESPONSE_RECOGNIZE
     my_tag_write(&o_tag, MUX_RESPONSE_RECOGNIZE, SEC_RESPONSE_RECOGNIZE, DATA_TYP_RESPONSE_RECOGNIZE);
     for(int i=0; i<128; i++) req_recognize.embedding[i] = embedding[i];
-    if (!inited) {
-        inited = 1;
-        // psocket = xdc_pub_socket();
-        // ssocket = xdc_sub_socket(o_tag);
-        // sleep(1); /* zmq socket join delay */
-    }
-        void * ctx = zmq_ctx_new();
-        psocket = my_xdc_pub_socket(ctx);
-        ssocket = my_xdc_sub_socket(o_tag,ctx);
-        sleep(1); /* zmq socket join delay */
-
+    void * ctx = zmq_ctx_new();
+    psocket = my_xdc_pub_socket(ctx);
+    ssocket = my_xdc_sub_socket(o_tag,ctx);
+    sleep(1); /* zmq socket join delay */
     my_xdc_asyn_send(psocket, &req_recognize, &t_tag, mycmap);
     my_xdc_blocking_recv(ssocket, &res_recognize, &o_tag, mycmap);
-    sleep(1);
     zmq_close(psocket);
     zmq_close(ssocket);
     zmq_ctx_shutdown(ctx);
@@ -267,7 +187,6 @@ int _rpc_recognize(double embedding[]) {
 }
 
 int _rpc_start_recognizer() {
-    int inited = 0;
     void *psocket;
     void *ssocket;
     gaps_tag t_tag;
@@ -291,21 +210,12 @@ int _rpc_start_recognizer() {
     #pragma cle end TAG_RESPONSE_START_RECOGNIZER
     my_tag_write(&o_tag, MUX_RESPONSE_START_RECOGNIZER, SEC_RESPONSE_START_RECOGNIZER, DATA_TYP_RESPONSE_START_RECOGNIZER);
     req_start_recognizer.dummy = 0;
-    if (!inited) {
-        inited = 1;
-        //psocket = xdc_pub_socket();
-        //ssocket = xdc_sub_socket(o_tag);
-        //sleep(1); /* zmq socket join delay */
-    }
-        void * ctx = zmq_ctx_new();
-        psocket = my_xdc_pub_socket(ctx);
-        ssocket = my_xdc_sub_socket(o_tag,ctx);
-        sleep(1); /* zmq socket join delay */
+    void * ctx = zmq_ctx_new();
+    psocket = my_xdc_pub_socket(ctx);
+    ssocket = my_xdc_sub_socket(o_tag,ctx);
+    sleep(1); /* zmq socket join delay */
 
     my_xdc_asyn_send(psocket, &req_start_recognizer, &t_tag, mycmap);
-
-    sleep(1);
-
     my_xdc_blocking_recv(ssocket, &res_start_recognizer, &o_tag, mycmap);
     zmq_close(psocket);
     zmq_close(ssocket);
@@ -314,7 +224,6 @@ int _rpc_start_recognizer() {
 }
 
 int _rpc_stop_recognizer() {
-    int inited = 0;
     void *psocket;
     void *ssocket;
     gaps_tag t_tag;
@@ -338,17 +247,10 @@ int _rpc_stop_recognizer() {
     #pragma cle end TAG_RESPONSE_STOP_RECOGNIZER
     my_tag_write(&o_tag, MUX_RESPONSE_STOP_RECOGNIZER, SEC_RESPONSE_STOP_RECOGNIZER, DATA_TYP_RESPONSE_STOP_RECOGNIZER);
     req_stop_recognizer.dummy = 0;
-    if (!inited) {
-        inited = 1;
-        //psocket = xdc_pub_socket();
-        //ssocket = xdc_sub_socket(o_tag);
-        //sleep(1); /* zmq socket join delay */
-    }
-
-        void * ctx = zmq_ctx_new();
-        psocket = my_xdc_pub_socket(ctx);
-        ssocket = my_xdc_sub_socket(o_tag,ctx);
-        sleep(1); /* zmq socket join delay */
+    void * ctx = zmq_ctx_new();
+    psocket = my_xdc_pub_socket(ctx);
+    ssocket = my_xdc_sub_socket(o_tag,ctx);
+    sleep(1); /* zmq socket join delay */
 
     my_xdc_asyn_send(psocket, &req_stop_recognizer, &t_tag, mycmap);
     my_xdc_blocking_recv(ssocket, &res_stop_recognizer, &o_tag, mycmap);
@@ -359,6 +261,5 @@ int _rpc_stop_recognizer() {
 }
 
 void _master_rpc_init() {
-    _hal_init((char*)INURI, (char *)OUTURI);
 }
 

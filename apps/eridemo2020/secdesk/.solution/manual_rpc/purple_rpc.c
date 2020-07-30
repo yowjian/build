@@ -81,6 +81,7 @@ void my_xdc_blocking_recv(void *socket, void *adu, gaps_tag *tag, codec_map *cma
     size_t adu_len;
     my_gaps_data_decode(p, size, adu, &adu_len, tag, cmap);
 }
+
 void *my_xdc_pub_socket(void *ctx)
 {
     int err;
@@ -100,54 +101,7 @@ void *my_xdc_sub_socket(gaps_tag tag, void *ctx)
     my_tag_encode(&tag4filter, &tag);
     err = zmq_setsockopt(socket, ZMQ_SUBSCRIBE, (void *) &tag4filter, RX_FILTER_LEN);
     assert(err == 0);
-
     return socket;
-}
-
-char *my_xdc_set_in(char *addr) {
-  int do_once = 1;
-  char my_xdc_addr_in[256];
-  if (do_once == 1) {
-    if (strlen(MY_IPC_ADDR_DEFAULT_IN) >= 255) {
-      log_fatal("API IPC_ADDR_DEFAULT_IN too long");
-      exit(1);
-    }
-    strcpy(my_xdc_addr_in, MY_IPC_ADDR_DEFAULT_IN);
-    do_once = 0;
-  }
-  if (addr != NULL) {
-    if (strlen(addr) >= 255) {
-      log_warn("%s: Input too long, not changing", __func__);
-    } else {
-      strcpy(my_xdc_addr_in, addr);
-    }
-  }
-  return NULL;//my_xdc_addr_in;
-}
-
-char *my_xdc_set_out(char *addr) {
-  int do_once = 1;
-  char my_xdc_addr_out[256];
-  if (do_once == 1) {
-    if (strlen(MY_IPC_ADDR_DEFAULT_OUT) >= 255) {
-      log_fatal("API IPC_ADDR_DEFAULT_IN too long");
-      exit(1);
-    }
-    strcpy(my_xdc_addr_out, MY_IPC_ADDR_DEFAULT_OUT);
-    do_once = 0;
-    
-    /* TODO - Pass //logging requirements in as a parameter */
-    log_set_quiet(0);
-    log_set_level(LOG_INFO);
-  }
-  if (addr != NULL) {
-    if (strlen(addr) >= 255) {
-      log_warn("%s: Output too long, not changing", __func__);
-    } else {
-      strcpy(my_xdc_addr_out, addr);
-    }
-  }
-  return NULL; //my_xdc_addr_out;
 }
 
 void my_tag_write (gaps_tag *tag, uint32_t mux, uint32_t sec, uint32_t typ) {
@@ -156,23 +110,7 @@ void my_tag_write (gaps_tag *tag, uint32_t mux, uint32_t sec, uint32_t typ) {
   tag->typ = typ;
 }
 
-void _hal_init(char *inuri, char *outuri) {
-    my_xdc_set_in(inuri);
-    my_xdc_set_out(outuri);
-    /*
-    xdc_register(nextrpc_data_encode, nextrpc_data_decode, DATA_TYP_NEXTRPC);
-    xdc_register(okay_data_encode, okay_data_decode, DATA_TYP_OKAY);
-    xdc_register(request_recognize_data_encode, request_recognize_data_decode, DATA_TYP_REQUEST_RECOGNIZE);
-    xdc_register(response_recognize_data_encode, response_recognize_data_decode, DATA_TYP_RESPONSE_RECOGNIZE);
-    xdc_register(request_start_recognizer_data_encode, request_start_recognizer_data_decode, DATA_TYP_REQUEST_START_RECOGNIZER);
-    xdc_register(response_start_recognizer_data_encode, response_start_recognizer_data_decode, DATA_TYP_RESPONSE_START_RECOGNIZER);
-    xdc_register(request_stop_recognizer_data_encode, request_stop_recognizer_data_decode, DATA_TYP_REQUEST_STOP_RECOGNIZER);
-    xdc_register(response_stop_recognizer_data_encode, response_stop_recognizer_data_decode, DATA_TYP_RESPONSE_STOP_RECOGNIZER);
-    */
-}
-
 void _handle_nextrpc(gaps_tag* n_tag) {
-    int inited = 0;
     void *psocket;
     void *ssocket;
     gaps_tag t_tag;
@@ -194,33 +132,24 @@ void _handle_nextrpc(gaps_tag* n_tag) {
     okay_datatype okay;
     #pragma cle end TAG_OKAY
     my_tag_write(&t_tag, MUX_NEXTRPC, SEC_NEXTRPC, DATA_TYP_NEXTRPC);
-    if (!inited) {
-        inited = 1;
-        // psocket = xdc_pub_socket();
-        // ssocket = xdc_sub_socket(t_tag);
-        // sleep(1); /* zmq socket join delay */
-    }
-        void * ctx = zmq_ctx_new();
-        psocket = my_xdc_pub_socket(ctx);
-        ssocket = my_xdc_sub_socket(t_tag,ctx);
-        sleep(1); /* zmq socket join delay */
+    void * ctx = zmq_ctx_new();
+    psocket = my_xdc_pub_socket(ctx);
+    ssocket = my_xdc_sub_socket(t_tag,ctx);
+    sleep(1); /* zmq socket join delay */
 
     my_xdc_blocking_recv(ssocket, &nxt, &t_tag, mycmap);
     my_tag_write(&o_tag, MUX_OKAY, SEC_OKAY, DATA_TYP_OKAY);
     okay.x = 0;
     my_xdc_asyn_send(psocket, &okay, &o_tag, mycmap);
-    sleep(1);
     zmq_close(psocket);
     zmq_close(ssocket);
     zmq_ctx_shutdown(ctx);
     n_tag->mux = nxt.mux;
     n_tag->sec = nxt.sec;
     n_tag->typ = nxt.typ;
-
 }
 
 void _handle_request_recognize(gaps_tag* tag) {
-    int inited = 0;
     void *psocket;
     void *ssocket;
     gaps_tag t_tag;
@@ -243,28 +172,19 @@ void _handle_request_recognize(gaps_tag* tag) {
     response_recognize_datatype res_recognize;
     #pragma cle end TAG_RESPONSE_RECOGNIZE
     my_tag_write(&o_tag, MUX_RESPONSE_RECOGNIZE, SEC_RESPONSE_RECOGNIZE, DATA_TYP_RESPONSE_RECOGNIZE);
-    if (!inited) {
-        inited = 1;
-        // psocket = xdc_pub_socket();
-        // ssocket = xdc_sub_socket(t_tag);
-        // sleep(1); /* zmq socket join delay */
-    }
-        void * ctx = zmq_ctx_new();
-        psocket = my_xdc_pub_socket(ctx);
-        ssocket = my_xdc_sub_socket(t_tag,ctx);
-        sleep(1); /* zmq socket join delay */
-
+    void * ctx = zmq_ctx_new();
+    psocket = my_xdc_pub_socket(ctx);
+    ssocket = my_xdc_sub_socket(t_tag,ctx);
+    sleep(1); /* zmq socket join delay */
     my_xdc_blocking_recv(ssocket, &req_recognize, &t_tag, mycmap);
     res_recognize.ret = recognize(req_recognize.embedding);
     my_xdc_asyn_send(psocket, &res_recognize, &o_tag, mycmap);
-    sleep(1);
     zmq_close(psocket);
     zmq_close(ssocket);
     zmq_ctx_shutdown(ctx);
 }
 
 void _handle_request_start_recognizer(gaps_tag* tag) {
-    int inited = 0;
     void *psocket;
     void *ssocket;
     gaps_tag t_tag;
@@ -287,28 +207,20 @@ void _handle_request_start_recognizer(gaps_tag* tag) {
     response_start_recognizer_datatype res_start_recognizer;
     #pragma cle end TAG_RESPONSE_START_RECOGNIZER
     my_tag_write(&o_tag, MUX_RESPONSE_START_RECOGNIZER, SEC_RESPONSE_START_RECOGNIZER, DATA_TYP_RESPONSE_START_RECOGNIZER);
-    if (!inited) {
-        inited = 1;
-        // psocket = xdc_pub_socket();
-        // ssocket = xdc_sub_socket(t_tag);
-        // sleep(1); /* zmq socket join delay */
-    }
-        void * ctx = zmq_ctx_new();
-        psocket = my_xdc_pub_socket(ctx);
-        ssocket = my_xdc_sub_socket(t_tag,ctx);
-        sleep(1); /* zmq socket join delay */
+    void * ctx = zmq_ctx_new();
+    psocket = my_xdc_pub_socket(ctx);
+    ssocket = my_xdc_sub_socket(t_tag,ctx);
+    sleep(1); /* zmq socket join delay */
 
     my_xdc_blocking_recv(ssocket, &req_start_recognizer, &t_tag, mycmap);
     res_start_recognizer.ret = start_recognizer();
     my_xdc_asyn_send(psocket, &res_start_recognizer, &o_tag, mycmap);
-    sleep(1);
     zmq_close(psocket);
     zmq_close(ssocket);
     zmq_ctx_shutdown(ctx);
 }
 
 void _handle_request_stop_recognizer(gaps_tag* tag) {
-    int inited = 0;
     void *psocket;
     void *ssocket;
     gaps_tag t_tag;
@@ -331,21 +243,14 @@ void _handle_request_stop_recognizer(gaps_tag* tag) {
     response_stop_recognizer_datatype res_stop_recognizer;
     #pragma cle end TAG_RESPONSE_STOP_RECOGNIZER
     my_tag_write(&o_tag, MUX_RESPONSE_STOP_RECOGNIZER, SEC_RESPONSE_STOP_RECOGNIZER, DATA_TYP_RESPONSE_STOP_RECOGNIZER);
-    if (!inited) {
-        inited = 1;
-        // psocket = xdc_pub_socket();
-        // ssocket = xdc_sub_socket(t_tag);
-        // sleep(1); /* zmq socket join delay */
-    }
-        void * ctx = zmq_ctx_new();
-        psocket = my_xdc_pub_socket(ctx);
-        ssocket = my_xdc_sub_socket(t_tag,ctx);
-        sleep(1); /* zmq socket join delay */
+    void * ctx = zmq_ctx_new();
+    psocket = my_xdc_pub_socket(ctx);
+    ssocket = my_xdc_sub_socket(t_tag,ctx);
+    sleep(1); /* zmq socket join delay */
 
     my_xdc_blocking_recv(ssocket, &req_stop_recognizer, &t_tag, mycmap);
     res_stop_recognizer.ret = stop_recognizer();
     my_xdc_asyn_send(psocket, &res_stop_recognizer, &o_tag, mycmap);
-    sleep(1);
     zmq_close(psocket);
     zmq_close(ssocket);
     zmq_ctx_shutdown(ctx);
@@ -360,7 +265,6 @@ WRAP(request_stop_recognizer)
 int _slave_rpc_loop() {
     gaps_tag n_tag;
     pthread_t tid[NXDRPC];
-    _hal_init((char *)INURI, (char *)OUTURI);
     pthread_create(&tid[0], NULL, _wrapper_nextrpc, &n_tag);
     pthread_create(&tid[1], NULL, _wrapper_request_recognize, &n_tag);
     pthread_create(&tid[2], NULL, _wrapper_request_start_recognizer, &n_tag);
