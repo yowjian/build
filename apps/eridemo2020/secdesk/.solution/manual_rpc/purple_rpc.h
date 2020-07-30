@@ -4,7 +4,6 @@
 #include "codec.h"
 #include <pthread.h>
 #include <assert.h>
-#include "log.h"
 
 #define INURI "ipc:///tmp/secdesksubpurple"
 #define OUTURI "ipc:///tmp/secdeskpubpurple"
