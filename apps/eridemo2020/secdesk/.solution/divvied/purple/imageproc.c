@@ -90,6 +90,7 @@ int init_recognizer(PyObject *pModule) {
 
     return 1;
 }
+#endif
 
 #pragma cle begin XDLINKAGE_RECOGNIZE
 int recognize(double embedding[static 128]) {
