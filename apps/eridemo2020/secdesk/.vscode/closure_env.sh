@@ -24,6 +24,7 @@ export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
 #export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator.py
 export RPCGENERATOR=~/gaps/build/src/capo/gedl/RPCGenerator_rk.py
 export AUTOGEN=${CLOSURE_SCRIPTS}/autogen.py
+export HALGEN=${CLOSURE_SCRIPTS}/hal_autoconfig.py
 
 LLVM_RELEASE=/usr/local
 export CLANG=${LLVM_RELEASE}/bin/clang-10
