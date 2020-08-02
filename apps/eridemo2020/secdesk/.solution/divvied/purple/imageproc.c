@@ -49,14 +49,12 @@ PyObject *data = NULL;
 #pragma cle begin XDLINKAGE_START_RECOGNIZER
 int start_recognizer(void) { 
 #pragma cle end XDLINKAGE_START_RECOGNIZER
-   /* XXX: need to call model load here and save to global var */
+   /* XXX: ought to call model load here and save to global var */
 #ifndef __STUBBED
     if (!Py_IsInitialized()) {
         setenv("PYTHONPATH", ".", 1);
         Py_Initialize();
         PyEval_InitThreads();
-
-        PyEval_ReleaseLock();
     }
 #endif
    return 0;
@@ -100,6 +98,7 @@ int recognize(double embedding[static 128]) {
 
 #ifndef __STUBBED
     id = -1; 
+    Py_BEGIN_ALLOW_THREADS
     PyGILState_STATE state = PyGILState_Ensure();
 
     PyObject *pModule = PyImport_ImportModule(RECOGNIZER_MODULE);
@@ -141,6 +140,7 @@ int recognize(double embedding[static 128]) {
     Py_DECREF(pName);
 
     PyGILState_Release(state);
+    Py_END_ALLOW_THREADS
 #endif
 
   return id;

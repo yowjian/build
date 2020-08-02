@@ -81,7 +81,7 @@ static int process_secinput(struct secinput *s, char *overlayImageFile) {
   fio_str_info_s tmp = fiobj_obj2cstr(s->filedata);
   char *filename     = fiobj_obj2cstr(s->filename).data;
   #pragma cle begin ORANGE
-  char dir[256], tmpfile[64];
+  char dir[256], tmpfile[512];
   sprintf(dir, "%s/tmp", fio_cli_get("-www"));
   mkdir(dir, 0777);
   sprintf(tmpfile, "%s/secdesk_img_XXXXXX", dir);
@@ -135,8 +135,8 @@ static void on_http_request(http_s *h) {
       || (strcmp(fiobj_obj2cstr(h->method).data,"POST") != 0)
       || (http_parse_body(h) == -1)) { ERRCLN("Invalid request") }
   struct secinput s;
+  char overlayImageFile[512];
   fiobj_each1(h->params, 0, get_fields, &s);
-  char overlayImageFile[128];
   int rsp = process_secinput(&s, overlayImageFile);
   char response[1024];
   sprintf(response, RESPONSE_FORMAT, (rsp ? "ALLOWED!" : "DENIED!"), overlayImageFile);
