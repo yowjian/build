@@ -38,7 +38,7 @@ sample output, and intermediate artifacts, which include:
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}}\
+     "guarddirective": { "operation": "allow"}}\
   ] }
 
 // get_a
@@ -46,7 +46,7 @@ sample output, and intermediate artifacts, which include:
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints": ["ORANGE"], \
      "rettaints": ["TAG_RESPONSE_GET_A"] \
@@ -65,7 +65,7 @@ sample output, and intermediate artifacts, which include:
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}}\
+     "guarddirective": { "operation": "allow"}}\
   ] }
 
 // get_ewma
@@ -73,7 +73,7 @@ sample output, and intermediate artifacts, which include:
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_GET_EWMA"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_GET_EWMA"] }\
@@ -91,7 +91,7 @@ sample output, and intermediate artifacts, which include:
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [["ORANGE"], ["ORANGE"]], \
      "codtaints": [], \
      "rettaints": ["EWMA_SHAREABLE"] } \
@@ -101,7 +101,7 @@ sample output, and intermediate artifacts, which include:
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints": ["ORANGE","EWMA_SHAREABLE"], \
      "rettaints": ["TAG_RESPONSE_GET_EWMA"] } \

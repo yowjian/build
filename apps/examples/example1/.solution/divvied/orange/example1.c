@@ -1,22 +1,25 @@
 #include <stdio.h>
 
+#pragma cle def PURPLE {"level":"purple"}
+
 #pragma cle def ORANGE {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}} \
+     "guarddirective": { "operation": "allow"}}\
   ] }
 
 #pragma cle def XDLINKAGE_GET_A {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
-     "guardhint": { "operation": "allow"}, \
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints": ["ORANGE"], \
      "rettaints": ["TAG_RESPONSE_GET_A"] \
     } \
   ] }
+
 
 #pragma cle begin XDLINKAGE_GET_A 
 double get_a() {
@@ -27,4 +30,7 @@ double get_a() {
   a += 1;
   return a;
 }
+
+
+
 

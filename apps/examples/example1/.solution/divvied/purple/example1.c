@@ -2,12 +2,31 @@
 
 #pragma cle def PURPLE {"level":"purple"}
 
+#pragma cle def ORANGE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "egress", \
+     "guarddirective": { "operation": "allow"}}\
+  ] }
+
+#pragma cle def XDLINKAGE_GET_A {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["ORANGE"], \
+     "rettaints": ["TAG_RESPONSE_GET_A"] \
+    } \
+  ] }
+
 double calc_ewma(double a, double b) {
   const  double alpha = 0.25;
   static double c = 0.0;
   c = alpha * (a + b) + (1 - alpha) * c;
   return c;
 }
+
 
 double get_b() {
 #pragma cle begin PURPLE
@@ -31,8 +50,8 @@ int ewma_main() {
   }
   return 0;
 }
- 
+
 int main(int argc, char **argv) {
-  return ewma_main();
+  return ewma_main(); 
 }
 
