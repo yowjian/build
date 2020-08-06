@@ -7,6 +7,9 @@ application framework (facil.io), calls the Sqlite3 database API, and also
 does face recognition by calling Python from C (invoking opencv, dlib,
 face-recognition, scikit-learn, numpy, and other modules).
 
+## Licenses and Acknowledgements
+Build top-level license applies to CLOSURE code. Third-party code includes SQLite3 (public domain), facil.io (MIT license), dlib (Boost software license), opencv (BSD 3-clause), and Face Recognition (MIT license). We have adopted ideas from [pyimagesearch](https://www.pyimagesearch.com/2018/06/18/face-recognition-with-opencv-python-and-deep-learning/).
+
 ## Directory Structure
 
 * plain:       contains original unannotated application
