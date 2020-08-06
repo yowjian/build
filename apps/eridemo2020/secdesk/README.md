@@ -35,9 +35,13 @@ name and photographic image
 * HAL API:
 * DFDL/DAGR:
 ### Additional packages needed 
+
 ```
 sudo apt install sqlite3 libsqlite3-dev
 sudo -H pip3 install numpy dlib face_recognition opencv-python scikit-learn
+sudo -H pip3 install imutils
+# A number of additional ubuntu pacakges are needed, see dlib documentation
+# XXX: update from emulator VM build process which has all deps
 ```
 
 ## Other Tools
