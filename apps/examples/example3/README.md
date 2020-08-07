@@ -19,6 +19,38 @@
 * EWMA must therefore be computed on ORANGE; EWMA is sharable to PURPLE.
 Calculated EWMA must be available on PURPLE side (for printing there)
 
+## Example 3 CLE Label Definitions
+
+For convenience, the following CLE label definitions are provided for use in example 3. Place after include directives in `annotated/example3.c`
+```
+#pragma cle def PURPLE {"level":"purple"}
+
+#pragma cle def ORANGE {"level":"orange"}
+
+#pragma cle def EWMA_SHAREABLE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "egress", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [["ORANGE"], ["ORANGE"]], \
+     "codtaints": [], \
+     "rettaints": ["EWMA_SHAREABLE"] } \
+ ] }
+
+#pragma cle def XDLINKAGE_GET_EWMA {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["ORANGE","EWMA_SHAREABLE"], \
+     "rettaints": ["TAG_RESPONSE_GET_EWMA"] } \
+  ] }
+```
+
+## Full Solution
+For reference during the independent exercise only, see `.solution` subdirectory for complete working copy of example3 code.
+
 ## Dependencies
 
 * CLE Version:
