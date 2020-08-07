@@ -7,7 +7,7 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
-     "guardhint": {"operation": "allow"}, \
+     "guarddirective": {"operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_RECOGNIZE"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_RECOGNIZE"] \
@@ -18,7 +18,7 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
-     "guardhint": {"operation": "allow"}, \
+     "guarddirective": {"operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_START_RECOGNIZER"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_START_RECOGNIZER"] \
@@ -29,7 +29,7 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
-     "guardhint": {"operation": "allow"}, \
+     "guarddirective": {"operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_STOP_RECOGNIZER"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_STOP_RECOGNIZER"] \

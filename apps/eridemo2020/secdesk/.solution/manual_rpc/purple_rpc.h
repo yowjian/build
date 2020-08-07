@@ -42,35 +42,35 @@ extern int _slave_rpc_loop();
 
 #pragma cle def TAG_NEXTRPC {"level": "purple", \
     "cdf": [{"remotelevel": "purple", "direction": "egress", \
-            "guardhint": {"operation": "allow", "gapstag": [1,1,1]}}]}
+            "guarddirective": {"operation": "allow", "gapstag": [1,1,1]}}]}
 
 #pragma cle def TAG_OKAY {"level": "purple", \
     "cdf": [{"remotelevel": "orange", "direction": "egress", \
-            "guardhint": {"operation": "allow", "gapstag": [2,2,2]}}]}
+            "guarddirective": {"operation": "allow", "gapstag": [2,2,2]}}]}
 
 #pragma cle def TAG_REQUEST_RECOGNIZE {"level": "purple", \
     "cdf": [{"remotelevel": "purple", "direction": "egress", \
-            "guardhint": {"operation": "allow", "gapstag": [1,1,3]}}]}
+            "guarddirective": {"operation": "allow", "gapstag": [1,1,3]}}]}
 
 #pragma cle def TAG_RESPONSE_RECOGNIZE {"level": "purple", \
     "cdf": [{"remotelevel": "orange", "direction": "egress", \
-            "guardhint": {"operation": "allow", "gapstag": [2,2,4]}}]}
+            "guarddirective": {"operation": "allow", "gapstag": [2,2,4]}}]}
 
 #pragma cle def TAG_REQUEST_START_RECOGNIZER {"level": "purple", \
     "cdf": [{"remotelevel": "purple", "direction": "egress", \
-            "guardhint": {"operation": "allow", "gapstag": [1,1,5]}}]}
+            "guarddirective": {"operation": "allow", "gapstag": [1,1,5]}}]}
 
 #pragma cle def TAG_RESPONSE_START_RECOGNIZER {"level": "purple", \
     "cdf": [{"remotelevel": "orange", "direction": "egress", \
-            "guardhint": {"operation": "allow", "gapstag": [2,2,6]}}]}
+            "guarddirective": {"operation": "allow", "gapstag": [2,2,6]}}]}
 
 #pragma cle def TAG_REQUEST_STOP_RECOGNIZER {"level": "purple", \
     "cdf": [{"remotelevel": "purple", "direction": "egress", \
-            "guardhint": {"operation": "allow", "gapstag": [1,1,7]}}]}
+            "guarddirective": {"operation": "allow", "gapstag": [1,1,7]}}]}
 
 #pragma cle def TAG_RESPONSE_STOP_RECOGNIZER {"level": "purple", \
     "cdf": [{"remotelevel": "orange", "direction": "egress", \
-            "guardhint": {"operation": "allow", "gapstag": [2,2,8]}}]}
+            "guarddirective": {"operation": "allow", "gapstag": [2,2,8]}}]}
 
 #define MUX_NEXTRPC APP_BASE + 1
 #define SEC_NEXTRPC APP_BASE + 1
