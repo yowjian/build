@@ -1,7 +1,8 @@
 #include <stdio.h>
 
 #pragma cle def PURPLE {"level":"purple"}
-#pragma cle def XDLINKAGE_GET_EWMA {"level":"purple",\
+
+#pragma cle def XDLINKAGE_GET_EWMA {"level":"purple",	\
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
@@ -56,7 +57,7 @@ int ewma_main() {
 #pragma cle end ORANGE
   for (int i=0; i < 10; i++) {
     x = get_a();
-    ewma = get_ewma(x); // wrapping in RPC will solve conflict
+    ewma = get_ewma(x);
     printf("%f\n", ewma);
   }
   return 0;
@@ -65,6 +66,3 @@ int ewma_main() {
 int main(int argc, char **argv) {
   return ewma_main();
 }
-
-// orange master: main, ewma_main, get_a
-// purple slave:  get_b, calc_ewma, get_ewma
