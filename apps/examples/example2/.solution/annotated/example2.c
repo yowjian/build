@@ -48,6 +48,6 @@ int ewma_main() {
 }
 
 int main() {
-  return ewma_main(argc,argv);
+  return ewma_main();
 }
 
