@@ -1,5 +1,4 @@
 .dependencies
 .packages
 divvied*
-partitioned/multithreaded*
-
+partitioned/
