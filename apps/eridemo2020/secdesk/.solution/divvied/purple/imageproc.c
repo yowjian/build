@@ -94,8 +94,7 @@ int init_recognizer(PyObject *pModule) {
 int recognize(double embedding[static 128]) {
 #pragma cle end XDLINKAGE_RECOGNIZE
     int id = 666; /* When stubbed, always return 666 */
-    memcpy(embedding, embedding, 128 * sizeof (double)); /* Cue for GEDL */
-
+    if (memcmp(embedding,embedding, sizeof(double)*128) == 0) {} /* Cue for GEDL */
 #ifndef __STUBBED
     id = -1; 
     Py_BEGIN_ALLOW_THREADS
