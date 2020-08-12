@@ -141,9 +141,21 @@ $(EDIR)/cleancopy.done:
 ############################################################################
 rpc: $(EDIR)/rpc.done
 
-$(EDIR)/rpc.done: rautogen $(AUTOGENDIR)/libcodecs.so $(AUTOGENDIR)/libcodecs.a
-	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini -m $(PROG) \
-	&& touch $(EDIR)/rpc.done
+$(EDIR)/rpc.done: $(EDIR)/prerpc.done
+	$(foreach enclave,$(ENCLAVES), $(eval ALL_RPCC += $(shell find $(ODIR)/$(enclave) -name *_rpc.c;)))
+	$(foreach enclave,$(ENCLAVES), $(eval ALL_RPCH += $(shell find $(ODIR)/$(enclave) -name *_rpc.h;)))
+	$(foreach p,$(ALL_RPCC), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
+	$(foreach p,$(ALL_RPCH), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
+	$(foreach p,$(ALL_RPCC), mv $(basename $p).mod.c $p;)
+	$(foreach p,$(ALL_RPCH), mv $(basename $p).mod.h $p;) 
+	touch $(EDIR)/rpc.done
+
+# after generating RPC, run preprocessor on rpc files and rename; delete all LLs, but keep JSON
+$(EDIR)/prerpc.done: rautogen $(AUTOGENDIR)/libcodecs.so $(AUTOGENDIR)/libcodecs.a
+	$(foreach enclave,$(ENCLAVES), $(eval ALL_IR += $(shell find $(EDIR)/$(enclave) -name *.ll;)))
+	$(foreach p,$(ALL_IR), rm -f $p;)
+	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini -m $(PROG) && \
+	touch $(EDIR)/prerpc.done
 
 rautogen: $(EDIR)/rautogen.done
 
