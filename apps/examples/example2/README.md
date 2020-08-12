@@ -18,6 +18,33 @@
 * Variable `b` in `get_b()` is in PURPLE and cannot be shared
 * Calculated EWMA must be available on ORANGE side (for printing there)
 
+## Example 2 CLE Label Definitions
+
+For convenience, the following CLE label definitions are provided for use in example 2. Place after include directives in `annotated/example2.c`
+```
+#pragma cle def PURPLE {"level":"purple"}
+
+#pragma cle def XDLINKAGE_GET_EWMA {"level":"purple",\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [["TAG_REQUEST_GET_EWMA"]], \
+     "codtaints": ["PURPLE"], \
+     "rettaints": ["TAG_RESPONSE_GET_EWMA"] }\
+  ] }
+
+#pragma cle def ORANGE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "egress", \
+     "guarddirective": { "operation": "allow"}}\
+  ] }
+```
+
+## Full Solution
+For reference during the independent exercise only, see `.solution` subdirectory for complete working copy of example2 code.
+
 ## Dependencies
 
 * CLE Version:

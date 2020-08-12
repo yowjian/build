@@ -24,7 +24,7 @@ enclave_folders_create := $(foreach enclave,$(ENCLAVES), $(shell mkdir -p $(ODIR
 
 # Tools
 CLANG=$(LLVM9)/bin/clang
-CLANG_FLAGS=-emit-llvm -S -g
+CLANG_FLAGS=-emit-llvm -S -g -fno-builtin
 OPT=$(LLVM9)/bin/opt
 LLVMLINK=$(LLVM9)/bin/llvm-link
 

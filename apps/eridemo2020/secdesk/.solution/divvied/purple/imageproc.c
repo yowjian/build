@@ -7,7 +7,7 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
-     "guardhint": {"operation": "allow"}, \
+     "guarddirective": {"operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_RECOGNIZE"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_RECOGNIZE"] \
@@ -18,7 +18,7 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
-     "guardhint": {"operation": "allow"}, \
+     "guarddirective": {"operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_START_RECOGNIZER"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_START_RECOGNIZER"] \
@@ -29,7 +29,7 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
-     "guardhint": {"operation": "allow"}, \
+     "guarddirective": {"operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_STOP_RECOGNIZER"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_STOP_RECOGNIZER"] \
@@ -94,8 +94,7 @@ int init_recognizer(PyObject *pModule) {
 int recognize(double embedding[static 128]) {
 #pragma cle end XDLINKAGE_RECOGNIZE
     int id = 666; /* When stubbed, always return 666 */
-    memcpy(embedding, embedding, 128 * sizeof (double)); /* Cue for GEDL */
-
+    if (memcmp(embedding,embedding, sizeof(double)*128) == 0) {} /* Cue for GEDL */
 #ifndef __STUBBED
     id = -1; 
     Py_BEGIN_ALLOW_THREADS

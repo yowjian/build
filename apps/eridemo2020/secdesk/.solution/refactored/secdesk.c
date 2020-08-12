@@ -4,7 +4,7 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}}\
+     "guarddirective": { "operation": "allow"}}\
   ] }
 
 static char *RESPONSE_FORMAT= "<!DOCTYPE html><html><body>%s<br><img height=\"200px\" src=\"%s\" id=\"myImage\" /></body></html>";

@@ -4,6 +4,6 @@
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
-     "guardhint": { "operation": "allow"}}\
+     "guarddirective": { "operation": "allow"}}\
   ] }
 

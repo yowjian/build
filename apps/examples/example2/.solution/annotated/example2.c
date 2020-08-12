@@ -47,7 +47,7 @@ int ewma_main() {
   return 0;
 }
 
-int main(int argc, char **argv) {
-  return ewma_main(argc,argv);
+int main() {
+  return ewma_main();
 }
 
