@@ -1,2 +1,2 @@
 all:
-	$(PYTHON) $(DIV) -f topology.json
+	$(PYTHON) $(DIV) -f topology_mod3.json -c ",-v,-x,c,$(DIVINCLUDES),-I./refactored/facilio/include,-DINC_FACE_RECOGNITION"

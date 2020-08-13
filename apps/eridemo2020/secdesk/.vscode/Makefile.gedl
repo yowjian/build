@@ -24,7 +24,7 @@ enclave_folders_create := $(foreach enclave,$(ENCLAVES), $(shell mkdir -p $(ODIR
 
 # Tools
 CLANG=$(LLVM9)/bin/clang
-CLANG_FLAGS=-emit-llvm -S -g -fno-builtin
+CLANG_FLAGS=-emit-llvm -S -g -fno-builtin -DINC_FACE_RECOGNITION
 OPT=$(LLVM9)/bin/opt
 LLVMLINK=$(LLVM9)/bin/llvm-link
 
@@ -115,7 +115,7 @@ compencs: $(EDIR)/compencs.done
 
 # compile to LLVM IR
 $(EDIR)/compencs.done: $(EDIR)/preproc.done
-	$(foreach enclave,$(ENCLAVES), $(foreach p,$(shell find $(EDIR)/$(enclave) -name *.c;), $(CLANG) $(CLANG_FLAGS) $(INCLUDES) -I $(EDIR)/$(enclave)/facilio/include $p -o $(basename $p).ll;))
+	$(foreach enclave,$(ENCLAVES), $(foreach p,$(shell find $(EDIR)/$(enclave) -name *.c;), $(CLANG) $(CLANG_FLAGS) $(INCLUDES) -x c -I $(EDIR)/$(enclave)/facilio/include $p -o $(basename $p).ll;))
 	touch $(EDIR)/compencs.done
 
 preproc: $(EDIR)/preproc.done

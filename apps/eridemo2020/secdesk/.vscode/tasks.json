@@ -8,7 +8,24 @@
         "args": [],
         "group": "build",
         "problemMatcher": []
-      },     
+      },
+      {
+        "label": "9a DIVIDE",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.divvied",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "9b AUTOGEN GEDL, RPCs, IDL, Codecs",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; mkdir -p partitioned; cp -r ../../../src/capo/gedl/heuristics ./partitioned; make -f .vscode/Makefile.gedl rpc;",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+
       {
         "label": "9f EMULATE",
         "type": "shell",

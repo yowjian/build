@@ -19,7 +19,16 @@ export PREPROCESSOR=${CLOSURE_SCRIPTS}/qd_cle_preprocessor.py
 export PARTITIONER=${CLOSURE_SCRIPTS}/partitioner.py
 export TAGPROC=${CLOSURE_SCRIPTS}/tag_processor.py
 export CUTZOOM=${CLOSURE_SCRIPTS}/cutzoom.py
-export DIV=${CLOSURE_SCRIPTS}/program_divider.py
+#export DIV=${CLOSURE_SCRIPTS}/program_divider.py
+export DIV=/home/tezrol/work/capo/divider/program_divider.py
+DIVINCLUDES=-I/usr/lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9,
+DIVINCLUDES+=-I/usr/lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9,
+DIVINCLUDES+=-I/usr/lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward,
+DIVINCLUDES+=-I/usr/local/include,
+DIVINCLUDES+=-I/usr/local/lib/clang/10.0.1/include,
+DIVINCLUDES+=-I/usr/include
+export DIVINCLUDES
+
 export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
 #export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator.py
 export RPCGENERATOR=~/gaps/build/src/capo/gedl/RPCGenerator_rk.py
