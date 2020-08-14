@@ -3,9 +3,11 @@ MYLIB=-lsqlite3 -lpthread -lssl -lm ../autogen/libcodecs.a -lzmq
 APPSRC=$(wildcard *.c)
 APPOBJ=$(patsubst %.c, %.o, $(APPSRC)) 
 APPEXE=secdesk
+APPLL=$(patsubst %.c, %.ll, $(APPSRC))
 
 FACILSRC=$(wildcard facilio/src/*.c)
 FACILOBJ=$(patsubst %.c, %.o, $(FACILSRC)) 
+FACILLL=$(patsubst %c, %.ll, $(FACILSRC))
 FACILINCL=-I facilio/include
 FACILLIB=facilio/facilio.a
 
@@ -23,10 +25,10 @@ $(FACILLIB): $(FACILOBJ)
 	ar -crs $@ $^
 
 clean:
-	rm -f $(APPEXE) $(APPOBJ)
+	rm -f $(APPEXE) $(APPOBJ) $(APPLL)
 
 realclean:
-	rm -f $(APPEXE) $(APPOBJ) $(FACILOBJ) $(FACILLIB) 
+	rm -f $(APPEXE) $(APPOBJ) $(FACILOBJ) $(FACILLIB) $(APPLL) $(FACILL)
 
 .SECONDARY:
 

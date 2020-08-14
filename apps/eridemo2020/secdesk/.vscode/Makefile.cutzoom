@@ -1,5 +1,6 @@
 ODIR=./partitioned/$(IPCMODE)
-ALL_LL = $(wildcard $(PROG)/*.mod.ll)
+ALL_LL=$(wildcard $(PROG)/*.ll)
+#ALL_LL+=$(wildcard $(PROG)/facilio/src/*.ll)
 
 dot: $(PROG)_all.mod.bc
 	$(OPT_DBG) -load $(LIBPDG) -dot-pdg $(PROG)/$^
