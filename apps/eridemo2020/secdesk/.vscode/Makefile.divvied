@@ -1,2 +1,7 @@
+#DIVINCLUDES=-I/usr/lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9,
+#DIVINCLUDES+=-I/usr/lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9,
+#DIVINCLUDES+=-I/usr/lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward,
+DIVINCLUDES=-I/usr/local/include,-I/usr/local/lib/clang/10.0.1/include,-I/usr/include
+
 all:
-	$(PYTHON) $(DIV) -f topology_mod3.json -c ",-v,-x,c,$(DIVINCLUDES),-I./refactored/facilio/include,-DINC_FACE_RECOGNITION"
+	$(PYTHON) $(DIV) -f topology.json -c ",-v,-x,c,$(DIVINCLUDES),-I./refactored/facilio/include,-DINC_FACE_RECOGNITION"

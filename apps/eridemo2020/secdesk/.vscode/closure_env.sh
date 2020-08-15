@@ -3,6 +3,7 @@ export PROG=$(eval basename `pwd`)
 export PYTHON=/usr/bin/python3
 
 CLOSURE_TOOLS=/opt/closure
+CLOSURE_SRC=~/gaps/build/src
 export CLOSURE_BINS=${CLOSURE_TOOLS}/bin
 export CLOSURE_INCLUDES=${CLOSURE_TOOLS}/include
 export CLOSURE_LIBS=${CLOSURE_TOOLS}/lib
@@ -20,18 +21,11 @@ export PARTITIONER=${CLOSURE_SCRIPTS}/partitioner.py
 export TAGPROC=${CLOSURE_SCRIPTS}/tag_processor.py
 export CUTZOOM=${CLOSURE_SCRIPTS}/cutzoom.py
 #export DIV=${CLOSURE_SCRIPTS}/program_divider.py
-export DIV=/home/tezrol/work/capo/divider/program_divider.py
-DIVINCLUDES=-I/usr/lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9,
-DIVINCLUDES+=-I/usr/lib/gcc/x86_64-linux-gnu/9/../../../../include/x86_64-linux-gnu/c++/9,
-DIVINCLUDES+=-I/usr/lib/gcc/x86_64-linux-gnu/9/../../../../include/c++/9/backward,
-DIVINCLUDES+=-I/usr/local/include,
-DIVINCLUDES+=-I/usr/local/lib/clang/10.0.1/include,
-DIVINCLUDES+=-I/usr/include
-export DIVINCLUDES
+export DIV=${CLOSURE_SRC}/capo/divider/program_divider.py
 
 export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
 #export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator.py
-export RPCGENERATOR=~/gaps/build/src/capo/gedl/RPCGenerator_rk.py
+export RPCGENERATOR=${CLOSURE_SRC}/capo/gedl/RPCGenerator_rk.py
 export AUTOGEN=${CLOSURE_SCRIPTS}/autogen.py
 export HALGEN=${CLOSURE_SCRIPTS}/hal_autoconfig.py
 
