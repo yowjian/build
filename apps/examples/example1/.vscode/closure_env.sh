@@ -10,6 +10,7 @@ export CLOSURE_SCRIPTS=${CLOSURE_TOOLS}/scripts
 export CLOSURE_SCHEMAS=${CLOSURE_TOOLS}/schemas
 
 export OPT_DBG=${CLOSURE_BINS}/opt-debug
+export OPT_NODBG=/usr/local/bin/opt
 export VERIFIER=${CLOSURE_BINS}/verifier
 
 export LIBPDG=${CLOSURE_LIBS}/libpdg.so

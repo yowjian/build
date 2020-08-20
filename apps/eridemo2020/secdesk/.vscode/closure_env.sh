@@ -11,17 +11,17 @@ export CLOSURE_SCRIPTS=${CLOSURE_TOOLS}/scripts
 export CLOSURE_SCHEMAS=${CLOSURE_TOOLS}/schemas
 
 export OPT_DBG=${CLOSURE_BINS}/opt-debug
+export OPT_NODBG=/usr/local/bin/opt
 export VERIFIER=${CLOSURE_BINS}/verifier
-
-export LIBPDG=${CLOSURE_LIBS}/libpdg.so
-export LIBGEDL=${CLOSURE_LIBS}/libgedl.so
 
 export PREPROCESSOR=${CLOSURE_SCRIPTS}/qd_cle_preprocessor.py
 export PARTITIONER=${CLOSURE_SCRIPTS}/partitioner.py
 export TAGPROC=${CLOSURE_SCRIPTS}/tag_processor.py
 export CUTZOOM=${CLOSURE_SCRIPTS}/cutzoom.py
-#export DIV=${CLOSURE_SCRIPTS}/program_divider.py
-export DIV=${CLOSURE_SRC}/capo/divider/program_divider.py
+export DIV=${CLOSURE_SCRIPTS}/program_divider.py
+
+export LIBPDG=${CLOSURE_LIBS}/libpdg.so
+export LIBGEDL=${CLOSURE_LIBS}/libgedl.so
 
 export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
 #export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator.py

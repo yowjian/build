@@ -67,7 +67,7 @@
       {
         "label": "9b AUTOGEN GEDL, RPCs, IDL, Codecs",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; mkdir -p partitioned; cp -r ../../../src/capo/gedl/heuristics ./partitioned; make -f .vscode/Makefile.gedl rpc;",
+        "command": "source .vscode/closure_env.sh; mkdir -p partitioned; cp -r /opt/closure/heuristics ./partitioned; make -f .vscode/Makefile.gedl rpc;",
         "args": [],
         "group": "build",
         "problemMatcher": []

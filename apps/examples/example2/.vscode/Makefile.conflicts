@@ -9,7 +9,7 @@ enclaves: pdgragh.main.dot
 	$(PYTHON) $(PARTITIONER) $(PROG).$(EXT)
 
 dot: $(PROG).mod.ll
-	$(OPT_DBG) -load $(LIBPDG) -dot-pdg $<
+	$(OPT_NODBG) -load $(LIBPDG) -dot-pdg $<
 
 %.mod.c: %.c
 	$(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $<

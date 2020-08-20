@@ -2,7 +2,7 @@ ODIR=./partitioned/$(IPCMODE)
 ALL_LL = $(wildcard $(PROG)/*.mod.ll)
 
 dot: $(PROG)_all.mod.bc
-	$(OPT_DBG) -load $(LIBPDG) -dot-pdg $(PROG)/$^
+	$(OPT_NODBG) -load $(LIBPDG) -dot-pdg $(PROG)/$^
 	mv pdgragh.main.dot $(PROG)_all.pdgragh.main.dot
 	mv *.dot $(PROG)
 	$(LLVMDIS) -o $(PROG)/$(PROG)_all.mod.ll $(PROG)/$^
