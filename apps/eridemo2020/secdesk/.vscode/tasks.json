@@ -28,7 +28,7 @@
       {
         "label": "2 ANALYZE PARTITION CONFLICTS",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts dot && make -f .vscode/Makefile.conflicts enclaves && mkdir -p ./refactored  && make -f .vscode/Makefile.conflicts clean && cp -r ./annotated/* ./refactlsored",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts dot && make -f .vscode/Makefile.conflicts enclaves && mkdir -p ./refactored  && make -f .vscode/Makefile.conflicts clean && cp -r ./annotated/* ./refactored",
         "args": [],
         "group": {
           "kind": "build",

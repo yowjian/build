@@ -22,17 +22,12 @@ ENCLAVES=
 enclaves_set := $(foreach enclave,$(sort $(dir $(wildcard $(IDIR)//*/))), $(eval ENCLAVES+=$(notdir $(enclave:%/=%))))
 enclave_folders_create := $(foreach enclave,$(ENCLAVES), $(shell mkdir -p $(ODIR)/$(enclave)))
 
-# Tools
-CLANG=$(LLVM9)/bin/clang
-#CLANG_FLAGS=-emit-llvm -S -g -fno-builtin -DINC_FACE_RECOGNITION
 CLANG_FLAGS=-emit-llvm -S -g -fno-builtin
-OPT=$(LLVM9)/bin/opt
-#OPT=$(OPT_DBG)
-LLVMLINK=$(LLVM9)/bin/llvm-link
 
 # Build arguments
-LLVM_INCLUDE=$(LLVM9)/lib/clang/9.0.1/include
-#LLVM_INCLUDE=$(LLVM10)/lib/clang/10.0.1/include
+LLVM_INCLUDE=$(LLVM10)/lib/clang/10.0.1/include
+FACE=1
+
 CFLAGS = -O2 -Wall -Wstrict-prototypes
 LIB_OBJ= $(AUTOGENDIR)/float754.o $(AUTOGENDIR)/codec.o 
 INCLUDES=-I$(LLVM_INCLUDE) -I$(CLOSURE_INCLUDES) -I../autogen 
@@ -59,7 +54,7 @@ __check_defined = \
     $(if $(value $1),, \
       $(error Undefined $1$(if $2, ($2))))
 
-$(call check_defined, OPT,  llvm opt tool)
+$(call check_defined, OPT_DBG,  llvm opt tool)
 $(call check_defined, CLANG,  clang compiler)
 $(call check_defined, LLVMLINK,  llvm linker)
 $(call check_defined, PYTHON, python exceutable)
@@ -98,7 +93,7 @@ $(call check_defined, OUTURI, zmq outuri for hal configuration)
 gedl: $(ODIR)/$(PROG).gedl
 
 $(ODIR)/$(PROG).gedl: $(ODIR)/gedl.ll
-	cd $(ODIR) && $(OPT) -disable-output -load $(LIBGEDL) -accinfo-track -d 1 -prog $(PROG) -he ./heuristics < gedl.ll
+	cd $(ODIR) && $(OPT_DBG) -disable-output -load $(LIBGEDL) -accinfo-track -d 1 -prog $(PROG) -he ./heuristics < gedl.ll
 
 gedlir: $(ODIR)/gedl.ll
 
@@ -111,7 +106,7 @@ perencll: $(EDIR)/perencll.done
 # create combined LL for each enclave, and do an opt pass to determine functions imported/exported by each enclave
 $(EDIR)/perencll.done: $(EDIR)/compencs.done
 	$(foreach enclave,$(ENCLAVES), $(LLVMLINK) $(shell find $(EDIR)/$(enclave) -name *.ll;) -S -o $(EDIR)/$(enclave)/$(enclave).ll;)
-	$(foreach enclave,$(ENCLAVES), $(OPT) -disable-output -load $(LIBGEDL) -llvm-test -prefix $(ODIR)/$(enclave)/ < $(EDIR)/$(enclave)/$(enclave).ll;)
+	$(foreach enclave,$(ENCLAVES), $(OPT_DBG) -disable-output -load $(LIBGEDL) -llvm-test -prefix $(ODIR)/$(enclave)/ < $(EDIR)/$(enclave)/$(enclave).ll;)
 	touch $(EDIR)/perencll.done
 
 compencs: $(EDIR)/compencs.done
