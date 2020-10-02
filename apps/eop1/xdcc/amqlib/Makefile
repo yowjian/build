@@ -1,26 +1,31 @@
 INCLUDE = -I ./include
 INCLUDE += -I/usr/local/include/activemq-cpp-3.9.5
 INCLUDE += -I/usr/local/apr/include/apr-1
-CXXFLAGS += -g $(INCLUDE) $(LDFLAGS) -Wno-deprecated-declarations
 LDFLAGS += -lactivemq-cpp -lpthread
+CXXFLAGS += -g $(INCLUDE) $(LDFLAGS) -fPIC -Wno-deprecated-declarations
 CXX=g++
 
-LIB_OBJ = amqlib.o
-LIB_LIB = amqlib.a
-EXE_OBJ = test.o
-EXEC    = test
+EXE_OBJ  = test.o
+EXEC     = test
+
+LIB_OBJ  = amqlib.o
+LIB_LIB  = libamqlib.a
+LIB_SLIB = libamqlib.so
 
 default: all
 
 all: $(EXEC)
 
-lib: $(LIB_LIB)
+lib: $(LIB_LIB) $(LIB_SLIB)
 
-$(EXEC): $(EXE_OBJ) $(LIB_LIB) 
-	$(CXX) -o $@ $^ $(CXXFLAGS)
+$(EXEC): $(EXE_OBJ) lib
+	$(CXX) -o $@ $< $(CXXFLAGS) -L . -lamqlib
 
 $(LIB_LIB): $(LIB_OBJ)
 	ar -cvq $@ $^
+
+$(LIB_SLIB): $(LIB_OBJ)
+	$(CXX) -shared -o $@ $^ $(CXXFLAGS) 
 
 .PHONY : force-rebuild
 
@@ -34,4 +39,4 @@ clean:
 	-rm -f *.o *~ $(EXEC)
 
 libclean: clean
-	-rm -f $(LIB_LIB) 
+	-rm -f $(LIB_LIB) $(LIB_SLIB) 
