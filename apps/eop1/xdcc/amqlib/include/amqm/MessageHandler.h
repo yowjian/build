@@ -52,8 +52,6 @@ namespace amqm {
                 std::string name;
 		function< void(json j) > callback;
 
-                ofstream myfile;
-
 	public:
 
 		MessageHandler(const std::string& brokerURI,
@@ -71,8 +69,6 @@ namespace amqm {
 			this->clientAck = clientAck;
 			this->callback = callback;
                         this->name = name;
-
-                        myfile.open(name + ".csv");
 		}
 
 		virtual ~MessageHandler() {
@@ -146,22 +142,7 @@ namespace amqm {
 				if (clientAck) {
 					message->acknowledge();
 				}
-            const Destination *dst = message->getCMSDestination();
-            Destination::DestinationType dstType = dst->getDestinationType();
-            string dst_name = " error ";
-            if (dstType == Destination::TOPIC) {
-               const Topic *topic = dynamic_cast<const Topic *>(dst);
-               dst_name = topic->getTopicName();
-            }
-            else if (dstType == Destination::QUEUE) {
-               const Queue  *queue = dynamic_cast<const Queue *>(dst);
-               dst_name = queue->getQueueName();
-            }
-            myfile << message->getCMSCorrelationID() << ", "
-                   << name << ", "
-                   << dst_name << ","
-                   << text << endl;
-                                
+
 				json j = json::parse(text);
 				callback(j);
 			}
