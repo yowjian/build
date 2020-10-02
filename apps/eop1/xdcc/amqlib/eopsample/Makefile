@@ -1,4 +1,4 @@
-INCLUDE = -I ./include
+INCLUDE = -I ../include
 INCLUDE += -I/usr/local/include/activemq-cpp-3.9.5
 INCLUDE += -I/usr/local/apr/include/apr-1
 CXXFLAGS += -g $(INCLUDE) $(LDFLAGS) -Wno-deprecated-declarations
