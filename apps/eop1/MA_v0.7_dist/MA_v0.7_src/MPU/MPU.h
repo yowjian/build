@@ -7,7 +7,7 @@
 #else
 # include <unistd.h>
 #endif
-#include "Store.h";
+#include "Store.h"
 #include <missions/MissionPlan.h>
 #include <Utils.h>
 #include <fstream>

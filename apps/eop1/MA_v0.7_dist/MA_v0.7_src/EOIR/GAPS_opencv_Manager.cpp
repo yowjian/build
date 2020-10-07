@@ -8,9 +8,10 @@
 #include <math.h>
 #include <fstream>
 #include <sstream>
-#include<iostream>
+#include <iostream>
 #include <exception>
-#include<conio.h>
+// This is DOS API
+//#include <conio.h>
 #include <vector>
 #include <unordered_map>
 
@@ -93,8 +94,8 @@ std::map<std::string, GAPS_opencv_Return> run_GAPS_Video_Anaylsis()
      {
           capVideo.open("walking.avi");
      }
-     catch (_exception& ex) {
-          std::cout << ex.name << std::endl;
+     catch (exception& ex) {
+        std::cout << ex.what() << std::endl;
      }
      if (!capVideo.isOpened()) {
           std::cout << "error reading video file" << std::endl << std::endl;

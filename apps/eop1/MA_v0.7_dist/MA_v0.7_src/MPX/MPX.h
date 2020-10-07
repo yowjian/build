@@ -11,7 +11,7 @@
 #include <missions/MissionPlan.h>
 #include <nlohmann/json.hpp>
 #include "Utils.h"
-#include <thread>;
+#include <thread>
 #include <iostream>
 #include <time.h>
 #include <chrono>

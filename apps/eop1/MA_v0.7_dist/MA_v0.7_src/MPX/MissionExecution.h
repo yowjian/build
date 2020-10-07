@@ -6,10 +6,10 @@
 #else
 # include <unistd.h>
 #endif
-#include "Store.h";
-#include "tsl\ordered_hash.h"
-#include "missions\ProgressMatric.h"
-#include "missions\Mission.h"
+#include "Store.h"
+#include "tsl/ordered_hash.h"
+#include "missions/ProgressMatric.h"
+#include "missions/Mission.h"
 
 using namespace uas;
 class MissionExecution

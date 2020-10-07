@@ -12,7 +12,8 @@
 #include <iostream>
 #include <math.h>
 #include <string>
-#include <synchapi.h>
+// This is WIN32 API
+//#include <synchapi.h>
 #include <thread>
 #include <missions/CommonUAS.h>
 

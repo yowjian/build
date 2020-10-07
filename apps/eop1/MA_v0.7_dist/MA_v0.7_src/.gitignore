@@ -1,0 +1,20 @@
+# Ignore generated files
+*.o
+*.pyc
+VERSION
+build/
+a.out
+*~
+*.log
+*.pyc
+EOIR/eoir
+ISRM/isrm
+MPX/mpx
+MPU/mpu
+RDR/rdr
+
+
+# Ignore key files
+*.request
+*.priv
+*.ndncert

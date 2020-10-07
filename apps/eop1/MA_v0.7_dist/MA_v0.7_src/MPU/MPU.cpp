@@ -1,6 +1,6 @@
 #include "MPU.h"
 #include <iostream>
-#include <heartbeat/Heartbeat.h>
+#include <heartbeat/HeartBeat.h>
 using namespace std;
 
 

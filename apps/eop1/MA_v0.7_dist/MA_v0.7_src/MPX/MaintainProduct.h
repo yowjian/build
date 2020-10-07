@@ -6,9 +6,9 @@
 #else
 # include <unistd.h>
 #endif
-#include "Store.h";
-#include "missions\Mission.h"
-#include "missions\Product.h"
+#include "Store.h"
+#include "missions/Mission.h"
+#include "missions/Product.h"
 
 
 using namespace uas;

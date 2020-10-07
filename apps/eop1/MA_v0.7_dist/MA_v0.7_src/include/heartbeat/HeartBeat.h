@@ -35,7 +35,9 @@ public:
           amq.listen("component_heartbeats", std::bind(&HeartBeat::updateHeartBeat, this, placeholders::_1), true);
           while(all_subs_rdy == false)
           {
-               Sleep(1000);
+// This is WIN32 API
+//               Sleep(1000);
+              sleep(1);
           }
           
 
