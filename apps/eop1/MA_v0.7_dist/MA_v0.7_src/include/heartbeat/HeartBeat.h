@@ -19,7 +19,8 @@ class HeartBeat
 public:
      HeartBeat(std::string subSystem_Name)
      {
-          MPU_rdy, MPX_rdy, EOIR_rdy, RDR_rdy, ISRM_rdy, all_subs_rdy = false;
+          // tchen - init to avoid warnings
+          MPU_rdy = MPX_rdy = EOIR_rdy = RDR_rdy = ISRM_rdy = all_subs_rdy = false;
           component_Name = subSystem_Name;
      }
 
@@ -63,6 +64,7 @@ public:
           {
                broadcast_Startup();
                amq.listen("component_heartbeats", std::bind(&HeartBeat::updateHeartBeat, this, placeholders::_1), true);
+               usleep(100000); // tchen - the doc said the interval is 100ms
           }
           //clean-up listener thread
           amq.stopListening("component_heartbeats");

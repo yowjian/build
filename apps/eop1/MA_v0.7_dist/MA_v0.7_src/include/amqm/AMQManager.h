@@ -5,7 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <functional>
 #include <unordered_map>
-#include <thread>;
+#include <thread>
 using namespace std;
 using json = nlohmann::json;
 namespace amqm {
