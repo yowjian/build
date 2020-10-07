@@ -10,8 +10,8 @@ typedef void (*amqlib_fptr_t)(const char *s);
 
 amqlib_t *amqlib_create();
 void     amqlib_destroy(amqlib_t *m);
-void     amqlib_publish(amqlib_t *m, char *dst, char *msg, int isTopic);
-void     amqlib_listen (amqlib_t *m, char *dst, amqlib_fptr_t f, int isTopic);
+void     amqlib_publish(amqlib_t *m, const char *dst, const char *msg, int isTopic);
+void     amqlib_listen (amqlib_t *m, const char *dst, amqlib_fptr_t f, int isTopic);
 
 #ifdef __cplusplus
 }

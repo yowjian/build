@@ -39,7 +39,7 @@ void amqlib_destroy(amqlib_t *m) {
     free(m);
 }
 
-void amqlib_publish(amqlib_t *m, char *dst, char *msg, int isTopic){
+void amqlib_publish(amqlib_t *m, const char *dst, const char *msg, int isTopic){
     if (m == NULL) return;
     AMQManager *obj = static_cast<AMQManager *>(m->obj);
     string t = string(dst);
@@ -48,7 +48,7 @@ void amqlib_publish(amqlib_t *m, char *dst, char *msg, int isTopic){
     obj->publish(t, j, isTopic==0?false:true);
 }
 
-void amqlib_listen (amqlib_t *m, char *dst, amqlib_fptr_t f, int isTopic) {
+void amqlib_listen (amqlib_t *m, const char *dst, amqlib_fptr_t f, int isTopic) {
     if (m == NULL) return;
     AMQManager *obj       = static_cast<AMQManager *>(m->obj);
     std::list<FPC *> *fpl = static_cast<std::list<FPC *> *>(m->fpl);
