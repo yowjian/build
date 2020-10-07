@@ -1,0 +1,46 @@
+{
+    "missionPlan": {
+        "missionPlanId": "id",
+        "vehiclePlan": {
+            "vehiclePlanId": "id",
+            "numberOfWayPoints": 3,
+            "wayPoints": [
+				{
+                    "wayPointId": "wp0",
+                    "x": 0.1,
+                    "y": 0.1,
+                    "z": 0.1
+                },
+                {
+                    "wayPointId": "wp1",
+                    "x": 0.2,
+                    "y": 0.2,
+                    "z": 0.2
+                },
+                {
+                    "wayPointId": "wp2",
+                    "x": 0.3,
+                    "y": 0.3,
+                    "z": 0.3
+                }
+            ]
+        },
+        "sensorPlan": {
+            "sensorPlanId": "id",
+            "vehiclePlanId": "id",
+            "numberOfSensorWayPoints": 1,
+            "actions": [
+                {
+                    "actionId": "ac1",
+                    "wayPointId": "wp1",
+                    "actionType": "find"
+                },
+                {
+                    "actionId": "ac2",
+                    "wayPointId": "wp2",
+                    "actionType": "fix"
+                }
+            ]
+        }
+    }
+}

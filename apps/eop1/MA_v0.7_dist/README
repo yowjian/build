@@ -1,0 +1,6 @@
+The following directories in the original NGC code are not checked in:
+MA_v0.7_images
+MA_v0.7_src/build
+MA_v0.7_src/gaps.ma.dependencies
+MA_v0.7_src/EOIR/x64
+MA_v0.7_src/EOIR/yolov3.weights
