@@ -17,7 +17,6 @@ egress_MSG(m)
      echo_MSG(m) 
 
 master_thread_MSG()
-  setup_xdc_publisher_MSG()             // pubsocket
   setup_amq_listener_MSG(egress_MSG)    // amqlib_create, amqlib_listen
 
 main:
