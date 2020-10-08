@@ -63,27 +63,34 @@ void echo_pnt(const char *s) {
 
 /* XXX: Some echo_ functions will be moved to remote enclave, and corresponding _rpc_echo_ functions created and called below */
 void egress_component_heartbeats(const char *s) {
+  if(_local_component_heartbeats) return;
   /* XXX: Need to extract arguments from stringified JSON  and invoke echo with those */
   /* varargs2jsonstr */
-  if(!_local_component_heartbeats) echo_component_heartbeats(s);
+  echo_component_heartbeats(s);
 }
 void egress_updateMissionPlan(const char *s) {
-  if(!_local_updateMissionPlan) echo_updateMissionPlan(s);
+  if(_local_updateMissionPlan) return;
+  echo_updateMissionPlan(s);
 }
 void egress_updateNewTasking(const char *s) {
-  if(!_local_updateNewTasking) echo_updateNewTasking(s);
+  if(_local_updateNewTasking) return;
+  echo_updateNewTasking(s);
 }
 void egress_requestISRMDetections(const char *s) {
-  if(!_local_requestISRMDetections) echo_requestISRMDetections(s);
+  if(_local_requestISRMDetections) return;
+  echo_requestISRMDetections(s);
 }
 void egress_recieveISRMDetections(const char *s) {
-  if(!_local_recieveISRMDetections) echo_recieveISRMDetections(s);
+  if(_local_recieveISRMDetections) return;
+  echo_recieveISRMDetections(s);
 }
 void egress_groundMovers(const char *s) {
-  if(!_local_groundMovers) echo_groundMovers(s);
+  if(_local_groundMovers) return;
+  echo_groundMovers(s);
 }
 void egress_pnt(const char *s) {
-  if(!_local_pnt) echo_pnt(s);
+  if(_local_pnt) return;
+  echo_pnt(s);
 }
 
 #define XDCCLISTEN(X) amqlib_listen(amq(), #X, egress_##X, _topic_##X); 

@@ -18,6 +18,7 @@
 
  1. Specify functions that would take in JSON sample/schema and provides GEDL-firendly RPC-wrappable echo function
     - Try to fit within existing RPC generator marshalling capability 
+    - GEDL does not handle structs or varags for parameters
  2. Specify functions that would take in stringified JSON (from AMQ) and extract arguments echo function
  3. Specify functions that would take in arguments of echo function and assemble stringified JSON (for posting to AMQ)
 
