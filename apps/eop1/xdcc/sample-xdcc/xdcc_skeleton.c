@@ -36,7 +36,10 @@ amqlib_t *amq() { static amqlib_t *a = NULL; if (a == NULL) { a = amqlib_create(
 #define _topic_pnt 1
 
 /* XXX: Some of these echo_functions will need to be blessed using CLE for RPC wrapping */
+/* XXX: Signatures of echo functions will need to be GEDL friendly for RPC wrapping */
 void echo_component_heartbeats(const char *s) {
+  /* XXX: Need to combine several arguments into stringified JSON and post to AMQ */
+  /* jsonstr2varargs */
   amqlib_publish(amq(), "component_heartbeats", s, _topic_component_heartbeats);
 }
 void echo_updateMissionPlan(const char *s) {
@@ -60,6 +63,8 @@ void echo_pnt(const char *s) {
 
 /* XXX: Some echo_ functions will be moved to remote enclave, and corresponding _rpc_echo_ functions created and called below */
 void egress_component_heartbeats(const char *s) {
+  /* XXX: Need to extract arguments from stringified JSON  and invoke echo with those */
+  /* varargs2jsonstr */
   if(!_local_component_heartbeats) echo_component_heartbeats(s);
 }
 void egress_updateMissionPlan(const char *s) {

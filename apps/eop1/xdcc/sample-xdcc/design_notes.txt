@@ -1,3 +1,28 @@
+# Steps
+
+  1. Message flow trace: sniffer output  [DONE]
+  2. Ingestor for message flow trace: outputs XML for draw.io
+  3. Document draw.io conventions (see earlier text) [DONE]
+  4. Sample design spec following conventions: Ingest, edit, and save sample output XML
+     - components, message flows, message structs, component annotations, message annotations, associated CLE-JSON
+  5. C libraries for AMQ and HAL [DONE]
+  6. XDCC Code Generator: generate annotated xdcc
+     - needs to signal conflicts in design 
+  7. Integrate design GUI into CVI
+     - See https://code.visualstudio.com/api/extension-guides/webview
+  8. Setup CVI pipeline to handle partitioning of XDCC and test e2e over HAL
+     - preferably without modifying tools from what was used at ERI summit!
+  9. Stretch demo application
+
+## Immediate Items:
+
+ 1. Specify functions that would take in JSON sample/schema and provides GEDL-firendly RPC-wrappable echo function
+    - Try to fit within existing RPC generator marshalling capability 
+ 2. Specify functions that would take in stringified JSON (from AMQ) and extract arguments echo function
+ 3. Specify functions that would take in arguments of echo function and assemble stringified JSON (for posting to AMQ)
+
+# Design of the XDCC Skeleton
+
 // ----------------------------------------------------
 // Unpartitioned
 // ----------------------------------------------------
@@ -16,18 +41,10 @@ egress_MSG(m)
   if non_local(MSG) 
      echo_MSG(m) 
 
-master_thread_MSG()
-  setup_amq_listener_MSG(egress_MSG)    // amqlib_create, amqlib_listen
-
 main:
   foreach MSG in all_message_list: 
-    thread(master_thread_MSG)
-
-  // housekeep before exit
-  upon thread-join of each thread
-    amqlib_destroy
-    xdc_close 
-    ...
+    setup_amq_listener_MSG(egress_MSG)    // amqlib_create, amqlib_listen
+  // housekeep threads before exit
 
 // ----------------------------------------------------
 // Partitioned 
