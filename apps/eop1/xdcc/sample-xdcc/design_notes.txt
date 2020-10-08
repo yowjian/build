@@ -23,6 +23,39 @@
  2. Specify functions that would take in stringified JSON (from AMQ) and extract arguments echo function
  3. Specify functions that would take in arguments of echo function and assemble stringified JSON (for posting to AMQ)
 
+
+=============================
+json FOO = [{"ID":1, "x":6.7, "y": 7.2, "z":3.4}, ...]
+
+
+echo_FOO(ID[], x[], y[], z[]) -- GEDL friendly
+
+myfunc(struct foo[])        -- not GEDL friendly
+ where foo {ID,x,y,z}
+
+
+RELATIONAL TABLE FOO
+int col1 | double col2 | double col3 | double col4 ...
+
+
+Need to generate the following given sample JSON messages from sniffer
+
+void echo_FOO (int count, int col1[], double col2[], ...) {  // XXX:1
+
+  // XXX: 2 generate code that produces FOO from arguments passed in to this function
+  // basically invert ORM, this step may need a schema for FOO datatype
+
+  ... insert FOO to AMQ ...
+}
+
+// XXX: 3 generate code that
+// given FOO, extracts arguments for echo_FOO into local variables and invokes echo_FOO with those variables as arguments
+=============================
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
 # Design of the XDCC Skeleton
 
 // ----------------------------------------------------
