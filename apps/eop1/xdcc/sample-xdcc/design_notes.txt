@@ -8,6 +8,7 @@
   5. C libraries for AMQ and HAL [DONE]
   6. XDCC Code Generator: generate annotated xdcc
      - needs to signal conflicts in design 
+     - needs to produce topology.json for divvier
   7. Integrate design GUI into CVI
      - See https://code.visualstudio.com/api/extension-guides/webview
   8. Setup CVI pipeline to handle partitioning of XDCC and test e2e over HAL
