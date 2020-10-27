@@ -7,7 +7,7 @@
 /* XXX: Need to create CLE-JSON definitions here */
 
 /* XXX: Move to amqlib.c, define signature in amqlib.h */
-amqlib_t *amq() { static amqlib_t *a = NULL; if (a == NULL) { a = amqlib_create(); } return a; }
+/* amqlib_t *amq() { static amqlib_t *a = NULL; if (a == NULL) { a = amqlib_create(); } return a; } */
 
 /* Messages in system */
 #define ALL_MSGS_LIST \
