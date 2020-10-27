@@ -5,7 +5,8 @@
 
 /* XXX: Need to create CLE-JSON definitions here */
 
-amqlib_t *amq() { static amqlib_t *a = NULL; if (a == NULL) { a = amqlib_create(); } return a; }
+/* Moved to amqlib now */
+/* amqlib_t *amq() { static amqlib_t *a = NULL; if (a == NULL) { a = amqlib_create(); } return a; } */
 
 /* Messages in system */
 #define ALL_MSGS_LIST \

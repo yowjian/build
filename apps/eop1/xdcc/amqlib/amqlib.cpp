@@ -17,10 +17,11 @@ public:
     void apply(json j) { return (this->fun)(j.dump().c_str()); }
 };
 
-struct __amqlib { 
-  void *obj; 
-  void *fpl;
-}; 
+amqlib_t *amq() { 
+    static amqlib_t *a = NULL; 
+    if (a == NULL) { a = amqlib_create(); } 
+    return a; 
+}
 
 amqlib_t *amqlib_create() {
     amqlib_t *m = (typeof(m))malloc(sizeof(*m));

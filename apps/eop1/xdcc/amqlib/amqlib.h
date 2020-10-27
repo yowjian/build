@@ -4,10 +4,15 @@
 extern "C" {
 #endif
 
-struct __amqlib;
+struct __amqlib { 
+  void *obj; 
+  void *fpl;
+}; 
+
 typedef struct __amqlib amqlib_t;
 typedef void (*amqlib_fptr_t)(const char *s);
 
+amqlib_t *amq();
 amqlib_t *amqlib_create();
 void     amqlib_destroy(amqlib_t *m);
 void     amqlib_publish(amqlib_t *m, const char *dst, const char *msg, int isTopic);
