@@ -1,0 +1,87 @@
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include "amqlib.h"
+#include "xdcc_echo.h"
+#include "map.h"
+
+#pragma cle def PURPLE {"level":"purple"}
+
+#pragma cle def ORANGE_SHAREABLE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "egress", \
+     "guarddirective": { "operation": "allow"}}\
+  ] }
+
+#pragma cle def XDLINKAGE_ECHO_COMPONENT_HEARTBEATS {"level":"purple",\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "ingress", \
+     "guarddirective": { "operation": "allow", "oneway": true}, \
+     "argtaints": [["TAG_REQUEST_ECHO_COMPONENT_HEARTBEATS"]], \
+     "codtaints": ["PURPLE"], \
+     "rettaints": [] \
+    } \
+  ] }
+
+/* Messages in system */
+#define ALL_MSGS_LIST \
+    component_heartbeats
+
+/* _local_X is 1 if X is local, else 0 */
+#define _local_component_heartbeats 0
+
+/* _topic_X is 1 if X is a topic, else 0 */
+#define _topic_component_heartbeats 1
+
+#pragma cle begin XDLINKAGE_ECHO_COMPONENT_HEARTBEATS
+int echo_component_heartbeats(
+    char *ss,
+    char *st,
+    int k
+)
+{
+#pragma cle end XDLINKAGE_ECHO_COMPONENT_HEARTBEATS
+    /* cues here guide GEDL for size inference */
+    char ss_cpp[MAXSTR_SIZE];
+    char st_cpp[MAXSTR_SIZE];
+    
+    memcpy(ss_cpp, ss, MAXSTR_SIZE); /* XXX: size should come from schema */
+    memcpy(st_cpp, st, MAXSTR_SIZE); /* XXX: size should come from schema */
+
+    echo_component_heartbeats_cpp(
+        amq(),
+        _topic_component_heartbeats,
+        ss_cpp,
+        st_cpp,
+        k
+    );
+    return 0;
+}
+
+void egress_component_heartbeats(const char *s)
+{
+    int fromRemote;
+    #pragma cle begin ORANGE_SHAREABLE
+    char ss[MAXSTR_SIZE];  /* XXX: size should come from schema */
+    char st[MAXSTR_SIZE];  /* XXX: size should come from schema */
+    int k;
+    #pragma cle end ORANGE_SHAREABLE
+    if (_local_component_heartbeats) return;
+    unmarshal_component_heartbeats(s,&fromRemote,ss,st,&k);
+    /* XXX: do CLOSURE tools require wrappable function to return non-void value? */
+    if (fromRemote==0) echo_component_heartbeats(ss, st, k);
+}
+
+#define XDCCLISTEN(X) amqlib_listen(amq(), #X, egress_##X, _topic_##X); 
+int main() {
+  #pragma cle begin ORANGE_SHAREABLE
+  int i = 100;
+  #pragma cle end ORANGE_SHAREABLE; 
+  amq();
+  MAP(XDCCLISTEN, ALL_MSGS_LIST)
+  while(1) { sleep(i); }
+  amqlib_destroy(amq());
+  return 0; 
+}
