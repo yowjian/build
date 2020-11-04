@@ -83,7 +83,7 @@
       {
         "label": "9e BUILD",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; cd ../xdcc_echo && make && cd ../egress_xdcc; make -C partitioned/multithreaded/orange -f ../../../.vscode/Makefile.xdcc; make -C partitioned/multithreaded/purple -f ../../../.vscode/Makefile.xdcc",
+        "command": "source .vscode/closure_env.sh; cd ../xdcc_echo; make; cd ../ingress_xdcc; make -C partitioned/multithreaded/orange -f ../../../.vscode/Makefile.xdcc; make -C partitioned/multithreaded/purple -f ../../../.vscode/Makefile.xdcc",
         "args": [],
         "group": "build",
         "problemMatcher": []
