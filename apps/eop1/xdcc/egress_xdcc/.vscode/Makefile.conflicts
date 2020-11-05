@@ -5,7 +5,7 @@ INCLUDES=-I$(LLVM_INCLUDE) -I$(CLOSURE_INCLUDES)
 
 JOINCLEMAPS=~acichocki/closure/top-level/apps/eridemo2020/secdesk/.solution/join_clemaps.py  # XXX: fix
 
-CLANG_FLAGS += -I ../xdcc_echo -I ../../amqlib 
+CLANG_FLAGS += -I ../xdcc_echo -I ../amqlib 
 
 enclaves: $(EDIR)/pdgragh.main.dot
 	ln -s $(EDIR)/pdgragh.main.dot .

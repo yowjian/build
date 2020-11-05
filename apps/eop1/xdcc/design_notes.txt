@@ -227,4 +227,13 @@ handle_get_ewma
 on master
   _rpc_get_ewma is a synchronous call // control does not proceed until response is received and block returns
 
+====
+Test Notes
+
+1. Test in emulator requires both ingress_xdcc and egress_xdcc as well as the application components ; cannot be part of either project (parent project needed to orchestrate all child projects)
+2. AMQ Broker needs to be installed, configured, and started in each enclave
+3. amqlib needs to be installed in each enclave; also must be in LD_LIBRARY_PATH
+4. Need a producer and a consumer
+   -- either use activemq producer with a file (and activemq consumer)
+5. Use TA3 messages (remove int k) and use TA3 components and test
 

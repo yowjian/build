@@ -43,8 +43,7 @@
           "9b AUTOGEN GEDL, RPCs, IDL, Codecs",
           "9c VERIFY",
           "9d VISUALIZE CROSS-DOMAIN CUT",
-          "9e BUILD",
-          "9f EMULATE"
+          "9e BUILD"
         ],
         "problemMatcher": []
       },
@@ -83,23 +82,7 @@
       {
         "label": "9e BUILD",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; cd ../xdcc_echo; make; cd ../ingress_xdcc; make -C partitioned/multithreaded/orange -f ../../../.vscode/Makefile.xdcc; make -C partitioned/multithreaded/purple -f ../../../.vscode/Makefile.xdcc",
-        "args": [],
-        "group": "build",
-        "problemMatcher": []
-      },
-      {
-        "label": "9f EMULATE",
-        "type": "shell",
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig pkg; cd ~/gaps/build/src/emu/; ./start.sh ${PROG}",
-        "args": [],
-        "group": "build",
-        "problemMatcher": []
-      },
-      {
-        "label": "4 BUILD PLAIN",
-        "type": "shell",
-        "command": "source .vscode/closure_env.sh; cd plain; make clean; make; ./${PROG}; make clean",
+        "command": "source .vscode/closure_env.sh; cd ../xdcc_echo && make && cd ../ingress_xdcc; make -C partitioned/multithreaded/orange -f ../../../.vscode/Makefile.xdcc; make -C partitioned/multithreaded/purple -f ../../../.vscode/Makefile.xdcc",
         "args": [],
         "group": "build",
         "problemMatcher": []

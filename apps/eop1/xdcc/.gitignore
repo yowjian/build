@@ -1,0 +1,9 @@
+*.o
+*.a
+*.so
+*/annotated/
+*-working/
+*/divvied/
+*/refactored/
+*/partitioned/
+*.json
