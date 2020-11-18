@@ -64,6 +64,8 @@ CLOSURE will keep current with the latest LLVM and Clang releases, periodically 
 In addition to the above, we also use [Apache Daffofil v. 2.5.0](http://daffodil.apache.org/releases/2.5.0/), xsltproc (Ubuntu package xsltproc version 1.1.33-0ubuntu1.1) and Saxon-B (Ubuntu package libsaxonb-java version 9.1.0.8+dfsg-2).
 
 ### Centos 7 Packages (yum install)
+| Package       | Version | 
+|:--------------|:---------------|
 | cairo-devel                   | 1.15.12-4.el7 |
 | epel-release                  | 7-11          |
 | graphviz                      | 2.30.1-22.el7 |
