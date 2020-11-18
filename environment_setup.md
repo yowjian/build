@@ -74,3 +74,4 @@ In addition to the above, we also use [Apache Daffofil v. 2.5.0](http://daffodil
 | pydot       | 1.4.1 |
 | matplotlib  | 3.2.1 |
 | libconf     | 2.0.1 |
+| xdot        | 1.1   |
