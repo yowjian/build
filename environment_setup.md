@@ -17,7 +17,7 @@ CLOSURE utilizes a number of open-source libraries, tools, and sources to suppor
 CLOSURE will keep current with the latest LLVM and Clang releases, periodically merging updates from the official repository. As we will be introducing additional LLVM or Clang features (e.g. type annotation support in Clang), it is recommended that CLOSURE users download LLVM and Clang from the [CLOSURE LLVM fork](https://github.com/gaps-closure/llvm-project) or use our [prepackaged binaries](https://github.com/gaps-closure/capo/releases).
 | Package       | Version | 
 |:--------------|:--------|
-| LLVM/Clang    | 10.0    |
+| LLVM/Clang    | 10.0.1  |
 
 ### Debian Packages (apt install)
 (Note that the [EMU install procedure](https://github.com/gaps-closure/emu#installing-external-dependencies) automatically retrieves the majority of these packages)
