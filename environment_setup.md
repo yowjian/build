@@ -9,6 +9,10 @@ CLOSURE utilizes a number of open-source libraries, tools, and sources to suppor
   * <b>OS:</b> Ubuntu 19.10 x86_64
   * <b>Kernel:</b> 5.3.0-29-generic
   
+  or
+  * <b>OS:</b> Centos 7 x86_64</b>
+  * <b>Kernel:</b> 3.10.0-1160.2.2.el7.x86_64
+  
 ## IDE
   * Visual Studio Code (VSCode) v1.42.1
   
