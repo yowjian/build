@@ -8,6 +8,7 @@ OUTURI="ipc:///tmp/${PROG}pub"
 
 LLVM_INCLUDE=$(LLVM_DIR)/lib/clang/10.0.1/include
 
+
 build_folder := $(shell mkdir -p $(ODIR))
 autogen_folder := $(shell mkdir -p $(ODIR)/autogen)
 encSet := $(foreach enclave,$(sort $(dir $(wildcard $(EDIR)//*/))), $(eval ENCLAVES+=$(notdir $(enclave:%/=%))))
@@ -50,7 +51,7 @@ libs: $(autogen_dir)/libcodecs.a
 
 slibs: $(autogen_dir)/libcodecs.so 
 
-$(autogen_dir)/%.o:	%.c
+$(autogen_dir)/%.o:	$(autogen_dir)/%.c
 	gcc $(CFLAGS) -fPIC -c $< -o $@
 
 #Do RPC Generation

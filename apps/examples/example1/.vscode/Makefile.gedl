@@ -51,7 +51,7 @@ libs: $(autogen_dir)/libcodecs.a
 
 slibs: $(autogen_dir)/libcodecs.so 
 
-$(autogen_dir)/%.o:	%.c
+$(autogen_dir)/%.o:	$(autogen_dir)/%.c
 	gcc $(CFLAGS) -fPIC -c $< -o $@
 
 #Do RPC Generation
