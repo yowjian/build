@@ -63,6 +63,18 @@ CLOSURE will keep current with the latest LLVM and Clang releases, periodically 
 
 In addition to the above, we also use [Apache Daffofil v. 2.5.0](http://daffodil.apache.org/releases/2.5.0/), xsltproc (Ubuntu package xsltproc version 1.1.33-0ubuntu1.1) and Saxon-B (Ubuntu package libsaxonb-java version 9.1.0.8+dfsg-2).
 
+### Centos 7 Packages (yum install)
+| cairo-devel                   | 1.15.12-4.el7 |
+| epel-release                  | 7-11          |
+| graphviz                      | 2.30.1-22.el7 |
+| graphviz-devel                | 2.30.1-22.el7 |
+|	gobject-introspection-devel   | 1.56.1-1.el7  |
+| libconfig-devel               | 1.4.9-5.el7   |
+| python3                       | 3.6.8-17.el7  |
+| python36-cairo                | 1.10.0-25.el7 |
+| python36-gobject              | 3.22.0-6.el7  |
+| zeromq-devel                  | 4.1.4-6.el7   | 
+
 ### Python3 packages (pip3 install)
 | Package       | Version | 
 |:--------------|:--------------|
