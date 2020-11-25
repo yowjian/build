@@ -1,0 +1,66 @@
+\hypertarget{class_m_p_u}{}\doxysection{M\+PU Class Reference}
+\label{class_m_p_u}\index{MPU@{MPU}}
+
+
+– Class responsible for loading plans, recieving plans, generating new plans based on actions,  
+
+
+
+
+{\ttfamily \#include $<$M\+P\+U.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_m_p_u_a0deec2f8e8170b2e21ee015940d550b6}\label{class_m_p_u_a0deec2f8e8170b2e21ee015940d550b6}} 
+\mbox{\hyperlink{class_m_p_u_a0deec2f8e8170b2e21ee015940d550b6}{M\+PU}} ()
+\begin{DoxyCompactList}\small\item\em Construct a new \mbox{\hyperlink{class_m_p_u}{M\+PU}} object and listen for update tasking/plan. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_m_p_u_a9bcf12aa9dbe31b6c522d0e54140cb60}\label{class_m_p_u_a9bcf12aa9dbe31b6c522d0e54140cb60}} 
+\mbox{\hyperlink{class_m_p_u_a9bcf12aa9dbe31b6c522d0e54140cb60}{$\sim$\+M\+PU}} ()
+\begin{DoxyCompactList}\small\item\em Destroy the \mbox{\hyperlink{class_m_p_u}{M\+PU}} object and clear all plan storage. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_m_p_u_a1e7fe24dbaec87820faf1af802148b57}{run}} ()
+\begin{DoxyCompactList}\small\item\em load plan \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+– Class responsible for loading plans, recieving plans, generating new plans based on actions, 
+
+\begin{DoxyAuthor}{Author}
+– Original Author -\/ Mases Krikorian 
+
+– Last Edited By -\/ Frederick Santiago 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+– 9/15/2020
+\end{DoxyDate}
+– When all the systems are ready, \mbox{\hyperlink{class_m_p_u}{M\+PU}} will load it\textquotesingle{}s default plan and send it to other systems This triggers the start signal for all the systems. Additionally, \mbox{\hyperlink{class_m_p_u}{M\+PU}} listens to the UI for updated plans, and listens to \mbox{\hyperlink{class_m_p_x}{M\+PX}} and/or \mbox{\hyperlink{class_i_s_r_m}{I\+S\+RM}} for actions to generate new plans
+
+\begin{DoxyRefDesc}{Todo}
+\item[\mbox{\hyperlink{todo__todo000001}{Todo}}]implement M\+P\+X/\+I\+S\+RM communications with \mbox{\hyperlink{class_m_p_u}{M\+PU}} \end{DoxyRefDesc}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_m_p_u_a1e7fe24dbaec87820faf1af802148b57}\label{class_m_p_u_a1e7fe24dbaec87820faf1af802148b57}} 
+\index{MPU@{MPU}!run@{run}}
+\index{run@{run}!MPU@{MPU}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily void M\+P\+U\+::run (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+load plan 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+M\+P\+U/M\+P\+U.\+h\item 
+M\+P\+U/M\+P\+U.\+cpp\end{DoxyCompactItemize}

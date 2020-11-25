@@ -1,0 +1,392 @@
+\hypertarget{class_g_a_p_s__open_c_v}{}\doxysection{G\+A\+P\+S\+\_\+open\+CV Class Reference}
+\label{class_g_a_p_s__open_c_v}\index{GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{class_g_a_p_s__open_c_v_a46eed4f6c4428b5bd6f8fb6e61ca3dda}{init}} ()
+\begin{DoxyCompactList}\small\item\em load the class names from coco.\+names, load the model config from yolov3.\+cfg, load the weight of the network from yolov3.\+weights, pass the data to the neural network, load the video to be used for processing \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_g_a_p_s__open_c_v_a6f50b359316d8339b257adf9884ac852}{run}} ()
+\begin{DoxyCompactList}\small\item\em loop through each frame of the video, pass the data to classify\+Entire frame alongside the D\+NN instance \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{class_g_a_p_s__open_c_v_ae7bb15ae8bfceecf0a3db0499624e477}{calculate\+Distance}} (int x1, int y1, int x2, int y2)
+\begin{DoxyCompactList}\small\item\em given two 2D points, calculate the distance between them using the distance formula \end{DoxyCompactList}\item 
+string \mbox{\hyperlink{class_g_a_p_s__open_c_v_a697874a1cc7b813253622c8c7fe678d5}{find\+Object}} (int x, int y)
+\begin{DoxyCompactList}\small\item\em given an x and y value, determine if the object from the current frame is close enough to the detection found in the last frame \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_g_a_p_s__open_c_v_a08df52e9829b91fabd22efe553b4f1b9}{match\+Current\+Frame\+Blobs\+To\+Existing\+Blobs}} (std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&existing\+Blobs, std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&current\+Frame\+Blobs)
+\begin{DoxyCompactList}\small\item\em Deprecated matche the current detected moving blobs to the already exisiting ones. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_g_a_p_s__open_c_v_a82a19f8aa4641ddd4d0390c98bc48f1c}{add\+Blob\+To\+Existing\+Blobs}} (\mbox{\hyperlink{class_blob}{Blob}} \&current\+Frame\+Blob, std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&existing\+Blobs, int \&int\+Index)
+\begin{DoxyCompactList}\small\item\em Deprecated given a single detected blob, add it to the vector of blobs for current frame. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_g_a_p_s__open_c_v_a4c0d1de5393eaf60ec3151e7289db0be}{add\+New\+Blob}} (\mbox{\hyperlink{class_blob}{Blob}} \&current\+Frame\+Blob, std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&existing\+Blobs)
+\begin{DoxyCompactList}\small\item\em Deprecated add a new blob to the set of existing blobs. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{class_g_a_p_s__open_c_v_a9aad063f600086c088e73a26e36d8767}{distance\+Between\+Points}} (cv\+::\+Point point1, cv\+::\+Point point2)
+\begin{DoxyCompactList}\small\item\em Deprecated calculate the distance (in pixels) between two points. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_g_a_p_s__open_c_v_a21fbac40fa4c4a169a1e8aa2b0f35406}{classify}} (const std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&blobs, const cv\+::\+Mat \&frame, dnn\+::\+Net \&net)
+\begin{DoxyCompactList}\small\item\em Deprecated classify the object by passing the frame to the dnn and adding the detection to an unordered\+\_\+map. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_g_a_p_s__open_c_v_a61ebbd821cd23e9fbe3208f8fa42228c}{classify\+Entire\+Frame}} (const cv\+::\+Mat \&frame, dnn\+::\+Net \&net)
+\begin{DoxyCompactList}\small\item\em Run Open\+CV\textquotesingle{}s yolov3 object detection on frame using the neural network configured in the \mbox{\hyperlink{class_g_a_p_s__open_c_v_a46eed4f6c4428b5bd6f8fb6e61ca3dda}{init()}} function, and adding the detections to an unordered\+\_\+map. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_g_a_p_s__open_c_v_a53aee42ff0af5945277f1dfa600c895f}{postprocess}} (const cv\+::\+Mat \&frame, const std\+::vector$<$ cv\+::\+Mat $>$ \&out, int x, int y, int w, int h, \mbox{\hyperlink{structblob__return}{blob\+\_\+return}} \&processed\+\_\+\+Blob)
+\begin{DoxyCompactList}\small\item\em Used by \mbox{\hyperlink{class_g_a_p_s__open_c_v_a21fbac40fa4c4a169a1e8aa2b0f35406}{classify()}}. Loop throught all detected moving objects identify the bounding boxes, and pass the data to draw\+Ped for drawing and add location information to detection unordered\+\_\+map. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_g_a_p_s__open_c_v_a58c606fe24dbd4123bfcf03c16ba752c}{postprocessframe}} (const cv\+::\+Mat \&frame, const std\+::vector$<$ cv\+::\+Mat $>$ \&out)
+\item 
+void \mbox{\hyperlink{class_g_a_p_s__open_c_v_a55803074aa3a8f4c9d9c06477cfa5800}{draw\+Pred}} (int class\+Id, float conf, int left, int top, int right, int bottom, const cv\+::\+Mat \&frame)
+\begin{DoxyCompactList}\small\item\em Used by \mbox{\hyperlink{class_g_a_p_s__open_c_v_a21fbac40fa4c4a169a1e8aa2b0f35406}{classify()}} and \mbox{\hyperlink{class_g_a_p_s__open_c_v_a61ebbd821cd23e9fbe3208f8fa42228c}{classify\+Entire\+Frame()}}, this function adds the detection to the map and draws the detections, their label, and confidence on the frame. \end{DoxyCompactList}\item 
+vector$<$ cv\+::\+String $>$ \mbox{\hyperlink{class_g_a_p_s__open_c_v_a6c27f799cf1e8fb1800fea8f6f8c6ce0}{get\+Outputs\+Names}} (const Net \&net)
+\begin{DoxyCompactList}\small\item\em Get the output names in order relevant to the detections. \end{DoxyCompactList}\item 
+std\+::map$<$ std\+::string, \mbox{\hyperlink{structobject}{object}} $>$ \mbox{\hyperlink{class_g_a_p_s__open_c_v_a773cad244cdb59e513e7d4ee5ab04748}{get\+Map}} ()
+\begin{DoxyCompactList}\small\item\em Get the detections map. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{class_g_a_p_s__open_c_v_abdf4ea3e375175f9460adc3eae183814}{is\+Running}} ()
+\begin{DoxyCompactList}\small\item\em Used by \mbox{\hyperlink{class_e_o_i_r}{E\+O\+IR}} to determine if Open\+CV is still processing frames. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a82a19f8aa4641ddd4d0390c98bc48f1c}\label{class_g_a_p_s__open_c_v_a82a19f8aa4641ddd4d0390c98bc48f1c}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!addBlobToExistingBlobs@{addBlobToExistingBlobs}}
+\index{addBlobToExistingBlobs@{addBlobToExistingBlobs}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{addBlobToExistingBlobs()}{addBlobToExistingBlobs()}}
+{\footnotesize\ttfamily void G\+A\+P\+S\+\_\+open\+C\+V\+::add\+Blob\+To\+Existing\+Blobs (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_blob}{Blob}} \&}]{current\+Frame\+Blob,  }\item[{std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&}]{existing\+Blobs,  }\item[{int \&}]{int\+Index }\end{DoxyParamCaption})}
+
+
+
+Deprecated given a single detected blob, add it to the vector of blobs for current frame. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em current\+Frame\+Blob} & -\/ current frame blob \\
+\hline
+{\em existing\+Blobs} & -\/ vector of existing blobs \\
+\hline
+{\em int\+Index} & -\/ index of the blob relevant to the set of blobs detected\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000006}{Deprecated}}]\end{DoxyRefDesc}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a4c0d1de5393eaf60ec3151e7289db0be}\label{class_g_a_p_s__open_c_v_a4c0d1de5393eaf60ec3151e7289db0be}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!addNewBlob@{addNewBlob}}
+\index{addNewBlob@{addNewBlob}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{addNewBlob()}{addNewBlob()}}
+{\footnotesize\ttfamily void G\+A\+P\+S\+\_\+open\+C\+V\+::add\+New\+Blob (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_blob}{Blob}} \&}]{current\+Frame\+Blob,  }\item[{std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&}]{existing\+Blobs }\end{DoxyParamCaption})}
+
+
+
+Deprecated add a new blob to the set of existing blobs. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em current\+Frame\+Blob} & -\/ blob from the current frame \\
+\hline
+{\em existing\+Blobs} & -\/ vectpr pf existing blobs\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000007}{Deprecated}}]\end{DoxyRefDesc}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_ae7bb15ae8bfceecf0a3db0499624e477}\label{class_g_a_p_s__open_c_v_ae7bb15ae8bfceecf0a3db0499624e477}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!calculateDistance@{calculateDistance}}
+\index{calculateDistance@{calculateDistance}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{calculateDistance()}{calculateDistance()}}
+{\footnotesize\ttfamily double G\+A\+P\+S\+\_\+open\+C\+V\+::calculate\+Distance (\begin{DoxyParamCaption}\item[{int}]{x1,  }\item[{int}]{y1,  }\item[{int}]{x2,  }\item[{int}]{y2 }\end{DoxyParamCaption})}
+
+
+
+given two 2D points, calculate the distance between them using the distance formula 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x1} & -\/ x value of point 1 \\
+\hline
+{\em y1} & -\/ y value of point 1 \\
+\hline
+{\em x2} & -\/ x value of point 2 \\
+\hline
+{\em y2} & -\/ y value of point 2\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+double -\/ distance between 2 points 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a21fbac40fa4c4a169a1e8aa2b0f35406}\label{class_g_a_p_s__open_c_v_a21fbac40fa4c4a169a1e8aa2b0f35406}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!classify@{classify}}
+\index{classify@{classify}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{classify()}{classify()}}
+{\footnotesize\ttfamily void G\+A\+P\+S\+\_\+open\+C\+V\+::classify (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&}]{blobs,  }\item[{const cv\+::\+Mat \&}]{frame,  }\item[{dnn\+::\+Net \&}]{net }\end{DoxyParamCaption})}
+
+
+
+Deprecated classify the object by passing the frame to the dnn and adding the detection to an unordered\+\_\+map. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em blobs} & -\/ current blobs (moving objects) in the frame \\
+\hline
+{\em frame} & -\/ the entire frame currently being processed \\
+\hline
+{\em net} & -\/ deep neural network configured in the \mbox{\hyperlink{class_g_a_p_s__open_c_v_a46eed4f6c4428b5bd6f8fb6e61ca3dda}{init()}} function\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000009}{Deprecated}}]\end{DoxyRefDesc}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a61ebbd821cd23e9fbe3208f8fa42228c}\label{class_g_a_p_s__open_c_v_a61ebbd821cd23e9fbe3208f8fa42228c}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!classifyEntireFrame@{classifyEntireFrame}}
+\index{classifyEntireFrame@{classifyEntireFrame}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{classifyEntireFrame()}{classifyEntireFrame()}}
+{\footnotesize\ttfamily void G\+A\+P\+S\+\_\+open\+C\+V\+::classify\+Entire\+Frame (\begin{DoxyParamCaption}\item[{const cv\+::\+Mat \&}]{frame,  }\item[{dnn\+::\+Net \&}]{net }\end{DoxyParamCaption})}
+
+
+
+Run Open\+CV\textquotesingle{}s yolov3 object detection on frame using the neural network configured in the \mbox{\hyperlink{class_g_a_p_s__open_c_v_a46eed4f6c4428b5bd6f8fb6e61ca3dda}{init()}} function, and adding the detections to an unordered\+\_\+map. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em frame} & -\/ current frame being processed \\
+\hline
+{\em net} & -\/ neural network configured in \mbox{\hyperlink{class_g_a_p_s__open_c_v_a46eed4f6c4428b5bd6f8fb6e61ca3dda}{init()}} function\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a9aad063f600086c088e73a26e36d8767}\label{class_g_a_p_s__open_c_v_a9aad063f600086c088e73a26e36d8767}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!distanceBetweenPoints@{distanceBetweenPoints}}
+\index{distanceBetweenPoints@{distanceBetweenPoints}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{distanceBetweenPoints()}{distanceBetweenPoints()}}
+{\footnotesize\ttfamily double G\+A\+P\+S\+\_\+open\+C\+V\+::distance\+Between\+Points (\begin{DoxyParamCaption}\item[{cv\+::\+Point}]{point1,  }\item[{cv\+::\+Point}]{point2 }\end{DoxyParamCaption})}
+
+
+
+Deprecated calculate the distance (in pixels) between two points. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em point1} & -\/ Open\+Cv\textquotesingle{}s point1 \\
+\hline
+{\em point2} & -\/ Open\+Cv\textquotesingle{}s point2\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+double distance between the two points 
+\end{DoxyReturn}
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000008}{Deprecated}}]\end{DoxyRefDesc}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a55803074aa3a8f4c9d9c06477cfa5800}\label{class_g_a_p_s__open_c_v_a55803074aa3a8f4c9d9c06477cfa5800}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!drawPred@{drawPred}}
+\index{drawPred@{drawPred}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{drawPred()}{drawPred()}}
+{\footnotesize\ttfamily void G\+A\+P\+S\+\_\+open\+C\+V\+::draw\+Pred (\begin{DoxyParamCaption}\item[{int}]{class\+Id,  }\item[{float}]{conf,  }\item[{int}]{left,  }\item[{int}]{top,  }\item[{int}]{right,  }\item[{int}]{bottom,  }\item[{const cv\+::\+Mat \&}]{frame }\end{DoxyParamCaption})}
+
+
+
+Used by \mbox{\hyperlink{class_g_a_p_s__open_c_v_a21fbac40fa4c4a169a1e8aa2b0f35406}{classify()}} and \mbox{\hyperlink{class_g_a_p_s__open_c_v_a61ebbd821cd23e9fbe3208f8fa42228c}{classify\+Entire\+Frame()}}, this function adds the detection to the map and draws the detections, their label, and confidence on the frame. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em class\+Id} & -\/ classifcation id of the object \\
+\hline
+{\em conf} & -\/ confidence of the object detected \\
+\hline
+{\em left} & -\/ starting x value \\
+\hline
+{\em top} & -\/ starting y value \\
+\hline
+{\em right} & -\/ ending x value \\
+\hline
+{\em bottom} & -\/ ending y value \\
+\hline
+{\em frame} & -\/ current frame being processed\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+void 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a697874a1cc7b813253622c8c7fe678d5}\label{class_g_a_p_s__open_c_v_a697874a1cc7b813253622c8c7fe678d5}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!findObject@{findObject}}
+\index{findObject@{findObject}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{findObject()}{findObject()}}
+{\footnotesize\ttfamily string G\+A\+P\+S\+\_\+open\+C\+V\+::find\+Object (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y }\end{DoxyParamCaption})}
+
+
+
+given an x and y value, determine if the object from the current frame is close enough to the detection found in the last frame 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & -\/ x position of object in pixels \\
+\hline
+{\em y} & -\/ y position of object in pixels\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string -\/ empty if no object found, or unique id of object 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a773cad244cdb59e513e7d4ee5ab04748}\label{class_g_a_p_s__open_c_v_a773cad244cdb59e513e7d4ee5ab04748}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!getMap@{getMap}}
+\index{getMap@{getMap}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{getMap()}{getMap()}}
+{\footnotesize\ttfamily std\+::map$<$ std\+::string, \mbox{\hyperlink{structobject}{object}} $>$ G\+A\+P\+S\+\_\+open\+C\+V\+::get\+Map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Get the detections map. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+std\+::map$<$std\+::string, object$>$ map unique id to information of each detection 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a6c27f799cf1e8fb1800fea8f6f8c6ce0}\label{class_g_a_p_s__open_c_v_a6c27f799cf1e8fb1800fea8f6f8c6ce0}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!getOutputsNames@{getOutputsNames}}
+\index{getOutputsNames@{getOutputsNames}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{getOutputsNames()}{getOutputsNames()}}
+{\footnotesize\ttfamily vector$<$ cv\+::\+String $>$ G\+A\+P\+S\+\_\+open\+C\+V\+::get\+Outputs\+Names (\begin{DoxyParamCaption}\item[{const Net \&}]{net }\end{DoxyParamCaption})}
+
+
+
+Get the output names in order relevant to the detections. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em net} & -\/ Neural network generating the detections\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector$<$cv\+::\+String$>$ classifications for each object, ordered in the same order as the detections 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a46eed4f6c4428b5bd6f8fb6e61ca3dda}\label{class_g_a_p_s__open_c_v_a46eed4f6c4428b5bd6f8fb6e61ca3dda}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!init@{init}}
+\index{init@{init}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{init()}{init()}}
+{\footnotesize\ttfamily bool G\+A\+P\+S\+\_\+open\+C\+V\+::init (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+load the class names from coco.\+names, load the model config from yolov3.\+cfg, load the weight of the network from yolov3.\+weights, pass the data to the neural network, load the video to be used for processing 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the video was loaded successfully 
+
+false if the video did not load ~\newline
+ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_abdf4ea3e375175f9460adc3eae183814}\label{class_g_a_p_s__open_c_v_abdf4ea3e375175f9460adc3eae183814}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!isRunning@{isRunning}}
+\index{isRunning@{isRunning}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{isRunning()}{isRunning()}}
+{\footnotesize\ttfamily bool G\+A\+P\+S\+\_\+open\+C\+V\+::is\+Running (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Used by \mbox{\hyperlink{class_e_o_i_r}{E\+O\+IR}} to determine if Open\+CV is still processing frames. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the loop to process the video is still going 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a08df52e9829b91fabd22efe553b4f1b9}\label{class_g_a_p_s__open_c_v_a08df52e9829b91fabd22efe553b4f1b9}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!matchCurrentFrameBlobsToExistingBlobs@{matchCurrentFrameBlobsToExistingBlobs}}
+\index{matchCurrentFrameBlobsToExistingBlobs@{matchCurrentFrameBlobsToExistingBlobs}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{matchCurrentFrameBlobsToExistingBlobs()}{matchCurrentFrameBlobsToExistingBlobs()}}
+{\footnotesize\ttfamily void G\+A\+P\+S\+\_\+open\+C\+V\+::match\+Current\+Frame\+Blobs\+To\+Existing\+Blobs (\begin{DoxyParamCaption}\item[{std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&}]{existing\+Blobs,  }\item[{std\+::vector$<$ \mbox{\hyperlink{class_blob}{Blob}} $>$ \&}]{current\+Frame\+Blobs }\end{DoxyParamCaption})}
+
+
+
+Deprecated matche the current detected moving blobs to the already exisiting ones. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em existing\+Blobs} & -\/ vector of already processed blobs \\
+\hline
+{\em current\+Frame\+Blobs} & -\/ vector of current blobs\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000005}{Deprecated}}]\end{DoxyRefDesc}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a53aee42ff0af5945277f1dfa600c895f}\label{class_g_a_p_s__open_c_v_a53aee42ff0af5945277f1dfa600c895f}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!postprocess@{postprocess}}
+\index{postprocess@{postprocess}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{postprocess()}{postprocess()}}
+{\footnotesize\ttfamily void G\+A\+P\+S\+\_\+open\+C\+V\+::postprocess (\begin{DoxyParamCaption}\item[{const cv\+::\+Mat \&}]{frame,  }\item[{const std\+::vector$<$ cv\+::\+Mat $>$ \&}]{out,  }\item[{int}]{x,  }\item[{int}]{y,  }\item[{int}]{w,  }\item[{int}]{h,  }\item[{\mbox{\hyperlink{structblob__return}{blob\+\_\+return}} \&}]{processed\+\_\+\+Blob }\end{DoxyParamCaption})}
+
+
+
+Used by \mbox{\hyperlink{class_g_a_p_s__open_c_v_a21fbac40fa4c4a169a1e8aa2b0f35406}{classify()}}. Loop throught all detected moving objects identify the bounding boxes, and pass the data to draw\+Ped for drawing and add location information to detection unordered\+\_\+map. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em frame} & -\/ current frame being processed \\
+\hline
+{\em out} & -\/ output of objects detected by D\+NN \\
+\hline
+{\em x} & -\/ in pixels, the location of blob \\
+\hline
+{\em y} & -\/ in pixel, the location of the blob \\
+\hline
+{\em w} & -\/ in pixel, the width of the blob \\
+\hline
+{\em h} & -\/ in pixel, the height of the blob \\
+\hline
+{\em processed\+\_\+\+Blob} & -\/ vector of detected blobs, with current one being added after processing\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000010}{Deprecated}}]\end{DoxyRefDesc}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a58c606fe24dbd4123bfcf03c16ba752c}\label{class_g_a_p_s__open_c_v_a58c606fe24dbd4123bfcf03c16ba752c}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!postprocessframe@{postprocessframe}}
+\index{postprocessframe@{postprocessframe}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{postprocessframe()}{postprocessframe()}}
+{\footnotesize\ttfamily void G\+A\+P\+S\+\_\+open\+C\+V\+::postprocessframe (\begin{DoxyParamCaption}\item[{const cv\+::\+Mat \&}]{frame,  }\item[{const std\+::vector$<$ cv\+::\+Mat $>$ \&}]{out }\end{DoxyParamCaption})}
+
+
+\begin{DoxyParams}{Parameters}
+{\em frame} & \\
+\hline
+{\em out} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_g_a_p_s__open_c_v_a6f50b359316d8339b257adf9884ac852}\label{class_g_a_p_s__open_c_v_a6f50b359316d8339b257adf9884ac852}} 
+\index{GAPS\_openCV@{GAPS\_openCV}!run@{run}}
+\index{run@{run}!GAPS\_openCV@{GAPS\_openCV}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily void G\+A\+P\+S\+\_\+open\+C\+V\+::run (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+loop through each frame of the video, pass the data to classify\+Entire frame alongside the D\+NN instance 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+E\+O\+I\+R/G\+A\+P\+S\+\_\+open\+C\+V\+\_\+\+Manager.\+h\item 
+E\+O\+I\+R/G\+A\+P\+S\+\_\+opencv\+\_\+\+Manager.\+cpp\end{DoxyCompactItemize}

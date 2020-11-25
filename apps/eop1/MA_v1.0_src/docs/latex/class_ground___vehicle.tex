@@ -1,0 +1,191 @@
+\hypertarget{class_ground___vehicle}{}\doxysection{Ground\+\_\+\+Vehicle Class Reference}
+\label{class_ground___vehicle}\index{Ground\_Vehicle@{Ground\_Vehicle}}
+
+
+– Class responsible for generating a new ground mover for detections and updating it every second  
+
+
+
+
+{\ttfamily \#include $<$Ground\+\_\+\+Movers.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_ground___vehicle_ab6f5711f1be18d10490eb8afdf8d33c9}\label{class_ground___vehicle_ab6f5711f1be18d10490eb8afdf8d33c9}} 
+\mbox{\hyperlink{class_ground___vehicle_ab6f5711f1be18d10490eb8afdf8d33c9}{Ground\+\_\+\+Vehicle}} ()
+\begin{DoxyCompactList}\small\item\em Construct a new \mbox{\hyperlink{class_ground___vehicle}{Ground\+\_\+\+Vehicle}} object and generate a detection near San Diego moving speed randomly generated before 25-\/125 kpH and randomly generated bearing between 0 and 360 degrees and a random vehicle ID number between 1 and 500000 and spawning a new thread to update its location every second. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_ground___vehicle_ae4b1445dd84ead636f0020881ba3574e}\label{class_ground___vehicle_ae4b1445dd84ead636f0020881ba3574e}} 
+\mbox{\hyperlink{class_ground___vehicle_ae4b1445dd84ead636f0020881ba3574e}{Ground\+\_\+\+Vehicle}} (double starting\+\_\+\+Lat, double starting\+\_\+\+Long)
+\begin{DoxyCompactList}\small\item\em Construct a new \mbox{\hyperlink{class_ground___vehicle}{Ground\+\_\+\+Vehicle}} object and generate a detection near the given lat and lon moving speed randomly generated before 25-\/125 kpH and randomly generated bearing between 0 and 360 degrees and a random vehicle ID number between 1 and 500000 and spawning a new thread to update its location every second. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_ground___vehicle_ad65fc7e9ed6c56a035d211a5b4e6827b}\label{class_ground___vehicle_ad65fc7e9ed6c56a035d211a5b4e6827b}} 
+\mbox{\hyperlink{class_ground___vehicle_ad65fc7e9ed6c56a035d211a5b4e6827b}{Ground\+\_\+\+Vehicle}} (double starting\+\_\+\+Lat, double starting\+\_\+\+Long, double starting\+\_\+\+Speed, double starting\+\_\+\+Bearing)
+\begin{DoxyCompactList}\small\item\em Construct a new \mbox{\hyperlink{class_ground___vehicle}{Ground\+\_\+\+Vehicle}} object and generate a detection near San Diego moving based on the provided speed and bearing random vehicle ID number between 1 and 500000 and spawning a new thread to update its location every second. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_ground___vehicle_ad804c200bb6a9d3d1374d86bb64ce61b}{Update\+\_\+\+Ground\+\_\+\+Vehicle\+\_\+\+Position}} (void)
+\begin{DoxyCompactList}\small\item\em update vehicle location based on the speed and bearing. If distance traveled is above the max allowed, vehicle will travel 90 degrees; effectively moving the vechile in a square-\/like shape, and sending the data through the \char`\"{}ground\+Movers\char`\"{} Active\+MQ channel \end{DoxyCompactList}\item 
+uas\+::\+Location \mbox{\hyperlink{class_ground___vehicle_a4f772b7cbaea8ddc09e63a1c6b7e5e0c}{get\+\_\+\+Curruent\+\_\+\+Location}} (void)
+\begin{DoxyCompactList}\small\item\em Get the Curruent Location object. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{class_ground___vehicle_a9911118f43f60b491bddf0d5afd37de2}{get\+\_\+\+Speed}} (void)
+\begin{DoxyCompactList}\small\item\em Get the Speed of ground mover in Kph. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{class_ground___vehicle_aa71660f225366bf70274027c48c82dfd}{get\+\_\+\+Bearing}} (void)
+\begin{DoxyCompactList}\small\item\em Get the Bearing of ground mover in degrees. \end{DoxyCompactList}\item 
+uas\+::\+Location \mbox{\hyperlink{class_ground___vehicle_a5b384dcadc6792c1e0a89e8a7c2a9a1d}{Coordinate\+To\+Coordinate}} (double x, double y, double angle, double meters)
+\begin{DoxyCompactList}\small\item\em Get the next location of where the ground mover is meant to to be based on speed, bearing, and current location. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_ground___vehicle_a61d45f31c8413eb977a9296a43a20d9e}{print\+\_\+\+Current\+\_\+\+Location}} (void)
+\begin{DoxyCompactList}\small\item\em print where the ground mover is \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{class_ground___vehicle_a33042145151f13a3eb2dd94664a574f9}{print\+\_\+\+Debug}} (void)
+\begin{DoxyCompactList}\small\item\em print where the ground mover is \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+– Class responsible for generating a new ground mover for detections and updating it every second 
+
+\begin{DoxyAuthor}{Author}
+– Original Author -\/ Christopher Seay 
+
+– Last Edited By -\/ Mases Krikorian 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+– 8/31/2020
+\end{DoxyDate}
+– This process is not part of MA and does not need a heartbeat to start. This process will not stop or terminate unless forced by the user. It generates a new moving object (near San Diego by default) for detection for \mbox{\hyperlink{class_e_o_i_r}{E\+O\+IR}} and \mbox{\hyperlink{class_r_d_r}{R\+DR}}, and updates its location every 1 second. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_ground___vehicle_a5b384dcadc6792c1e0a89e8a7c2a9a1d}\label{class_ground___vehicle_a5b384dcadc6792c1e0a89e8a7c2a9a1d}} 
+\index{Ground\_Vehicle@{Ground\_Vehicle}!CoordinateToCoordinate@{CoordinateToCoordinate}}
+\index{CoordinateToCoordinate@{CoordinateToCoordinate}!Ground\_Vehicle@{Ground\_Vehicle}}
+\doxysubsubsection{\texorpdfstring{CoordinateToCoordinate()}{CoordinateToCoordinate()}}
+{\footnotesize\ttfamily uas\+::\+Location Ground\+\_\+\+Vehicle\+::\+Coordinate\+To\+Coordinate (\begin{DoxyParamCaption}\item[{double}]{x,  }\item[{double}]{y,  }\item[{double}]{angle,  }\item[{double}]{meters }\end{DoxyParamCaption})}
+
+
+
+Get the next location of where the ground mover is meant to to be based on speed, bearing, and current location. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & -\/ latitude of ground mover in degrees \\
+\hline
+{\em y} & -\/ longtitude of ground mover in degrees \\
+\hline
+{\em angle} & -\/ bearing of ground mover in degrees \\
+\hline
+{\em meters} & -\/ distance to the distination waypoint (max allowed)\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+uas\+::\+Location -\/ location of where ground mover will be 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_ground___vehicle_aa71660f225366bf70274027c48c82dfd}\label{class_ground___vehicle_aa71660f225366bf70274027c48c82dfd}} 
+\index{Ground\_Vehicle@{Ground\_Vehicle}!get\_Bearing@{get\_Bearing}}
+\index{get\_Bearing@{get\_Bearing}!Ground\_Vehicle@{Ground\_Vehicle}}
+\doxysubsubsection{\texorpdfstring{get\_Bearing()}{get\_Bearing()}}
+{\footnotesize\ttfamily double Ground\+\_\+\+Vehicle\+::get\+\_\+\+Bearing (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Get the Bearing of ground mover in degrees. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+double bearing of ground mover in degrees 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_ground___vehicle_a4f772b7cbaea8ddc09e63a1c6b7e5e0c}\label{class_ground___vehicle_a4f772b7cbaea8ddc09e63a1c6b7e5e0c}} 
+\index{Ground\_Vehicle@{Ground\_Vehicle}!get\_Curruent\_Location@{get\_Curruent\_Location}}
+\index{get\_Curruent\_Location@{get\_Curruent\_Location}!Ground\_Vehicle@{Ground\_Vehicle}}
+\doxysubsubsection{\texorpdfstring{get\_Curruent\_Location()}{get\_Curruent\_Location()}}
+{\footnotesize\ttfamily uas\+::\+Location Ground\+\_\+\+Vehicle\+::get\+\_\+\+Curruent\+\_\+\+Location (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Get the Curruent Location object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+uas\+::\+Location with lat, lon, and alt members of the ground mover\textquotesingle{}s location 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_ground___vehicle_a9911118f43f60b491bddf0d5afd37de2}\label{class_ground___vehicle_a9911118f43f60b491bddf0d5afd37de2}} 
+\index{Ground\_Vehicle@{Ground\_Vehicle}!get\_Speed@{get\_Speed}}
+\index{get\_Speed@{get\_Speed}!Ground\_Vehicle@{Ground\_Vehicle}}
+\doxysubsubsection{\texorpdfstring{get\_Speed()}{get\_Speed()}}
+{\footnotesize\ttfamily double Ground\+\_\+\+Vehicle\+::get\+\_\+\+Speed (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Get the Speed of ground mover in Kph. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+double speed of ground mover in Kph 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_ground___vehicle_a61d45f31c8413eb977a9296a43a20d9e}\label{class_ground___vehicle_a61d45f31c8413eb977a9296a43a20d9e}} 
+\index{Ground\_Vehicle@{Ground\_Vehicle}!print\_Current\_Location@{print\_Current\_Location}}
+\index{print\_Current\_Location@{print\_Current\_Location}!Ground\_Vehicle@{Ground\_Vehicle}}
+\doxysubsubsection{\texorpdfstring{print\_Current\_Location()}{print\_Current\_Location()}}
+{\footnotesize\ttfamily void Ground\+\_\+\+Vehicle\+::print\+\_\+\+Current\+\_\+\+Location (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+print where the ground mover is 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_ground___vehicle_a33042145151f13a3eb2dd94664a574f9}\label{class_ground___vehicle_a33042145151f13a3eb2dd94664a574f9}} 
+\index{Ground\_Vehicle@{Ground\_Vehicle}!print\_Debug@{print\_Debug}}
+\index{print\_Debug@{print\_Debug}!Ground\_Vehicle@{Ground\_Vehicle}}
+\doxysubsubsection{\texorpdfstring{print\_Debug()}{print\_Debug()}}
+{\footnotesize\ttfamily void Ground\+\_\+\+Vehicle\+::print\+\_\+\+Debug (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+print where the ground mover is 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_ground___vehicle_ad804c200bb6a9d3d1374d86bb64ce61b}\label{class_ground___vehicle_ad804c200bb6a9d3d1374d86bb64ce61b}} 
+\index{Ground\_Vehicle@{Ground\_Vehicle}!Update\_Ground\_Vehicle\_Position@{Update\_Ground\_Vehicle\_Position}}
+\index{Update\_Ground\_Vehicle\_Position@{Update\_Ground\_Vehicle\_Position}!Ground\_Vehicle@{Ground\_Vehicle}}
+\doxysubsubsection{\texorpdfstring{Update\_Ground\_Vehicle\_Position()}{Update\_Ground\_Vehicle\_Position()}}
+{\footnotesize\ttfamily void Ground\+\_\+\+Vehicle\+::\+Update\+\_\+\+Ground\+\_\+\+Vehicle\+\_\+\+Position (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+update vehicle location based on the speed and bearing. If distance traveled is above the max allowed, vehicle will travel 90 degrees; effectively moving the vechile in a square-\/like shape, and sending the data through the \char`\"{}ground\+Movers\char`\"{} Active\+MQ channel 
+
+
+\begin{DoxyParams}{Parameters}
+{\em V\+O\+ID} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+V\+O\+ID 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+External/Ground\+\_\+\+Movers.\+h\item 
+External/Ground\+\_\+\+Movers.\+cpp\end{DoxyCompactItemize}
