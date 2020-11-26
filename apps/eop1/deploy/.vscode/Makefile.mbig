@@ -1,0 +1,30 @@
+CLOSURE_DIR=~/gaps/build
+ODIR=./partitioned/$(IPCMODE)
+CFG_DIR=$(CLOSURE_DIR)/src/emu/config/$(PROG)
+
+autogen_dir := $(ODIR)/autogen
+LIB_OBJ= $(autogen_dir)/float754.o $(autogen_dir)/codec.o 
+
+INCLUDES=-I $(CLOSURE_INCLUDES) -I ../autogen 
+LDLIBS=-L $(CLOSURE_LIBS)
+LIBS=../autogen/libcodecs.a -lpthread
+
+DEBPKGS=$(shell cat .vscode/cleandbg.list)
+PYPKGS=
+
+deps:
+	mkdir -p .dependencies/linux/deb
+	mkdir -p .dependencies/linux/sources
+	cd .dependencies/linux/deb && apt download $(DEBPKGS)
+	
+pkg:
+	mkdir -p .dependencies
+	tar cf $(PROG)-orange-enclave-gw-P.tar .dependencies
+	tar cf $(PROG)-purple-enclave-gw-O.tar .dependencies
+	rm -rf $(CLOSURE_DIR)/src/emu/.apps
+	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
+	mv *.tar $(CLOSURE_DIR)/src/emu/.apps/
+	#$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x $(ODIR)/xdconf.ini -d $(CFG_DIR)/devices.json -p $(PROG)_hal
+
+cleandeps:
+	rm -rf .dependencies
