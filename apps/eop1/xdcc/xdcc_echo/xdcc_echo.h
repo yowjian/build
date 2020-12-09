@@ -13,14 +13,12 @@ void echo_component_heartbeats_cpp(
     amqlib_t *__amqlib,
     int __is_topic,
     const char *ss,
-    const char *st,
-    int k);
+    const char *st);
 void unmarshal_component_heartbeats(
     const char *s, 
     int *fromRemote,
     char *ss, 
-    char *st, 
-    int *k);
+    char *st);
 
 #ifdef __cplusplus
 } /* extern "C" */
