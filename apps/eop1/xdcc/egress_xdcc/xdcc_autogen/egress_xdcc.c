@@ -38,9 +38,8 @@
 #pragma cle begin XDLINKAGE_ECHO_COMPONENT_HEARTBEATS
 int echo_component_heartbeats(
     char *ss,
-    char *st,
-    int k
-)
+    char *st
+  )
 {
 #pragma cle end XDLINKAGE_ECHO_COMPONENT_HEARTBEATS
     /* cues here guide GEDL for size inference */
@@ -54,8 +53,7 @@ int echo_component_heartbeats(
         amq(),
         _topic_component_heartbeats,
         ss_cpp,
-        st_cpp,
-        k
+        st_cpp
     );
     return 0;
 }
@@ -66,12 +64,11 @@ void egress_component_heartbeats(const char *s)
     #pragma cle begin ORANGE_SHAREABLE
     char ss[MAXSTR_SIZE];  /* XXX: size should come from schema */
     char st[MAXSTR_SIZE];  /* XXX: size should come from schema */
-    int k;
     #pragma cle end ORANGE_SHAREABLE
     if (_local_component_heartbeats) return;
-    unmarshal_component_heartbeats(s,&fromRemote,ss,st,&k);
+    unmarshal_component_heartbeats(s,&fromRemote,ss,st);
     /* XXX: do CLOSURE tools require wrappable function to return non-void value? */
-    if (fromRemote==0) echo_component_heartbeats(ss, st, k);
+    if (fromRemote==0) echo_component_heartbeats(ss, st);
 }
 
 #define XDCCLISTEN(X) amqlib_listen(amq(), #X, egress_##X, _topic_##X); 

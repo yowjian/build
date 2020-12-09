@@ -22,8 +22,10 @@ export TAGPROC=${CLOSURE_SCRIPTS}/tag_processor.py
 export CUTZOOM=${CLOSURE_SCRIPTS}/cutzoom.py
 export DIV=${CLOSURE_SCRIPTS}/program_divider.py
 export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
-export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator_rk.py
-export AUTOGEN=${CLOSURE_SCRIPTS}/autogen.py
+#export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator_rk.py
+export RPCGENERATOR=/home/mkaplan/gaps/build/src/capo/gedl/RPCGenerator_rk.py
+#export AUTOGEN=${CLOSURE_SCRIPTS}/autogen.py
+export AUTOGEN=/home/mkaplan/gaps/build/src/hal/autogen/autogen.py
 export HALGEN=${CLOSURE_SCRIPTS}/hal_autoconfig.py
 
 LLVM_RELEASE=/usr/local
