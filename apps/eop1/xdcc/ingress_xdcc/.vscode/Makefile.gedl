@@ -142,14 +142,14 @@ $(EDIR)/rpc.done: $(EDIR)/prerpc.done
 $(EDIR)/prerpc.done: rautogen $(AUTOGENDIR)/libcodecs.so $(AUTOGENDIR)/libcodecs.a
 	$(foreach enclave,$(ENCLAVES), $(eval ALL_IR += $(shell find $(EDIR)/$(enclave) -name *.ll;)))
 	$(foreach p,$(ALL_IR), rm -f $p;)
-	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini -m $(PROG) && \
+	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini -m $(PROG) -M 110 -S 110 -T 110 && \
 	touch $(EDIR)/prerpc.done
 
 rautogen: $(EDIR)/rautogen.done
 
 $(EDIR)/rautogen.done: idl
-	cd $(AUTOGENDIR) && $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g bw_v1 -d $(PROG)_bw.dfdl -e codec \
-	&& $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g be_v1 -d $(PROG)_be.dfdl -e codec \
+	cd $(AUTOGENDIR) && $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g bw_v1 -d $(PROG)_bw.dfdl -e codec -T 110\
+	&& $(PYTHON) $(AUTOGEN) -i "$(PROG).idl" -g be_v1 -d $(PROG)_be.dfdl -e codec -T 110\
 	&& echo $(PWD) && cd $(PWD) && touch $(EDIR)/rautogen.done
 
 idl: $(EDIR)/idl.done
