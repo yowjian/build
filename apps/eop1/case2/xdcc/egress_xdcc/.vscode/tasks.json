@@ -50,6 +50,7 @@
           "9a DIVIDE",
           "9b AUTOGEN GEDL, RPCs, IDL, Codecs",
           "9c VERIFY",
+          "9d VISUALIZE CROSS-DOMAIN CUT",
           "9e BUILD"
         ],
         "problemMatcher": []
