@@ -332,10 +332,10 @@
         {
             "cle-label": "ISRM_CLE_LABEL",
             "cle-json": {
-                "level": "green",
+                "level": "orange",
                 "cdf": [
                     {
-                        "remotelevel": "orange",
+                        "remotelevel": "green",
                         "direction": "egress",
                         "guarddirective": {
                             "operation": "allow"
