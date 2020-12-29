@@ -82,14 +82,16 @@ In addition to the above, we also use [Apache Daffofil v. 2.5.0](http://daffodil
 | zeromq-devel                  | 4.1.4-6.el7   | 
 
 ### Python3 packages (pip3 install)
-| Package       | Version | 
-|:--------------|:--------------|
-| decorator   | 4.4.1 |
-| hpp2plantuml | 0.6 |
-| lark-parser | 0.7.8 |
-| networkx    | 2.4   |
-| pexpect     | 4.7.0 |
-| pydot       | 1.4.1 |
-| matplotlib  | 3.2.1 |
-| libconf     | 2.0.1 |
-| xdot        | 1.1   |
+| Package              | Version       | 
+|:---------------------|:--------------|
+| decorator            | 4.4.1 |
+| hpp2plantuml         | 0.6 |
+| lark-parser          | 0.7.8 |
+| networkx             | 2.4   |
+| pexpect              | 4.7.0 |
+| pydot                | 1.4.1 |
+| matplotlib           | 3.2.1 |
+| libconf              | 2.0.1 |
+| xdot                 | 1.1   | 
+| dash                 | 1.18.1 |
+| dash-cytoscape       | 0.2.0 |
