@@ -83,7 +83,6 @@ dpkg
 tar
 libacl1
 libzstd1
-debconf-2.0
 libreadline8
 readline-common
 install-info
