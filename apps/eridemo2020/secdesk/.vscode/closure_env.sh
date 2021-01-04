@@ -1,6 +1,6 @@
 #!/bin/bash
 export PROG=$(eval basename `pwd`)
-export PYTHON=/usr/bin/python3
+export PYTHON"=/usr/bin/python3 -u"
 
 CLOSURE_TOOLS=/opt/closure
 CLOSURE_SRC=~/gaps/build/src
@@ -18,6 +18,8 @@ export PREPROCESSOR=${CLOSURE_SCRIPTS}/qd_cle_preprocessor.py
 export PARTITIONER=${CLOSURE_SCRIPTS}/partitioner.py
 export TAGPROC=${CLOSURE_SCRIPTS}/tag_processor.py
 export CUTZOOM=${CLOSURE_SCRIPTS}/cutzoom.py
+export JOINCLEMAPS=${CLOSURE_SCRIPTS}/join_clemaps.py
+
 export DIV=${CLOSURE_SCRIPTS}/program_divider.py
 
 export LIBPDG=${CLOSURE_LIBS}/libpdg.so

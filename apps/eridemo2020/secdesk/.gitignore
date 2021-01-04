@@ -2,3 +2,4 @@
 .packages
 divvied*
 partitioned/
+*.db

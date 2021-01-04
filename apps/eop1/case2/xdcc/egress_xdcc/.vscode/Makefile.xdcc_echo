@@ -1,10 +1,10 @@
 INCLUDE = -I .
-INCLUDE = -I ../../../amqlib
-INCLUDE += -I ../../../amqlib/include
-INCLUDE += -I/usr/local/include/activemq-cpp-3.9.5
+INCLUDE = -I ../../amqlib
+INCLUDE += -I ../../amqlib/include
+INCLUDE += -I$(PINSTALL)/include/activemq-cpp-3.9.5
 INCLUDE += -I/usr/include/apr-1.0
 
-LDFLAGS += -lactivemq-cpp -lpthread
+LDFLAGS += -L$(PINSTALL)/lib -lactivemq-cpp -lpthread
 CXXFLAGS += -g $(INCLUDE) $(LDFLAGS) -fPIC -Wno-deprecated-declarations
 CXX=g++
 

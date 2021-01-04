@@ -12,7 +12,7 @@
 #ifndef __STUBBED
 #define RECOGNIZER_MODULE "recognize_local"
 #include <stdio.h>
-#include <python3.7/Python.h>
+#include <python3.8/Python.h>
 #endif 
 
 int start_imageprocessor(void);
