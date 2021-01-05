@@ -9,7 +9,7 @@ INCLUDES=-I $(CLOSURE_INCLUDES) -I ../autogen
 LDLIBS=-L $(CLOSURE_LIBS)
 LIBS=../autogen/libcodecs.a -lpthread
 
-DEBPKGS=$(shell cat .vscode/cleandbg.list)
+DEBPKGS=$(shell cat .vscode/clean.list)
 PYPKGS=
 
 deps:
