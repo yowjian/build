@@ -26,8 +26,10 @@ hal:
 
 pkg:
 	mkdir -p .dependencies
-	tar cf $(PROG)-orange-enclave-gw-G.tar .dependencies
-	tar cf $(PROG)-green-enclave-gw-O.tar .dependencies
+	$(eval CASE = $(shell basename $(shell dirname `pwd`)))
+	cd ../MA_v1.0_src && ./package.sh && cd ../../ && ./package.sh ${CASE} && cd ${CASE}/deploy
+	tar cf $(PROG)-orange-enclave-gw-G.tar .dependencies -C ../MA_v1.0_src MA_1.0.tgz -C ../../ ${CASE}.tgz
+	tar cf $(PROG)-green-enclave-gw-O.tar .dependencies  -C ../MA_v1.0_src MA_1.0.tgz -C ../../ ${CASE}.tgz
 	rm -rf $(CLOSURE_DIR)/src/emu/.apps
 	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
 	mv *.tar $(CLOSURE_DIR)/src/emu/.apps/
