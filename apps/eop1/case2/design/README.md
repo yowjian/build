@@ -1,8 +1,8 @@
 # Design procedure to be converted into CVI tasks
 
-mkdir ../xdcc/egress_xdcc/xdcc_autogen
-mkdir ../xdcc/ingress_xdcc/xdcc_autogen
-mkdir ../xdcc/xdcc_echo
+mkdir -p ../xdcc/egress_xdcc/xdcc_autogen
+mkdir -p ../xdcc/ingress_xdcc/xdcc_autogen
+mkdir -p ../xdcc/xdcc_echo
 # $HOME/gaps/build/apps/eop1/case2/design
 
 cat << EOT > config.json
