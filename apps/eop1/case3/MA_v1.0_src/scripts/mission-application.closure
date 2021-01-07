@@ -1,23 +1,27 @@
 #!/bin/sh
 set -e
-VALID_COMPONENTS="MPU MPX ISRM RDR EOIR External ISRMShadow"
-
+export PINSTALL=/home/closure/apps/pinstall
+export LD_LIBRARY_PATH=/opt/closure/lib:${PINSTALL}/lib:${PINSTALL}/../amqlib:${PINSTALL}/../case3/xdcc/xdcc_echo:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
+VALID_COMPONENTS="MPU MPX ISRM RDR EOIR External ISRMshadow"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+echo "Executing from ${SCRIPT_DIR}"
+
 function start(){
+    echo "Attempting to start components in $@"
     for component in "$@"		     
     do
-	echo "Checking for $component ..."
-	if [ ! -e ./../lbuild/$component/$component ]; then
-	    echo "$component missing."
+	echo "Checking for ${component} ..."
+	if [ ! -e ./../lbuild/${component}/${component} ]; then
+	    echo "${component} missing."
 	    continue
 	fi
 	   
 	for c in $VALID_COMPONENTS
 	do
-	    if [[ $c == $component ]]; then
-		echo "Running $component ..."
-		cd $SCRIPT_DIR/../$component
-		./../lbuild/$component/$component& > /dev/null 2>&1
+	    if [[ $c == ${component} ]]; then
+		echo "Running ${component} ..."
+		cd ${SCRIPT_DIR}/../${component}
+		./../lbuild/${component}/${component} & > /dev/null 2>&1
 		echo $! >> $SCRIPT_DIR/pid
 		echo "Success."
 		break
@@ -28,7 +32,7 @@ function start(){
 
 function stop(){
         set +e
-	if [ -e $SCRIPT_DIR/pid ]; then
+	if [ -e ${SCRIPT_DIR}/pid ]; then
 		echo "Killing running processes..."
 	        while read p; do
                 output=$(ps -p "$p")
@@ -36,10 +40,10 @@ function stop(){
                         kill -9 "$p"
                         wait $! 2>/dev/null
                 fi
-        	done < $SCRIPT_DIR/pid
+        	done < ${SCRIPT_DIR}/pid
         	echo "Success."
         	echo "Removing old pid file..."
-        	rm $SCRIPT_DIR/pid
+        	rm ${SCRIPT_DIR}/pid
         	echo "Success."
 	fi
 	set -e
@@ -49,10 +53,11 @@ if [ -z $1 ]; then
          echo "ERROR: Pass start/stop to start or stop Mission Application"
 
 elif [ $1 = "start" ]; then
-        if [ -e $SCRIPT_DIR/pid ]; then
+        if [ -e ${SCRIPT_DIR}/pid ]; then
                 stop
         fi
-        start
+        shift
+        start "$@"
 
 elif [ $1 = "stop" ]; then
         stop
