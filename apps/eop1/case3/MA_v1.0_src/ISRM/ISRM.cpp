@@ -14,8 +14,8 @@ ISRM::ISRM(int maxDetects) : planManager(5), detects(maxDetects) {
 	amq.listen("updateMissionPlan", std::bind(&ISRM::updateMissionPlan, this, _1), true);
 	amq.listen("requestISRMDetections", std::bind(&ISRM::handleDetectionsRequest, this, _1), true);
 	amq.listen("recieveISRMDetectionsXD", std::bind(&ISRM::handleRecieveISRMDetectionsXD, this, _1), true);
-	amq.listen("recieveRDRDetections", std::bind(&ISRM::handleRecieveRDRDetections, this, _1), true);
-	amq.listen("recieveEOIRDetections", std::bind(&ISRM::handleRecieveEOIRDetections, this, _1), true);
+	//amq.listen("recieveRDRDetections", std::bind(&ISRM::handleRecieveRDRDetections, this, _1), true);
+	//amq.listen("recieveEOIRDetections", std::bind(&ISRM::handleRecieveEOIRDetections, this, _1), true);
 	amq.listen("updateConfig", std::bind(&ISRM::handleUpdateConfig, this, _1), true);
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);
@@ -136,5 +136,9 @@ void ISRM::updateMissionPlan(const json &j) {
 	MissionPlan *plan = Utils::parsePlan(j);
 	planManager.add(plan->getId(), plan);
 
+        // updateMissionPlanXD is "reduced information set" for sharing
+        // for waypoint w in j["waypoints"]:
+        //   w["z"] = 0.0;
+       
 	ISRM::amq.publish("updateMissionPlanXD", j, true);
 }

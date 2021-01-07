@@ -9,11 +9,13 @@ function start(){
 	echo $! >> $SCRIPT_DIR/pid
 	echo "Success."
 
-	echo "Running ISRMshadow..."
-	cd $SCRIPT_DIR/../ISRMshadow
-	./../lbuild/ISRMshadow/ISRMshadow& > /dev/null 2>&1
-	echo $! >> $SCRIPT_DIR/pid
-	echo "Success."
+	echo "Not running ISRMshadow to avoid loops..."
+	echo "Use mission-application.closure script and run correct components on each side"
+	#echo "Running ISRMshadow..."
+	#cd $SCRIPT_DIR/../ISRMshadow
+	#./../lbuild/ISRMshadow/ISRMshadow& > /dev/null 2>&1
+	#echo $! >> $SCRIPT_DIR/pid
+	#echo "Success."
         
 	echo "Running MPU..."
 	cd $SCRIPT_DIR/../MPU

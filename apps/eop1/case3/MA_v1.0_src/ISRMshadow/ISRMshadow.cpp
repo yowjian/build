@@ -110,25 +110,29 @@ void ISRMShadow::handleDetectionsRequestXD(json j) {
 	}
 	eoirDataCollected = false;
 	rdrDataCollected = false;
-	amq.publish("recieveISRMDetectionsXD", Utils::getDetectionsJson(detects), true);
+	det["detects"] = Utils::getDetectionsJson(detects);
+
+        // recieveISRMDetectionsXD is "reduced information set"
+        // for each d in det["detects"]
+        //   d["alt"] = 0.0
+	amq.publish("recieveISRMDetectionsXD", det, true);
 }
 
 void ISRMShadow::handleRecieveRDRDetections(json j) {
 	rdrDataCollected = true;
-	Utils::addDetections(detects, j);
+	Utils::addDetections(detects, j["detects"]);
 }
 
 void ISRMShadow::handleRecieveEOIRDetections(json j) {
 	eoirDataCollected = true;
-	Utils::addDetections(detects, j);
+	Utils::addDetections(detects, j["detects"]);
 }
 
 
 void ISRMShadow::updateMissionPlanXD(const json &j) {
-cout << "received updateMissionPlanXD " << j.dump(2) << endl;
 	MissionPlan *plan = Utils::parsePlan(j);
 	planManager.add(plan->getId(), plan);
 
-    // TODO: publish updateMissionPlan
+        // WARNING: risk of infinite loop if ISRMshadow run on same side as ISRM
 	// ISRMShadow::amq.publish("updateMissionPlan", j, true);
 }
