@@ -135,5 +135,5 @@ void ISRMShadow::updateMissionPlanXD(const json &j) {
 	planManager.add(plan->getId(), plan);
 
         // WARNING: risk of infinite loop if ISRMshadow run on same side as ISRM
-	// ISRMShadow::amq.publish("updateMissionPlan", j, true);
+	ISRMShadow::amq.publish("updateMissionPlan", j, true);
 }
