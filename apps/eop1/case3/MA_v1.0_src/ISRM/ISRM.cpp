@@ -137,8 +137,10 @@ void ISRM::updateMissionPlan(const json &j) {
 	planManager.add(plan->getId(), plan);
 
         // updateMissionPlanXD is "reduced information set" for sharing
-        // for waypoint w in j["waypoints"]:
-        //   w["z"] = 0.0;
+        json jc = j;
+        json wp = jc["missionPlan"]["vehiclePlan"]["wayPoints"];
+        for (int i=0; i < wp.size(); i++) wp[i]["z"] = 0.0;
+        jc["missionPlan"]["vehiclePlan"]["wayPoints"] = wp;
        
-	ISRM::amq.publish("updateMissionPlanXD", j, true);
+        ISRM::amq.publish("updateMissionPlanXD", jc, true);
 }

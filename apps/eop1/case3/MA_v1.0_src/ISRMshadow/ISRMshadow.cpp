@@ -113,8 +113,9 @@ void ISRMShadow::handleDetectionsRequestXD(json j) {
 	det["detects"] = Utils::getDetectionsJson(detects);
 
         // recieveISRMDetectionsXD is "reduced information set"
-        // for each d in det["detects"]
-        //   d["alt"] = 0.0
+        json dj = det["detects"];
+        for (int i=0; i < dj.size(); i++) dj[i]["alt"] = 0.0;
+        det["detects"] = dj;
 	amq.publish("recieveISRMDetectionsXD", det, true);
 }
 
