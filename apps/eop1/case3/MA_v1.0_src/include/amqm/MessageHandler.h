@@ -139,6 +139,8 @@ namespace amqm {
 					message->acknowledge();
 				}
 				json j = json::parse(text);
+				// Remove XDCC-inserted fromRemote before handing to application
+				j.erase("fromRemote");
 				callback(j);
 			}
 			catch (CMSException& e) {
