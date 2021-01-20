@@ -1,0 +1,5 @@
+*.json
+*.ini
+*xdcc_autogen*
+*xdcc_echo*
+*MA_1.0.tgz

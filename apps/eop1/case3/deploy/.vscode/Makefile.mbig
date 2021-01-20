@@ -9,7 +9,7 @@ INCLUDES=-I $(CLOSURE_INCLUDES) -I ../autogen
 LDLIBS=-L $(CLOSURE_LIBS)
 LIBS=../autogen/libcodecs.a -lpthread
 
-DEBPKGS=$(shell cat .vscode/cleandbg.list)
+DEBPKGS=$(shell cat .vscode/clean.list)
 PYPKGS=
 
 deps:
@@ -18,7 +18,6 @@ deps:
 	cd .dependencies/linux/deb && apt download $(DEBPKGS)
 
 hal:
-	# fetch xdconf.ini from egress/ingress, write script to merge into single xdconf.ini (currently done manually)
 	cp ../xdcc/egress_xdcc/partitioned/multithreaded/xdconf.ini ./egress_xdconf.ini
 	cp ../xdcc/ingress_xdcc/partitioned/multithreaded/xdconf.ini ./ingress_xdconf.ini
 	$(PYTHON) $(XDCONFMERGER) -f "./egress_xdconf.ini ./ingress_xdconf.ini"
@@ -26,8 +25,10 @@ hal:
 
 pkg:
 	mkdir -p .dependencies
-	tar cf $(PROG)-orange-enclave-gw-G.tar .dependencies
-	tar cf $(PROG)-green-enclave-gw-O.tar .dependencies
+	$(eval CASE = $(shell basename $(shell dirname `pwd`)))
+	cd ../MA_v1.0_src && ./package.sh && cd ../../ && ./package.sh ${CASE} && cd ${CASE}/deploy
+	tar cf $(PROG)-orange-enclave-gw-G.tar .dependencies -C ../MA_v1.0_src MA_1.0.tgz -C ../../ ${CASE}.tgz
+	tar cf $(PROG)-green-enclave-gw-O.tar .dependencies  -C ../MA_v1.0_src MA_1.0.tgz -C ../../ ${CASE}.tgz
 	rm -rf $(CLOSURE_DIR)/src/emu/.apps
 	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
 	mv *.tar $(CLOSURE_DIR)/src/emu/.apps/
