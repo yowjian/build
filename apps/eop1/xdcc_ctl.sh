@@ -50,11 +50,14 @@ handle_opts() {
 }
 
 start() {
+    if [[ "x"$PINSTALL == "x" ]]; then
+	echo "PINSTALL not set."
+	exit 1
+    fi
     if [[ "x"`pgrep egress_xdcc` != "x" ]] || [[ "x"`pgrep ingress_xdcc` != "x" ]]; then
 	echo "XDCC appears to be running"
 	exit 1
     fi
-    export PINSTALL=/home/closure/apps/pinstall
     export LD_LIBRARY_PATH=/opt/closure/lib:${PINSTALL}/lib:${PINSTALL}/../amqlib:${PINSTALL}/../${DIR}/xdcc/xdcc_echo:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
     rm -f /tmp/*xdcc*.out
     rm -f /tmp/*.${COLOR}
