@@ -142,7 +142,8 @@ $(EDIR)/rpc.done: $(EDIR)/prerpc.done
 $(EDIR)/prerpc.done: rautogen $(AUTOGENDIR)/libcodecs.so $(AUTOGENDIR)/libcodecs.a
 	$(foreach enclave,$(ENCLAVES), $(eval ALL_IR += $(shell find $(EDIR)/$(enclave) -name *.ll;)))
 	$(foreach p,$(ALL_IR), rm -f $p;)
-	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini -m $(PROG) -M 110 -S 110 -T 110 && \
+	$(eval MUX=$(shell echo '${MUXBASE} + 110' | bc))
+	$(PYTHON) $(RPCGENERATOR) -o $(ODIR) -g $(ODIR)/$(PROG).gedl -i $(IPC_MODE) -a $(CLOSURE_LIBS) -n $(INURI) -t $(OUTURI) -e $(EDIR) -E $(ENCLAVES) -x xdconf.ini -m $(PROG) -M $(MUX) -S 110 -T 110 && \
 	touch $(EDIR)/prerpc.done
 
 rautogen: $(EDIR)/rautogen.done

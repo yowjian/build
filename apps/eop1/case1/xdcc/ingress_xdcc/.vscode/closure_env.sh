@@ -38,3 +38,20 @@ export LLVM_DIR=${LLVM_RELEASE}
 export IPCMODE=multithreaded
 export ENCLAVES="orange green"
 export EXT=c
+
+export CASE=`cd ../../ && basename \`pwd\``
+
+export MUXBASE=0
+if [[ $HWMODE == "ilip" ]] || [[ $HWMODE == "ILIP" ]]; then
+    if [[ "$CASE" == "case1" ]]; then
+       export MUXBASE=`echo '2^30' | bc`
+    elif [[ "$CASE" == "case2" ]]; then
+       export MUXBASE=`echo '2^31' | bc`
+    elif [[ "$CASE" == "case3" ]]; then
+       export MUXBASE=`echo '2^30 + 2^31' | bc`
+    else
+        echo "Case: $CASE not supported for ILIP, default to base=0"
+        export MUXBASE=0
+    fi
+fi
+echo "HW=$HWMODE BASE=$MUXBASE CASE=$CASE"
