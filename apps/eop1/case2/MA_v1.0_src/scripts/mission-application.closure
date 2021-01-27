@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
-export PINSTALL=/home/closure/apps/pinstall
+if [[ x$PINSTALL == x ]]; then
+    echo "PINSTALL not set"
+    exit 1
+fi
 export LD_LIBRARY_PATH=/opt/closure/lib:${PINSTALL}/lib:${PINSTALL}/../amqlib:${PINSTALL}/../case2/xdcc/xdcc_echo:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
 VALID_COMPONENTS="MPU MPX ISRM RDR EOIR External ISRMshadow"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
