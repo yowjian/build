@@ -3,19 +3,17 @@ CASE=
 
 usage_exit() {
   [[ -n "$1" ]] && echo $1
-  echo "Usage: $0 [ -h ] [ -d CASE ] [ -p PINST ]"
+  echo "Usage: $0 [ -h ] [ -d CASE ]"
   echo "-h          Help"
   echo "-d CASE     case1, case2, or case3"
-  echo "-p PINST    Path to PINSTALL directory"
   exit 1
 }
 
 handle_opts() {
     local OPTIND
-    while getopts "p:d:h" options; do
+    while getopts "d:h" options; do
 	case "${options}" in
 	    d) CASE=${OPTARG}      ;;
-	    p) PINSTALL=${OPTARG}  ;;
 	    h) usage_exit          ;;
 	    :) usage_exit "Error: -${OPTARG} requires argument." ;;
 	    *) usage_exit
@@ -23,20 +21,14 @@ handle_opts() {
     done
     shift "$((OPTIND-1))"
     
-    if [[ "x$CASE" == "x" ]] || [[ "x$PINSTALL" == "x" ]]; then
+    if [[ "x$CASE" == "x" ]]; then
 	usage_exit
     fi
-
-    PWD=`pwd`
-    case $PINSTALL in
-	/*) ;;
-	*)  PINSTALL="$PWD/$PINSTALL"
-    esac
 }
 handle_opts "$@"
 
 pushd ../$CASE/MA_v1.0_src/scripts
-PINSTALL=$PINSTALL bash -f mission-application.closure stop
+bash -f mission-application.closure stop
 pkill -f MPU 
 pkill -f MPX
 pkill -f ISRM 
@@ -47,7 +39,7 @@ pkill -f External
 popd
 
 pushd ..
-PINSTALL=$PINSTALL ./xdcc_ctl.sh -r stop
+./xdcc_ctl.sh -r stop
 pkill -f egress_xdcc
 pkill -f ingress_xdcc
 popd

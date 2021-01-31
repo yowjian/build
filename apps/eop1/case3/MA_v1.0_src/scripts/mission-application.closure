@@ -1,15 +1,16 @@
 #!/bin/sh
 set -e
-if [[ x$PINSTALL == x ]]; then
-    echo "PINSTALL not set"
-    exit 1
-fi
-export LD_LIBRARY_PATH=/opt/closure/lib:${PINSTALL}/lib:${PINSTALL}/../amqlib:${PINSTALL}/../case2/xdcc/xdcc_echo:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
 VALID_COMPONENTS="MPU MPX ISRM RDR EOIR External ISRMshadow"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 echo "Executing from ${SCRIPT_DIR}"
 
 function start(){
+    if [[ x$PINSTALL == x ]]; then
+	echo "PINSTALL not set"
+	exit 1
+    fi
+    export LD_LIBRARY_PATH=/opt/closure/lib:${PINSTALL}/lib:${PINSTALL}/../amqlib:${PINSTALL}/../case2/xdcc/xdcc_echo:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
+
     echo "Attempting to start components in $@"
     for component in "$@"		     
     do
