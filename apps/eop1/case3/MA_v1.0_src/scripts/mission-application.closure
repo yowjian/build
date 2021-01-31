@@ -2,6 +2,7 @@
 set -e
 VALID_COMPONENTS="MPU MPX ISRM RDR EOIR External ISRMshadow"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LD_LIBRARY_PATH=${PINSTALL}/lib:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
 echo "Executing from ${SCRIPT_DIR}"
 
 function start(){
@@ -9,8 +10,6 @@ function start(){
 	echo "PINSTALL not set"
 	exit 1
     fi
-    export LD_LIBRARY_PATH=/opt/closure/lib:${PINSTALL}/lib:${PINSTALL}/../amqlib:${PINSTALL}/../case2/xdcc/xdcc_echo:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
-
     echo "Attempting to start components in $@"
     for component in "$@"		     
     do
@@ -68,4 +67,3 @@ elif [ $1 = "stop" ]; then
 else
         echo "ERROR: Pass start/stop to start or stop Mission Application"
 fi
-

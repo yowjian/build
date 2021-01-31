@@ -3,6 +3,9 @@ hal_*.cfg
 */*/pinstall/
 */*/install/
 */*/lbuild/
+*/*/pinstall
+*/*/lbuild
+*/*/install
 */*/gaps.ma.dependencies
 */eop_ma_dependencies.tgz
 */*/*/walking.avi
