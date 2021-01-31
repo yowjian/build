@@ -29,6 +29,28 @@ handle_opts() {
 
 handle_opts "$@"
 
+# wget eop_ma_dependencies.tgz
+tar -zxvf eop_ma_dependencies.tgz
+mv gaps.ma.dependencies.tgz ../case1/MA_v1.0_src
+mv walking.avi ../case1/MA_v1.0_src/EOIR/
+mv yolov3.weights ../case1/MA_v1.0_src/EOIR/
+pushd ../case1/MA_v1.0_src
+tar -zxvf gaps.ma.dependencies.tgz
+rm gaps.ma.dependencies.tgz
+popd
+for CASE in case2 case3
+do
+    pushd ../$CASE/MA_v1.0_src
+    rm -f gaps.ma.dependencies 
+    ln -s ../../case1/MA_v1.0_src/gaps.ma.dependencies .
+    cd EOIR
+    rm -f walking.avi
+    ln -s ../../../case1/MA_v1.0_src/EOIR/walking.avi .
+    rm -f yolov3.weights
+    ln -s ../../../case1/MA_v1.0_src/EOIR/yolov3.weights .
+    popd
+done
+
 pushd $MAPATH 
 tar -zxvf gaps.ma.dependencies.tgz 
 cd scripts 
