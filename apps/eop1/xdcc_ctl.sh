@@ -29,6 +29,13 @@ handle_opts() {
     done
     shift "$((OPTIND-1))"
 
+    case $ACTION in
+	stop) 
+	    stop 
+	    exit 1
+	    ;;
+    esac
+
     case $COLOR in
 	orange)  ;;
 	green)   ;;
@@ -42,7 +49,6 @@ handle_opts() {
     exit 1
     fi
     case $ACTION in
-	stop) stop ;;
 	start) start ;;
 	restart) restart ;;
 	*) usage_exit "invalid action $ACTION" ;;
@@ -61,14 +67,14 @@ start() {
     export LD_LIBRARY_PATH=/opt/closure/lib:${PINSTALL}/lib:${PINSTALL}/../amqlib:${PINSTALL}/../${DIR}/xdcc/xdcc_echo:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
     rm -f /tmp/*xdcc*.out
     rm -f /tmp/*.${COLOR}
+    pushd ${PINSTALL}/../gaps.ma.dependencies/deps/activemq/activemq/bin
+    ./activemq consumer --messageCount 1000000 --destination topic://* &> /tmp/transcript.${COLOR} &
+    popd
     pushd ${DIR}/xdcc/egress_xdcc/partitioned/multithreaded/${COLOR}
     ./egress_xdcc &> /tmp/egress_xdcc.out &
     popd
     pushd ${DIR}/xdcc/ingress_xdcc/partitioned/multithreaded/${COLOR}
     ./ingress_xdcc &> /tmp/ingress_xdcc.out &
-    popd
-    pushd ${PINSTALL}/../gaps.ma.dependencies/deps/activemq/activemq/bin
-    ./activemq consumer --messageCount 1000000 --destination topic://* &> /tmp/transcript.${COLOR} &
     popd
 }
 
