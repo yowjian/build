@@ -1,13 +1,13 @@
 #!/bin/bash
 
 COLOR="NONE"
-DIR="NONE"
+CASE="NONE"
 ACTION="restart"
 
 usage_exit() {
     [[ -n "$1" ]] && echo $1
     echo "Usage: $0 [ -h ]"
-    echo "          [ -c COLOR] [ -d DIR ] [-r start/stop/restart ]"
+    echo "          [ -c COLOR] [ -d CASE ] [-r start/stop/restart ]"
     echo "-h        Help"
     echo "-c        orange or greeen"
     echo "-d        directory to run, caseX"
@@ -20,7 +20,7 @@ handle_opts() {
     while getopts "c:d:r:h" options; do
 	case "${options}" in
 	    c) COLOR=${OPTARG}  ;;
-	    d) DIR=${OPTARG}    ;;
+	    d) CASE=${OPTARG}    ;;
 	    r) ACTION=${OPTARG} ;;
 	    h) usage_exit       ;;
 	    :) usage_exit       "Error: -${OPTARG} requires an argument." ;;
@@ -41,11 +41,11 @@ handle_opts() {
 	green)   ;;
 	*)        usage_exit "Unsupported enclave color $COLOR" ;;
     esac
-    if [[ $DIR == "NONE" ]]; then
+    if [[ $CASE == "NONE" ]]; then
 	usage_exit "-d not specified"
     fi
-    if [[ ! -e $DIR ]]; then
-	usage_exit "Directory does not exist: $DIR"
+    if [[ ! -e $CASE ]]; then
+	usage_exit "Directory does not exist: $CASE"
     exit 1
     fi
     case $ACTION in
@@ -64,16 +64,18 @@ start() {
 	echo "XDCC appears to be running"
 	exit 1
     fi
-    export LD_LIBRARY_PATH=/opt/closure/lib:${PINSTALL}/lib:${PINSTALL}/../amqlib:${PINSTALL}/../${DIR}/xdcc/xdcc_echo:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
+    PWD=`pwd`
+    export LD_LIBRARY_PATH=/opt/closure/lib:${PINSTALL}/lib:${PWD}/amqlib:${PWD}/${CASE}/xdcc/xdcc_echo:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
+    echo $LD_LIBRARY_PATH
     rm -f /tmp/*xdcc*.out
     rm -f /tmp/*.${COLOR}
     pushd ${PINSTALL}/../gaps.ma.dependencies/deps/activemq/activemq/bin
     ./activemq consumer --messageCount 1000000 --destination topic://* &> /tmp/transcript.${COLOR} &
     popd
-    pushd ${DIR}/xdcc/egress_xdcc/partitioned/multithreaded/${COLOR}
+    pushd ${CASE}/xdcc/egress_xdcc/partitioned/multithreaded/${COLOR}
     ./egress_xdcc &> /tmp/egress_xdcc.out &
     popd
-    pushd ${DIR}/xdcc/ingress_xdcc/partitioned/multithreaded/${COLOR}
+    pushd ${CASE}/xdcc/ingress_xdcc/partitioned/multithreaded/${COLOR}
     ./ingress_xdcc &> /tmp/ingress_xdcc.out &
     popd
 }
