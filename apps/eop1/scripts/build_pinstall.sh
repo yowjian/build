@@ -57,7 +57,9 @@ do
     pushd ../$CASE/MA_v1.0_src
     rm -f gaps.ma.dependencies 
     ln -s ../../case1/MA_v1.0_src/gaps.ma.dependencies .
+    rm -f install
     ln -s ../../case1/MA_v1.0_src/install .
+    rm -f pinstall
     ln -s ../../case1/MA_v1.0_src/pinstall .
     cd EOIR
     rm -f walking.avi
