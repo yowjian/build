@@ -7,21 +7,19 @@ PWD=`pwd`
 
 usage_exit() {
   [[ -n "$1" ]] && echo $1
-  echo "Usage: $0 [ -ih ] [ -p PINSTALL ]"
+  echo "Usage: $0 [ -ih ]"
   echo "-h          Help"
   echo "-i          Install script dependency (vstask for python3)"
   echo "-m          Hardware Mode (ilip, mind, pl, emu)"
-  echo "-p PINSTALL Path to pinstall in Mission App src"
   exit 1
 }
 
 handle_opts() {
   local OPTIND
-  while getopts "im:p:h" options; do
+  while getopts "im:h" options; do
       case "${options}" in
 	  i) INSTALLDEPS="YES"      ;;
 	  m) HWMODE=${OPTARG}       ;;
-	  p) PINSTALL=${OPTARG}     ;;
 	  h) usage_exit             ;;
 	  :) usage_exit "Error: -${OPTARG} requires argument." ;;
 	  *) usage_exit
@@ -33,15 +31,10 @@ handle_opts() {
       install_deps
       exit 1
   fi
-  if [[ "x$PINSTALL" == "x" ]]; then
-      usage_exit "Error: PINSTALL must be set, use -p"
-      exit 1
-  else
-      case $PINSTALL in
-	  /*) ;;
-	  *)  PINSTALL="$PWD/$PINSTALL"
-      esac
-  fi
+
+  PWD=`pwd`
+  PINSTALL="${PWD}/../case1/MA_v1.0_src/pinstall"
+
   case $HWMODE in
       ilip)
 	  DEVFILE=/opt/closure/etc/devices_eop_ilip_v3.json
@@ -95,4 +88,5 @@ do
     pushd ../$CASE/deploy
     runtask "2 HAL"
     python3 /opt/closure/scripts/hal_autoconfig.py -o . -x ./xdconf.ini -d $DEVFILE -p hal_$CASE
+    popd
 done

@@ -8,17 +8,15 @@ usage_exit() {
   echo "-h          Help"
   echo "-c COLR     Enclave color (e.g, orange, green)"
   echo "-d CASE     case1, case2, or case3"
-  echo "-p PINST    PINSTALL directory"
   exit 1
 }
 
 handle_opts() {
     local OPTIND
-    while getopts "c:d:p:h" options; do
+    while getopts "c:d:h" options; do
 	case "${options}" in
 	    c) COLR=${OPTARG}      ;;
 	    d) CASE=${OPTARG}      ;;
-	    p) PINSTALL=${OPTARG}  ;;
 	    h) usage_exit          ;;
 	    :) usage_exit "Error: -${OPTARG} requires argument." ;;
 	    *) usage_exit
@@ -26,15 +24,12 @@ handle_opts() {
     done
     shift "$((OPTIND-1))"
     
-    if [[ "x$COLR" == "x" ]] || [[ "x$CASE" == "x" ]] || [[ "x$PINSTALL" == "x" ]]; then
+    if [[ "x$COLR" == "x" ]] || [[ "x$CASE" == "x" ]]; then
 	usage_exit
     fi
     
     PWD=`pwd`
-    case $PINSTALL in
-	/*) ;;
-	*)  PINSTALL="$PWD/$PINSTALL"
-    esac
+    PINSTALL="${PWD}/../$CASE/MA_v1.0_src/pinstall"
 }
 handle_opts "$@"
 
