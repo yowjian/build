@@ -72,14 +72,6 @@ case $COLR in
 	;;
 esac
 
-build_ma() {
-    pushd ../$CASE/MA_v1.0_src
-    rm -rf lbuild
-    cd scripts
-    bash -f install-ma.sh
-    popd
-}
-
 stop_demo() {
     bash ./stop_demo.sh -d $CASE
 }
@@ -113,5 +105,4 @@ start_demo() {
 
 stop_demo
 clean_logs
-build_ma
 start_demo

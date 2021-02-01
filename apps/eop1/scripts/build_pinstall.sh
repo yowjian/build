@@ -60,3 +60,14 @@ do
     ln -s ../../../case1/MA_v1.0_src/EOIR/yolov3.weights .
     popd
 done
+
+for CASE in case1 case2 case3
+do
+    pushd ../$CASE/MA_v1.0_src
+    rm -rf lbuild
+    cd scripts
+    bash -f install-ma.sh
+    popd
+done
+
+
