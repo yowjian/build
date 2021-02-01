@@ -2,14 +2,12 @@
 
 HWMODE=
 DEVFILE=
-INSTALLDEPS="NO"
 PWD=`pwd`
 
 usage_exit() {
   [[ -n "$1" ]] && echo $1
-  echo "Usage: $0 [ -ih ]"
+  echo "Usage: $0 [ -mh ]"
   echo "-h          Help"
-  echo "-i          Install script dependency (vstask for python3)"
   echo "-m          Hardware Mode (ilip, mind, pl, emu)"
   exit 1
 }
@@ -18,7 +16,6 @@ handle_opts() {
   local OPTIND
   while getopts "im:h" options; do
       case "${options}" in
-	  i) INSTALLDEPS="YES"      ;;
 	  m) HWMODE=${OPTARG}       ;;
 	  h) usage_exit             ;;
 	  :) usage_exit "Error: -${OPTARG} requires argument." ;;
@@ -26,11 +23,6 @@ handle_opts() {
       esac
   done
   shift "$((OPTIND-1))"
-
-  if [[ "$INSTALLDEPS" == "YES" ]]; then
-      install_deps
-      exit 1
-  fi
 
   PWD=`pwd`
   PINSTALL="${PWD}/../case1/MA_v1.0_src/pinstall"
@@ -50,10 +42,6 @@ handle_opts() {
       *)
 	  usage_exit
   esac
-}
-
-install_deps() {
-    sudo -H pip3 install vstask
 }
 
 runtask() {
