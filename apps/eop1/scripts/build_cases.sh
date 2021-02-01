@@ -61,6 +61,7 @@ build_xdcc() {
 }
 
 handle_opts "$@"
+sudo ldconfig
 
 for CASE in case1 case2 case3
 do
