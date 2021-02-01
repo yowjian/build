@@ -22,8 +22,10 @@ handle_opts() {
 
 handle_opts "$@"
 
-# wget eop_ma_dependencies.tgz
+rm -f eop_ma_dependencies.tgz
+wget https://github.com/gaps-closure/build/releases/download/v1.2/eop_ma_dependencies.tgz
 tar -zxvf eop_ma_dependencies.tgz
+rm -f eop_ma_dependencies.tgz
 mv gaps.ma.dependencies.tgz ../case1/MA_v1.0_src
 mv walking.avi ../case1/MA_v1.0_src/EOIR/
 mv yolov3.weights ../case1/MA_v1.0_src/EOIR/
