@@ -11,7 +11,7 @@ using namespace cms;
 using namespace std;
 
 ISRMShadow::ISRMShadow() {
-	amq.listen("updateMissionPlanXD", std::bind(&ISRMShadow::updateMissionPlanXD, this, _1), true);
+	amq.listen("imageDetected", std::bind(&ISRMShadow::updateImageDetected, this, _1), true);
 
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);
@@ -27,8 +27,8 @@ void ISRMShadow::run() {
 
 }
 
-void ISRMShadow::updateMissionPlanXD(const json &j) {
-    cout << "ISRMshadow received updateMissionPlanXD" << endl;
+void ISRMShadow::updateImageDetected(const json &j) {
+    cout << "ISRMshadow received imageDetected" << endl;
 //	MissionPlan *plan = Utils::parsePlan(j);
 //	planManager.add(plan->getId(), plan);
 //

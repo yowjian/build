@@ -21,7 +21,7 @@ public:
 
 	void run();
 
-	void handleRecieveISRMDetectionsXD(json j);
+	void handleImageDetectedAck(json j);
 
 private:
 

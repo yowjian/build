@@ -13,7 +13,7 @@ using namespace std;
 namespace fs = boost::filesystem;
 
 ISRM::ISRM() {
-	amq.listen("recieveISRMDetectionsXD", std::bind(&ISRM::handleRecieveISRMDetectionsXD, this, _1), true);
+	amq.listen("imageDetectedAck", std::bind(&ISRM::handleImageDetectedAck, this, _1), true);
 
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);
@@ -117,7 +117,7 @@ void ISRM::run() {
 
                         cout << j.dump(2) << endl;
 
-                        ISRM::amq.publish("updateMissionPlanXD", j, true);
+                        ISRM::amq.publish("imageDetected", j, true);
                     }
                     catch (fs::filesystem_error &e) {
                         std::cout << e.what() << '\n';
@@ -132,8 +132,8 @@ void ISRM::run() {
     }
 }
 
-void ISRM::handleRecieveISRMDetectionsXD(json j) {
-    amq.publish("recieveISRMDetections", j, true);
+void ISRM::handleImageDetectedAck(json j) {
+    amq.publish("imageDetectedAck", j, true);
 }
 
 

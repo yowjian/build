@@ -32,7 +32,7 @@ private:
      *
      * @return VOID
      */
-	void updateMissionPlanXD(const json &j);
+	void updateImageDetected(const json &j);
 
 	/**
 	 * @brief process the configuration content based on the configuration plan json
