@@ -17,8 +17,6 @@ ISRM::ISRM(int maxDetects) : planManager(5), detects(maxDetects) {
 	amq.listen("updateMissionPlan", std::bind(&ISRM::updateMissionPlan, this, _1), true);
 	amq.listen("requestISRMDetections", std::bind(&ISRM::handleDetectionsRequest, this, _1), true);
 	amq.listen("recieveISRMDetectionsXD", std::bind(&ISRM::handleRecieveISRMDetectionsXD, this, _1), true);
-	//amq.listen("recieveRDRDetections", std::bind(&ISRM::handleRecieveRDRDetections, this, _1), true);
-	//amq.listen("recieveEOIRDetections", std::bind(&ISRM::handleRecieveEOIRDetections, this, _1), true);
 	amq.listen("updateConfig", std::bind(&ISRM::handleUpdateConfig, this, _1), true);
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);
@@ -53,8 +51,38 @@ bool selectIt()
     /* skip rand() readings that would make n%6 non-uniformly distributed
           (assuming rand() itself is uniformly distributed from 0 to RAND_MAX) */
     int n = rand();
+return true;
+//    return (n & 0x1) == 0;
+}
 
-    return (n & 0x1) == 0;
+void readImage(string pathanem, char *img, int BUFFERSIZE)
+{
+    int size = BUFFERSIZE / 2 - 1;
+    char buf[size];
+
+    memset(buf, '\0', size);
+    std::ifstream fin(pathanem, ios::in | ios::binary );
+    fin.read(buf, size);
+//    if (fin)
+//      std::cout << "all characters read successfully.\n";
+//    else
+//      std::cout << "error: only " << fin.gcount() << " could be read\n";
+    fin.close();
+
+    char *p = img;
+    for (int i = 0; i < size; i++)
+        p += sprintf(p, "%02x", buf[i] & 0xff);
+    printf("\n");
+}
+
+void padBuffer(char *buf, int size, char *prefix)
+{
+    memset(buf, '-', size);
+    if (prefix != NULL) {
+        sprintf(buf, prefix);
+        buf[strlen(prefix)] = '-';
+    }
+    buf[size - 1] = '\0';
 }
 
 void ISRM::run() {
@@ -65,43 +93,49 @@ void ISRM::run() {
         exit(1);
     }
 
+    const int IMAGE_HEX_SIZE = 40;
     char name[20];
     int size;
     char pad[240];
+    padBuffer(pad, 240, NULL);
+
     char meta[64];
-    char img[9000];
+    padBuffer(meta, 64, "SENSITIVE");
+
+    char img[IMAGE_HEX_SIZE]; // [9000];
 
     const string suffix = ".jpg";
     while (true) {
         for (const auto & entry : fs::directory_iterator(imageDir)) {
             std::cout << entry.path() << std::endl;
-
             string pathname = entry.path().string();
             if (pathname.length() >= suffix.length()) {
                 if (0 == pathname.compare(pathname.length() - suffix.length(), suffix.length(), suffix)) {
-                    if (selectIt()) {
-                        cout << "Select " << pathname << endl;
+                    if (!selectIt())
+                        continue;
 
-                        try {
-                            size = fs::file_size(entry.path());
-                            cout << "size of " << pathname << " is " << size << endl;
+                    cout << "Select " << pathname << endl;
+                    readImage(pathname, img, IMAGE_HEX_SIZE);
 
-                            json j;
-                            j["A_name"] = pathname;
-                            j["B_size"] = size;
-                            j["C_pad"] = pathname;
-                            j["D_meatdata"] = pathname;
-                            j["E_imgData"] = pathname;
+                    try {
+                        size = fs::file_size(entry.path());
+                        cout << "size of " << pathname << " is " << size << endl;
 
-                            cout << j.dump(2) << endl;
+                        json j;
+                        j["A_name"] = pathname;
+                        j["B_size"] = size;
+                        j["C_pad"] = pad;
+                        j["D_meatdata"] = meta;
+                        j["E_imgData"] = img;
 
-                            ISRM::amq.publish("updateMissionPlanXD", j, true);
-                        }
-                        catch (fs::filesystem_error &e) {
-                            std::cout << e.what() << '\n';
-                        }
-                        break;
+                        cout << j.dump(2) << endl;
+
+                        ISRM::amq.publish("updateMissionPlanXD", j, true);
                     }
+                    catch (fs::filesystem_error &e) {
+                        std::cout << e.what() << '\n';
+                    }
+                    break;
                 }
             }
         }
