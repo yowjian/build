@@ -12,5 +12,5 @@ include_directories(BEFORE  pinstall/include/activemq-cpp-3.9.5 /usr/include/apr
 
 link_directories(BEFORE install/lib64 pinstall/lib gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib)
 
-add_subdirectory(ISRM)
-add_subdirectory(ISRMshadow)
+add_subdirectory(ImageDetector)
+add_subdirectory(ImageReceiver)

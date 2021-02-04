@@ -13,12 +13,12 @@ using namespace uas;
 using namespace std::placeholders;
 using json = nlohmann::json;
 
-class ISRMShadow {
+class ImageReceiver {
 public:
 
-	ISRMShadow();
+	ImageReceiver();
 
-	~ISRMShadow();
+	~ImageReceiver();
 
 	void run();
 

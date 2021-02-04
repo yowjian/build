@@ -1,3 +1,5 @@
+#include "ImageDetector.h"
+
 #include <stdio.h>
 #include <string>
 #include <fstream>
@@ -5,25 +7,24 @@
 #include <boost/filesystem/operations.hpp>
 #include <amqm/AMQManager.h>
 #include <Utils.h>
-#include "ISRM.h"
 
 using namespace amqm;
 using namespace cms;
 using namespace std;
 namespace fs = boost::filesystem;
 
-ISRM::ISRM() {
-	amq.listen("imageDetectedAck", std::bind(&ISRM::handleImageDetectedAck, this, _1), true);
+ImageDetector::ImageDetector() {
+	amq.listen("imageDetectedAck", std::bind(&ImageDetector::handleImageDetectedAck, this, _1), true);
 
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);
 }
 
-void ISRM::processConfigContent(json j) {
+void ImageDetector::processConfigContent(json j) {
 	imageDir = j["imageDir"];
 }
 
-ISRM::~ISRM() {
+ImageDetector::~ImageDetector() {
 }
 
 bool selectIt()
@@ -72,7 +73,7 @@ void padBuffer(char *buf, int size, char *prefix)
     buf[size - 1] = '\0';
 }
 
-void ISRM::run() {
+void ImageDetector::run() {
     fs::path dir(imageDir);
 
     if (!fs::exists(dir)) {
@@ -117,7 +118,7 @@ void ISRM::run() {
 
                         cout << j.dump(2) << endl;
 
-                        ISRM::amq.publish("imageDetected", j, true);
+                        ImageDetector::amq.publish("imageDetected", j, true);
                     }
                     catch (fs::filesystem_error &e) {
                         std::cout << e.what() << '\n';
@@ -132,7 +133,7 @@ void ISRM::run() {
     }
 }
 
-void ISRM::handleImageDetectedAck(json j) {
+void ImageDetector::handleImageDetectedAck(json j) {
     amq.publish("imageDetectedAck", j, true);
 }
 

@@ -4,31 +4,31 @@
 #include <fstream>
 #include <amqm/AMQManager.h>
 #include <Utils.h>
-#include "ISRMshadow.h"
+#include "ImageReceiver.h"
 
 using namespace amqm;
 using namespace cms;
 using namespace std;
 
-ISRMShadow::ISRMShadow() {
-	amq.listen("imageDetected", std::bind(&ISRMShadow::updateImageDetected, this, _1), true);
+ImageReceiver::ImageReceiver() {
+	amq.listen("imageDetected", std::bind(&ImageReceiver::updateImageDetected, this, _1), true);
 
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);
 }
 
-void ISRMShadow::processConfigContent(json j) {
+void ImageReceiver::processConfigContent(json j) {
 }
 
-ISRMShadow::~ISRMShadow() {
+ImageReceiver::~ImageReceiver() {
 }
 
-void ISRMShadow::run() {
+void ImageReceiver::run() {
 
 }
 
-void ISRMShadow::updateImageDetected(const json &j) {
-    cout << "ISRMshadow received imageDetected" << endl;
+void ImageReceiver::updateImageDetected(const json &j) {
+    cout << "ImageReceiver received imageDetected" << endl;
 //	MissionPlan *plan = Utils::parsePlan(j);
 //	planManager.add(plan->getId(), plan);
 //

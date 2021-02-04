@@ -3,17 +3,17 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 function start(){	
-	echo "Running ISRM..."
-	cd $SCRIPT_DIR/../ISRM
-	./../lbuild/ISRM/ISRM& > /dev/null 2>&1
+	echo "Running ImageDetector..."
+	cd $SCRIPT_DIR/../ImageDetector
+	./../lbuild/ImageDetector/ImageDetector& > /dev/null 2>&1
 	echo $! >> $SCRIPT_DIR/pid
 	echo "Success."
 
-	#echo "Not running ISRMshadow to avoid loops..."
+	#echo "Not running ImageReceiver to avoid loops..."
 	#echo "Use mission-application.closure script and run correct components on each side"
-	echo "Running ISRMshadow..."
-	cd $SCRIPT_DIR/../ISRMshadow
-	./../lbuild/ISRMshadow/ISRMshadow& > /dev/null 2>&1
+	echo "Running ImageReceiver..."
+	cd $SCRIPT_DIR/../ImageReceiver
+	./../lbuild/ImageReceiver/ImageReceiver& > /dev/null 2>&1
 	echo $! >> $SCRIPT_DIR/pid
 	echo "Success."
  }

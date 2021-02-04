@@ -13,11 +13,11 @@ using namespace uas;
 using namespace std::placeholders;
 using json = nlohmann::json;
 
-class ISRM {
+class ImageDetector {
 public:
-	ISRM();
+	ImageDetector();
 
-	~ISRM();
+	~ImageDetector();
 
 	void run();
 
