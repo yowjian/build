@@ -31,8 +31,13 @@ public:
       */
      HeartBeat(std::string subSystem_Name) : amq(false)
      {
-          MPU_rdy, MPX_rdy, EOIR_rdy, RDR_rdy, ISRM_rdy, all_subs_rdy = false;
-          component_Name = subSystem_Name;
+       MPU_rdy = false;
+       MPX_rdy = false;
+       EOIR_rdy = false;
+       RDR_rdy = false;
+       ISRM_rdy = false;
+       all_subs_rdy = false;
+       component_Name = subSystem_Name;
      }
 
      /**
@@ -124,11 +129,7 @@ private:
      void updateHeartBeat(json j) {
           string ss = "ss";
           //string st = "status";
-          if (j[ss] == "EOIR")
-          {
-               EOIR_rdy = true;
-          }
-          else if (j[ss] == "MPU")
+          if (j[ss] == "MPU")
           {
                MPU_rdy = true;
           }
