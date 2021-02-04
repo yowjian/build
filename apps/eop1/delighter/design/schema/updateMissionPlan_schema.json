@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "A_name": {
+      "type": "string"
+    },
+    "B_size": {
+      "type": "integer"
+    },
+    "C_pad": {
+      "type": "string"
+    },
+    "D_meatdata": {
+      "type": "string"
+    },
+    "E_imgData": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "A_name",
+    "B_size",
+    "C_pad",
+    "D_meatdata",
+    "E_imgData"
+  ]
+}

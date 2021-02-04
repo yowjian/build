@@ -1,0 +1,70 @@
+============================================
+FAN-IN of FOO
+enclaves: orange, green, purple
+
+green can receive FOO from other enclaves and echo it to local AMQ
+
+echo_FOO
+
+   level : green
+   ...
+   cdf: [
+     // one per caller enclave
+     {
+        remotelevel: orange // means orange is calling, i.e., sending FOO
+                            // use this block to verify orange->green egress_xdcc
+        argtaints:
+           [[A1_1,A1_2],[A2_1,A2_2,A2_3],...]
+        ...
+     },
+     {
+        remotelevel: green // means local messages
+        argtaints:
+           [[A1_1a,A1_2a],[A2_1a,A2_2a,A2_3a],...]
+        ...
+     },
+     {
+        remotelevel: purple // means purple is calling, i.e., sending FOO
+                            // use this block to verify purple->green egress
+        argtaints:
+           [[A1_1a,A1_2a],[A2_1a,A2_2a,A2_3a],...]
+        ...
+     }
+   ]
+
+============================================
+POSSIBLE RELAYING of FOO
+enclaves: orange, green, purple
+
+green can receive FOO from orange, and purple can receive FOO from green
+However, FOO received from orange cannot be shared by green to purple
+There is no direct XD hardware between orange and purple
+
+We need an echo_FOO in green and an echo_FOO in purple, but we are allowed to have that 
+function in only one enclave!
+
+We could solve this using echo_atgreen_FOO and echo_atpurple_FOO.
+
+Then apply the annotation logic as above. In this case, echo_atgreen_FOO will have a cdf for 
+only a green caller (no purple caller), and echo_atpurple_FOO will only have a green caller.
+
+Also analyze the control flows to ensure that FOO received from orange is never
+leaked to purple, but FOO originating in green can be shared with purple. Same
+message but can have different taints.
+
+
+============================================
+FAN-OUT of FOO
+orange sends FOO to green and purple
+
+Since echo_FOO can only exist in either green or purple, we need two functions
+echo_atgreen_FOO and echo_atpurple_FOO
+Each will have its own annotations.
+
+
+Current: an ingress/egress pair of programs for each pair of enclaves, each gets bisectioned
+egress  => orange_green_egress, one slave on green
+ingress => green_orange_egress, one slave on orange
+
+============================================
+

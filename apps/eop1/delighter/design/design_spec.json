@@ -1,0 +1,163 @@
+{
+    "comment": [
+      "Case 4: PL-proposed Message Flow Partitioning Only",
+      "Components [ISRM:3] in orange:1",
+      "Components [ISRMShadow:7] in green:2",
+      "Messages: ",
+      "component_heartbeats:01",
+      "pnt:03",
+      "updateMissionPlanXD:11",
+      "requestISRMDetectionsXD:12",
+      "recieveISRMDetectionsXD:13",
+      "FlowID (encodes mux and typ): PQMM component P->Q, message MM"
+    ],
+    "topology": [
+        {
+            "component": "ISRM",
+            "label": "ISRM_CLE_LABEL",
+            "inFlows":  [ 7301,
+                          7313 ],
+            "outFlows": [ 3701,
+                          3711,
+                          3712
+                        ]
+        },
+        {
+            "component": "ISRMShadow",
+            "label": "ISRMShadow_CLE_LABEL",
+            "inFlows":  [ 3701,
+                          3711, 
+                          3712
+                        ],
+            "outFlows": [ 7301,
+                          7313 ]
+        }
+    ],
+    "flows": [
+        {"flowId": 3701,"message":"component_heartbeats","label":"ALLOW_ORANGE_GREEN"},
+        {"flowId": 7301,"message":"component_heartbeats","label":"ALLOW_GREEN_ORANGE"},
+        {"flowId": 3711,"message":"updateMissionPlanXD","label":"ALLOW_ORANGE_GREEN"},
+        {"flowId": 3712,"message":"requestISRMDetectionsXD","label":"ALLOW_ORANGE_GREEN"},
+        {"flowId": 7313,"message":"recieveISRMDetectionsXD","label":"ALLOW_GREEN_ORANGE"}
+    ],
+    "messages": [
+        {
+            "name": "component_heartbeats",
+            "topic": true,
+            "schemaType": "JSONSchema",
+            "schemaFile": "schema/component_heartbeats_schema.json"
+        },
+        {
+            "name": "updateMissionPlanXD",
+            "topic": true,
+            "schemaType": "JSONSchema",
+            "schemaFile": "schema/updateMissionPlan_schema.json"
+        },
+        {
+            "name": "recieveISRMDetectionsXD",
+            "topic": true,
+            "schemaType": "JSONSchema",
+            "schemaFile": "schema/recieveISRMDetections_schema.json"
+        },
+        {
+            "name": "requestISRMDetectionsXD",
+            "topic": true,
+            "schemaType": "JSONSchema",
+            "schemaFile": "schema/requestISRMDetections_schema.json"
+        },
+        {
+            "name": "pnt",
+            "topic": true,
+            "schemaType": "JSONSchema",
+            "schemaFile": "schema/pnt_schema.json"
+        }
+    ],    
+    "cles": [
+        {
+            "cle-label": "ISRMShadow_CLE_LABEL",
+            "cle-json": {
+                "level": "green",
+                "cdf": [
+                    {
+                        "remotelevel": "orange",
+                        "direction": "egress",
+                        "guarddirective": {
+                            "operation": "allow"
+                        },
+                        "argtaints": [
+                            [ "ALLOW_ORANGE_GREEN" ],
+                            [ "ALLOW_ORANGE_GREEN" ],
+                            [ "ALLOW_ORANGE_GREEN" ],
+
+                            [ "ALLOW_GREEN_ORANGE" ],
+                            [ "ALLOW_GREEN_ORANGE" ]
+                        ],
+                        "codtaints": [
+                        ],
+                        "rettaints": [
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "cle-label": "ISRM_CLE_LABEL",
+            "cle-json": {
+                "level": "orange",
+                "cdf": [
+                    {
+                        "remotelevel": "green",
+                        "direction": "egress",
+                        "guarddirective": {
+                            "operation": "allow"
+                        },
+                        "argtaints": [
+                            [ "ALLOW_GREEN_ORANGE" ],
+                            [ "ALLOW_GREEN_ORANGE" ],
+
+                            [ "ALLOW_ORANGE_GREEN" ],
+                            [ "ALLOW_ORANGE_GREEN" ],
+                            [ "ALLOW_ORANGE_GREEN" ]
+                        ],
+                        "codtaints": [
+                        ],
+                        "rettaints": [
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "cle-label": "ALLOW_GREEN_ORANGE",
+            "cle-json": {
+               "level":"green",
+               "cdf":[
+                  {
+                     "remotelevel":"orange",
+                     "direction":"egress",
+                     "guarddirective":{
+                        "operation":"allow",
+                        "oneway":true
+                     }
+                  }
+               ]
+            }
+        },
+        {
+            "cle-label": "ALLOW_ORANGE_GREEN",
+            "cle-json": {
+               "level":"orange",
+               "cdf":[
+                  {
+                     "remotelevel":"green",
+                     "direction":"egress",
+                     "guarddirective":{
+                        "operation":"allow",
+                        "oneway":true
+                     }
+                  }
+               ]
+            }
+        }
+    ]
+}

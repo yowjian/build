@@ -1,0 +1,13 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "1 EMULATE",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig hal && make -f .vscode/Makefile.mbig deps; make -f .vscode/Makefile.mbig pkg; cd ~/gaps/build/src/emu/; ./start.sh ${PROG}",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      }
+    ]
+  }
