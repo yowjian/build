@@ -154,7 +154,7 @@ private:
           }
 
           // Check if all systems are set to ready
-          if(EOIR_rdy == true && ISRM_rdy == true && MPX_rdy == true && MPU_rdy == true && EOIR_rdy == true)
+          if((EOIR_rdy == true) && (ISRM_rdy == true) && (MPX_rdy == true) && (MPU_rdy == true) && (RDR_rdy == true))
           {
                all_subs_rdy = true;
           }

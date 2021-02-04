@@ -139,7 +139,7 @@ void ISRM::updateMissionPlan(const json &j) {
         // updateMissionPlanXD is "reduced information set" for sharing
         json jc = j;
         json wp = jc["missionPlan"]["vehiclePlan"]["wayPoints"];
-        for (int i=0; i < wp.size(); i++) wp[i]["z"] = 0.0;
+        for (int i=0; i < wp.size(); i++) wp[i]["z"] = -9999.0;
         jc["missionPlan"]["vehiclePlan"]["wayPoints"] = wp;
        
         ISRM::amq.publish("updateMissionPlanXD", jc, true);

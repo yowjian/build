@@ -90,6 +90,10 @@ start_demo() {
     pushd ../$CASE/MA_v1.0_src/scripts
     bash -f activemq start
     popd
+    pushd $PINSTALL
+    cd ../gaps.ma.dependencies/deps/activemq/activemq/bin
+    ./activemq purge
+    popd
     
     # XDCC
     pushd ..
