@@ -127,6 +127,8 @@ void ImageDetector::run() {
     char hexImage[IMAGE_HEX_SIZE]; // [9000];
     char pathname[128];
 
+    Utils::sleep_for(3000);
+
     const string suffix = ".jpg";
     while (true) {
         for (int i = 0; i < 10; i++) {

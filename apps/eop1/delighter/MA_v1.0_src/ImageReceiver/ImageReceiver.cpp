@@ -63,14 +63,10 @@ void ImageReceiver::updateImageDetected(const json &j)
     char img[size];
     hexToBin(imageData, img, size);
 
-    //Here pImageData is [unsigned char *] that points to a jpeg compressed image buffer;
-    //     ImageDataSize is the size of compressed content in buffer;
-    //     The image here is grayscale;
+    vector<unsigned char> imVec(img, img + size);
+    cv:Mat mat;
+    mat = imdecode(imVec, 8);
 
-    vector<unsigned char> ImVec(img, img + size);
-    cv:Mat ImMat;
-    ImMat = imdecode(ImVec, 8);
-
-    imshow("CLOSURE Image Receiver", ImMat);
-    waitKey(3); // Wait for any keystroke in the window
+    imshow("CLOSURE Image Receiver", mat);
+    waitKey(10); // Wait for any keystroke in the window
 }
