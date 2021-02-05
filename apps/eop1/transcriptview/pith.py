@@ -89,19 +89,30 @@ def setup_gui(args):
     j = json.loads(data)
     lj = {}
     lj1 = {}
+    lj2 = {}
     try: lj = j[-1]['stats']
     except: pass
 
     lj1['count']        = lj['count'] if 'count' in lj else 0
     lj1['cross-domain'] = lj['xd']    if 'xd' in lj else 0
     lj1['local']        = lj1['count'] - lj1['cross-domain']    
+    lj2['hwredactdet']  = lj['hwredactdet'] if 'hwredactdet' in lj else 0
+    lj2['swredactdet']  = lj['swredactdet'] if 'swredactdet' in lj else 0
+    lj2['hwredactmp']   = lj['hwredactmp'] if 'hwredactmp' in lj else 0
+    lj2['swredactmp']   = lj['swredactmo'] if 'swredactmp' in lj else 0
+
     lj.pop('sync',None)
     lj.pop('salient',None)
     lj.pop('count',None)
     lj.pop('xd',None)
+    lj.pop('hwredactdet',None)
+    lj.pop('swredactdet',None)
+    lj.pop('hwredactmp',None)
+    lj.pop('swredactmp',None)
     fig = go.Figure([
             go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values())), 
-            go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj.values())), 
+            go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values())), 
+            go.Bar(name='Redaction counts', x=list(lj2.keys()), y=list(lj2.values()), text=list(lj2.values())), 
           ])
     fig.update_yaxes(type='log')
     return fig
@@ -178,7 +189,7 @@ def classify(loc,rem,case,msg):
   try: 
     a['hwredactmp']         = (a['xd'] == True and all([w['z'] == 0.0 for w in msg['missionPlan']['vehiclePlan']['wayPoints']]))
   except:
-    a['zeroizedmp']         = False
+    a['hwredactmp']         = False
   a['salient']              = a['sync'] or a['updateMissionPlan'] or a['reqXXXDetections'] or a['rcvRDRDetections'] or a['rcvEOIRDetections'] or a['rcvISRMDetections']
   return [i for i in a if a[i] == True]
 
