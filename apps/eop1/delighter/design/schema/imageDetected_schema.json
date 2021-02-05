@@ -3,19 +3,23 @@
   "type": "object",
   "properties": {
     "A_name": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 20
     },
     "B_size": {
       "type": "integer"
     },
     "C_pad": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 240
     },
     "D_meatdata": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 64
     },
     "E_imgData": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 36000
     }
   },
   "required": [

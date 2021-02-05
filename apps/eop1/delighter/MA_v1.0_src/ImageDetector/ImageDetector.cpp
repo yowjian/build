@@ -117,7 +117,7 @@ void ImageDetector::run()
     padBuffer(meta, 64, (char *)REDACT.c_str());
     string metaStr(meta);
 
-    char pathname[128];
+    char pathname[20];
 
     const string suffix = ".jpg";
     while (true) {
