@@ -8,13 +8,7 @@
 #include <amqm/AMQManager.h>
 #include <Utils.h>
 
-
 #include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/dnn.hpp>
-#include <opencv2/imgproc/imgproc_c.h>
 
 using namespace amqm;
 using namespace cms;
@@ -22,14 +16,16 @@ using namespace std;
 using namespace cv;
 namespace fs = boost::filesystem;
 
-ImageDetector::ImageDetector() {
+ImageDetector::ImageDetector()
+{
 	amq.listen("imageDetectedAck", std::bind(&ImageDetector::handleImageDetectedAck, this, _1), true);
 
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);
 }
 
-void ImageDetector::processConfigContent(json j) {
+void ImageDetector::processConfigContent(json j)
+{
 	imageDir = j["imageDir"];
 }
 
@@ -56,7 +52,6 @@ void readImage(string pathanem, int image_size, char *buffer, int buffer_size)
 {
     char img[image_size];
 
-//    memset(buf, '\0', imageSize);
     std::ifstream fin(pathanem, ios::in | ios::binary);
     fin.read(img, image_size);
     if (!fin) {
@@ -105,7 +100,8 @@ int displayImage(string pathanme)
     return 0;
 }
 
-void ImageDetector::run() {
+void ImageDetector::run()
+{
     fs::path dir(imageDir);
 
     if (!fs::exists(dir)) {
@@ -113,9 +109,6 @@ void ImageDetector::run() {
         exit(1);
     }
 
-    const int IMAGE_HEX_SIZE = 36000;
-    char name[20];
-    int size;
     char pad[240];
     padBuffer(pad, 240, NULL);
 
@@ -124,27 +117,25 @@ void ImageDetector::run() {
     padBuffer(meta, 64, (char *)REDACT.c_str());
     string metaStr(meta);
 
-    char hexImage[IMAGE_HEX_SIZE]; // [9000];
     char pathname[128];
-
-    Utils::sleep_for(3000);
 
     const string suffix = ".jpg";
     while (true) {
         for (int i = 0; i < 10; i++) {
-            sprintf(pathname, "%s/test%02d.jpg", imageDir.c_str(), i);
-
             try {
-                size = fs::file_size(pathname);
+                sprintf(pathname, "%s/test%02d.jpg", imageDir.c_str(), i);
+                int size = fs::file_size(pathname);
 
-                readImage(pathname, size, hexImage, IMAGE_HEX_SIZE);
+                int hex_buf_size = size * 2 + 1;
+                char hexImage[size * 2 + 1]; // [9000];
+                readImage(pathname, size, hexImage, hex_buf_size);
 
                 json j;
                 j["A_name"] = pathname;
                 j["B_size"] = size;
                 j["C_pad"] = pad;
                 j["D_meatdata"] = metaStr.replace(0, REDACT.length(), "XXXXXXXXX");
-                j["E_imgData"] = hexImage;
+                j["E_imgData"] = string(hexImage);
 
                 cout << "Detector sent " << pathname << " : " << size << " : " << meta << endl;
 
@@ -157,7 +148,6 @@ void ImageDetector::run() {
             }
         }
 //        Utils::sleep_for(10000);
-//        cout << "Detector wakes up." << endl;
     }
 }
 

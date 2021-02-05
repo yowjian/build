@@ -8,11 +8,6 @@
 #include <nlohmann/json.hpp>
 
 #include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/dnn.hpp>
-#include <opencv2/imgproc/imgproc_c.h>
 
 using namespace amqm;
 using namespace cms;
@@ -68,5 +63,11 @@ void ImageReceiver::updateImageDetected(const json &j)
     mat = imdecode(imVec, 8);
 
     imshow("CLOSURE Image Receiver", mat);
+
+    static bool moved = false;
+    if (!moved) {
+        moveWindow("CLOSURE Image Receiver", 900, 0);
+        moved = true;
+    }
     waitKey(10); // Wait for any keystroke in the window
 }
