@@ -6,9 +6,9 @@
       "Messages: ",
       "component_heartbeats:01",
       "pnt:03",
-      "uimageDetected:11",
+      "updateMissionPlanXD:11",
       "requestISRMDetectionsXD:12",
-      "recieveISRMDetectionsXD:13",
+      "receiveImageDetectionXD:13",
       "FlowID (encodes mux and typ): PQMM component P->Q, message MM"
     ],
     "topology": [
@@ -38,10 +38,9 @@
     "flows": [
         {"flowId": 3701,"message":"component_heartbeats","label":"ALLOW_ORANGE_GREEN"},
         {"flowId": 7301,"message":"component_heartbeats","label":"ALLOW_GREEN_ORANGE"},
-        {"flowId": 2503,"message":"pnt","label":"ALLOW_ORANGE_GREEN"},                                                                  
-        {"flowId": 3711,"message":"uimageDetected","label":"ALLOW_ORANGE_GREEN"},
+        {"flowId": 2503,"message":"pnt","label":"ALLOW_ORANGE_GREEN"},                                                                         {"flowId": 3711,"message":"updateMissionPlanXD","label":"ALLOW_ORANGE_GREEN"},
         {"flowId": 3712,"message":"requestISRMDetectionsXD","label":"ALLOW_ORANGE_GREEN"},
-        {"flowId": 7313,"message":"recieveISRMDetectionsXD","label":"ALLOW_GREEN_ORANGE"}
+        {"flowId": 7313,"message":"receiveImageDetectionXD","label":"ALLOW_GREEN_ORANGE"}
     ],
     "messages": [
         {
@@ -51,13 +50,13 @@
             "schemaFile": "schema/component_heartbeats_schema.json"
         },
         {
-            "name": "uimageDetected",
+            "name": "updateMissionPlanXD",
             "topic": true,
             "schemaType": "JSONSchema",
-            "schemaFile": "schema/imageDetected_schema.json"
+            "schemaFile": "schema/updateMissionPlan_schema.json"
         },
         {
-            "name": "recieveISRMDetectionsXD",
+            "name": "receiveImageDetectionXD",
             "topic": true,
             "schemaType": "JSONSchema",
             "schemaFile": "schema/recieveISRMDetections_schema.json"

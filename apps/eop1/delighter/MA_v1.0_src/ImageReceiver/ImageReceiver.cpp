@@ -15,7 +15,7 @@ using namespace std;
 using namespace cv;
 
 ImageReceiver::ImageReceiver() {
-	amq.listen("imageDetected", std::bind(&ImageReceiver::updateImageDetected, this, _1), true);
+	amq.listen("receiveImageDetectionXD", std::bind(&ImageReceiver::updateImageDetected, this, _1), true);
 
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);

@@ -18,7 +18,7 @@ namespace fs = boost::filesystem;
 
 ImageDetector::ImageDetector()
 {
-	amq.listen("imageDetectedAck", std::bind(&ImageDetector::handleImageDetectedAck, this, _1), true);
+	amq.listen("receiveImageDetectionXDAck", std::bind(&ImageDetector::handleImageDetectedAck, this, _1), true);
 
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);
@@ -139,7 +139,7 @@ void ImageDetector::run()
 
                 cout << "Detector sent " << pathname << " : " << size << " : " << meta << endl;
 
-                ImageDetector::amq.publish("imageDetected", j, true);
+                ImageDetector::amq.publish("receiveImageDetectionXD", j, true);
 
                 displayImage(pathname);
             }
