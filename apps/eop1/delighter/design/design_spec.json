@@ -1,20 +1,20 @@
 {
     "comment": [
-      "Case 4: PL-proposed Message Flow Partitioning Only",
-      "Components [ISRM:3] in orange:1",
-      "Components [ISRMShadow:7] in green:2",
+      "Delighter case: PL-proposed Message Flow Partitioning Only",
+      "Components [ImageReceiver:3] in orange:1",
+      "Components [ImageDetector:7] in green:2",
       "Messages: ",
       "component_heartbeats:01",
-      "pnt:03",
-      "updateMissionPlanXD:11",
-      "requestISRMDetectionsXD:12",
-      "receiveImageDetectionXD:13",
+      "dummyOG1:03",
+      "dummyOG3:11",
+      "dummyOG2:12",
+      "receiveImageDections:13",
       "FlowID (encodes mux and typ): PQMM component P->Q, message MM"
     ],
     "topology": [
         {
-            "component": "ISRM",
-            "label": "ISRM_CLE_LABEL",
+            "component": "ImageReceiver",
+            "label": "RECEIVER_CLE_LABEL",
             "inFlows":  [ 7301,
                           7313 ],
             "outFlows": [ 3701,
@@ -24,8 +24,8 @@
                         ]
         },
         {
-            "component": "ISRMShadow",
-            "label": "ISRMShadow_CLE_LABEL",
+            "component": "ImageDetector",
+            "label": "DETECTOR_CLE_LABEL",
             "inFlows":  [ 3701,
                           3711, 
                           3712,
@@ -37,10 +37,12 @@
     ],
     "flows": [
         {"flowId": 3701,"message":"component_heartbeats","label":"ALLOW_ORANGE_GREEN"},
+        {"flowId": 2503,"message":"dummyOG1","label":"ALLOW_ORANGE_GREEN"},
+        {"flowId": 3712,"message":"dummyOG2","label":"ALLOW_ORANGE_GREEN"},
+        {"flowId": 3711,"message":"dummyOG3","label":"ALLOW_ORANGE_GREEN"},
+
         {"flowId": 7301,"message":"component_heartbeats","label":"ALLOW_GREEN_ORANGE"},
-        {"flowId": 2503,"message":"pnt","label":"ALLOW_ORANGE_GREEN"},                                                                         {"flowId": 3711,"message":"updateMissionPlanXD","label":"ALLOW_ORANGE_GREEN"},
-        {"flowId": 3712,"message":"requestISRMDetectionsXD","label":"ALLOW_ORANGE_GREEN"},
-        {"flowId": 7313,"message":"receiveImageDetectionXD","label":"ALLOW_GREEN_ORANGE"}
+        {"flowId": 7313,"message":"receiveImageDections","label":"ALLOW_GREEN_ORANGE"}
     ],
     "messages": [
         {
@@ -50,33 +52,33 @@
             "schemaFile": "schema/component_heartbeats_schema.json"
         },
         {
-            "name": "updateMissionPlanXD",
+            "name": "dummyOG3",
             "topic": true,
             "schemaType": "JSONSchema",
-            "schemaFile": "schema/updateMissionPlan_schema.json"
+            "schemaFile": "schema/dummyOG3_schema.json"
         },
         {
-            "name": "receiveImageDetectionXD",
+            "name": "receiveImageDections",
             "topic": true,
             "schemaType": "JSONSchema",
-            "schemaFile": "schema/recieveISRMDetections_schema.json"
+            "schemaFile": "schema/receiveImageDetections_schema.json"
         },
         {
-            "name": "requestISRMDetectionsXD",
+            "name": "dummyOG2",
             "topic": true,
             "schemaType": "JSONSchema",
-            "schemaFile": "schema/requestISRMDetections_schema.json"
+            "schemaFile": "schema/dummyOG2_schema.json"
         },
         {
-            "name": "pnt",
+            "name": "dummyOG1",
             "topic": true,
             "schemaType": "JSONSchema",
-            "schemaFile": "schema/pnt_schema.json"
+            "schemaFile": "schema/dummyOG1_schema.json"
         }
     ],    
     "cles": [
         {
-            "cle-label": "ISRMShadow_CLE_LABEL",
+            "cle-label": "DETECTOR_CLE_LABEL",
             "cle-json": {
                 "level": "green",
                 "cdf": [
@@ -104,7 +106,7 @@
             }
         },
         {
-            "cle-label": "ISRM_CLE_LABEL",
+            "cle-label": "RECEIVER_CLE_LABEL",
             "cle-json": {
                 "level": "orange",
                 "cdf": [
