@@ -6,7 +6,7 @@
       "Messages: ",
       "component_heartbeats:01",
       "pnt:03",
-      "imageDetected:11",
+      "uimageDetected:11",
       "requestISRMDetectionsXD:12",
       "recieveISRMDetectionsXD:13",
       "FlowID (encodes mux and typ): PQMM component P->Q, message MM"
@@ -19,7 +19,8 @@
                           7313 ],
             "outFlows": [ 3701,
                           3711,
-                          3712
+                          3712,
+                          2503
                         ]
         },
         {
@@ -27,7 +28,8 @@
             "label": "ISRMShadow_CLE_LABEL",
             "inFlows":  [ 3701,
                           3711, 
-                          3712
+                          3712,
+                          2503
                         ],
             "outFlows": [ 7301,
                           7313 ]
@@ -36,7 +38,8 @@
     "flows": [
         {"flowId": 3701,"message":"component_heartbeats","label":"ALLOW_ORANGE_GREEN"},
         {"flowId": 7301,"message":"component_heartbeats","label":"ALLOW_GREEN_ORANGE"},
-        {"flowId": 3711,"message":"imageDetected","label":"ALLOW_ORANGE_GREEN"},
+        {"flowId": 2503,"message":"pnt","label":"ALLOW_ORANGE_GREEN"},                                                                  
+        {"flowId": 3711,"message":"uimageDetected","label":"ALLOW_ORANGE_GREEN"},
         {"flowId": 3712,"message":"requestISRMDetectionsXD","label":"ALLOW_ORANGE_GREEN"},
         {"flowId": 7313,"message":"recieveISRMDetectionsXD","label":"ALLOW_GREEN_ORANGE"}
     ],
@@ -48,7 +51,7 @@
             "schemaFile": "schema/component_heartbeats_schema.json"
         },
         {
-            "name": "imageDetected",
+            "name": "uimageDetected",
             "topic": true,
             "schemaType": "JSONSchema",
             "schemaFile": "schema/imageDetected_schema.json"
@@ -88,6 +91,7 @@
                             [ "ALLOW_ORANGE_GREEN" ],
                             [ "ALLOW_ORANGE_GREEN" ],
                             [ "ALLOW_ORANGE_GREEN" ],
+                            [ "ALLOW_ORANGE_GREEN" ],
 
                             [ "ALLOW_GREEN_ORANGE" ],
                             [ "ALLOW_GREEN_ORANGE" ]
@@ -115,6 +119,7 @@
                             [ "ALLOW_GREEN_ORANGE" ],
                             [ "ALLOW_GREEN_ORANGE" ],
 
+                            [ "ALLOW_ORANGE_GREEN" ],
                             [ "ALLOW_ORANGE_GREEN" ],
                             [ "ALLOW_ORANGE_GREEN" ],
                             [ "ALLOW_ORANGE_GREEN" ]
