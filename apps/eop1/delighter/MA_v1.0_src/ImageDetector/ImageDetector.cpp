@@ -71,7 +71,7 @@ void readImage(string pathanem, int image_size, char *buffer, int buffer_size)
     buffer[image_size * 2] = '\0';
 }
 
-void padBuffer(char *buf, int size, char *prefix)
+void padBuffer(char *buf, int size, const char *prefix)
 {
     memset(buf, '-', size);
     if (prefix != NULL) {
@@ -93,9 +93,28 @@ int displayImage(string pathanme)
     img.convertTo(detectedFrame, CV_8U);
 
     imshow("CLOSURE Image Detector", detectedFrame);
-    waitKey(0); // Wait for any keystroke in the window
 
-//    destroyWindow(pathanme); //destroy the created window
+    static int waittime = 3000;
+    static int savedtime = waittime;
+
+    int k = waitKey(waittime); // Wait for a keystroke in the window
+    if (k == 'p') {
+        savedtime = waittime;
+        waittime = 0;
+    }
+    else if (k == '+')
+        waittime += 1000;
+    else if (k == '-') {
+        waittime -= 1000;
+        if (waittime <= 0)
+            waittime = 1000;
+    }
+    else if (k != -1) {
+        waittime = savedtime;
+    }
+
+    cout << "wait time = " << waittime << " ms" << endl;
+    //    destroyWindow(pathanme); //destroy the created window
 
     return 0;
 }
