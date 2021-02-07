@@ -5,6 +5,7 @@ import json
 import dash
 import dash_table
 import time
+import threading
 import multiprocessing
 import requests
 import plotly.express       as px
@@ -17,6 +18,7 @@ from   argparse             import ArgumentParser
 from   threading            import Thread
 from   flask                import Flask, request
 from   flask_restful        import Resource, Api
+from   random               import uniform
 
 ################################## GUI-specific code begins #########################################################
 # Load the design spec for visualization
@@ -37,15 +39,21 @@ def load_design(infile, suppmsg):
       #elts.append({'data': {'source': s[x], 'target':d[x], 'label': m[x]+':'+l[x]}})
   return elts
 
+lock = threading.Lock()
 # REST API where transcript analyzer can push data and where Dashboard can pull data
 class Viewdata(Resource):
   data = []
   def get(self):
-    return Viewdata.data 
+    lock.acquire()
+    d = Viewdata.data 
+    lock.release()
+    return d
   def post(self):
     try: 
       json_data = request.get_json()
+      lock.acquire()
       Viewdata.data.append(json_data)
+      lock.release()
     except:
       pass
     return {"status": "okay"}, 200
@@ -70,7 +78,7 @@ def setup_gui(args):
     html.Div([
       html.P("CLOSURE EOP1 Demo Cross-Domain Message Flow Visualizer"),
       html.Div(id='live-update-data', style={'display': 'none'}),
-      dcc.Interval(id='interval-component', interval=1*1000, n_intervals=0)
+      dcc.Interval(id='interval-component', interval=2*1000, n_intervals=0)
     ]),
     cyto.Cytoscape( 
       id='cytoscape', 
@@ -119,7 +127,7 @@ def setup_gui(args):
     lj = {}
     lj1 = {}
     lj2 = {}
-    try: lj = j[-1]['stats']
+    try: lj = j[-1]['stts']
     except: pass
 
     lj1['count']        = lj['count'] if 'count' in lj else 0
@@ -156,16 +164,17 @@ def setup_gui(args):
   @app.callback(Output('live-update-data', 'children'), Input('interval-component', 'n_intervals'))
   def update_viewdata(n):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    r = requests.get(url, headers=headers)
+    params = {'rnd': uniform(100,10000000)}
+    r = requests.get(url, headers=headers, params=params)
     return json.dumps(r.json())
 
   start_server(app,port=args.port,debug=True)
   return app
 
 # Push data to webserver
-def update_gui(args,m,c,stats):
+def update_gui(args,m,c,st):
   headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-  data = {'msg':m,'tags':c,'stats':stats,'local':args.local_enclave,'remote':args.remote_enclave,'case':args.case}
+  data = {'tags':c,'local':args.local_enclave,'remote':args.remote_enclave,'case':args.case,'stts':st,'msg':m}
   r = requests.post('http://localhost:' + str(args.port) + '/data', headers=headers, json=data)
   return r.status_code
 
@@ -252,7 +261,7 @@ if __name__ == '__main__':
     c = classify(args.local_enclave,args.remote_enclave,args.case,m)
     update_stats(count,c,stats)
     if args.mode == 'txt' and 'salient' in c                                        : print(c, ' : ', m)
-    if args.mode == 'txt' and ((count % args.batch_stats) == 0)                     : print('Stats: ', stats)
+    if args.mode == 'txt' and ('salient' in c or ((count % args.batch_stats) == 0)) : print('Stats: ', stats)
     if args.mode == 'gui' and ('salient' in c or ((count % args.batch_stats) == 0)) : update_gui(args,m,c,stats)
     continue
   if args.mode == 'txt' : print('Final Stats: ', stats)
