@@ -3,7 +3,9 @@ import sys
 import re
 import json
 import dash
+import dash_table
 import time
+import threading
 import multiprocessing
 import requests
 import plotly.express       as px
@@ -16,6 +18,7 @@ from   argparse             import ArgumentParser
 from   threading            import Thread
 from   flask                import Flask, request
 from   flask_restful        import Resource, Api
+from   random               import uniform
 
 ################################## GUI-specific code begins #########################################################
 # Load the design spec for visualization
@@ -36,15 +39,21 @@ def load_design(infile, suppmsg):
       #elts.append({'data': {'source': s[x], 'target':d[x], 'label': m[x]+':'+l[x]}})
   return elts
 
+lock = threading.Lock()
 # REST API where transcript analyzer can push data and where Dashboard can pull data
 class Viewdata(Resource):
   data = []
   def get(self):
-    return Viewdata.data 
+    lock.acquire()
+    d = Viewdata.data 
+    lock.release()
+    return d
   def post(self):
     try: 
       json_data = request.get_json()
+      lock.acquire()
       Viewdata.data.append(json_data)
+      lock.release()
     except:
       pass
     return {"status": "okay"}, 200
@@ -69,9 +78,8 @@ def setup_gui(args):
     html.Div([
       html.P("CLOSURE EOP1 Demo Cross-Domain Message Flow Visualizer"),
       html.Div(id='live-update-data', style={'display': 'none'}),
-      dcc.Interval(id='interval-component', interval=1*1000, n_intervals=0)
+      dcc.Interval(id='interval-component', interval=2*1000, n_intervals=0)
     ]),
-    html.Div([dcc.Graph(id="bar-chart")], style={'width':'40%','float':'left','align':'middle'}),
     cyto.Cytoscape( 
       id='cytoscape', 
       elements=elts, 
@@ -80,9 +88,38 @@ def setup_gui(args):
         {'selector': 'node', 'style': { 'label': 'data(label)', 'background-color': 'data(level)'}},
         {'selector': 'edge', 'style': { 'width':5, 'label': 'data(label)', 'curve-style': 'bezier', 'control-point-weight': 0.9, 'target-arrow-shape': 'triangle'}}
       ], 
-      style={'width':'700px','height':'600px','float':'right'}
+      style={'width':'600px','height':'500px','float':'left'}
     ),
-  ])
+    html.Div([dcc.Graph(id="bar-chart")], style={'width':'600px','height':'300px','float':'right','align':'middle'}),
+    html.Div(id='textarea-events', style={'width':'100%','height':'300px','overflow-y':'scroll','float':'left'})
+  ],style={'width':'1200px'})
+
+  @app.callback(Output('textarea-events', 'children'), [Input('live-update-data', 'children')]) 
+  def update_events_text(data):
+    j = json.loads(data)
+    items = []
+    for i in j:
+      x = ''
+      c = i['tags']
+      if not 'salient' in c: continue
+
+      if 'xd' in c: x += 'CROSS-DOMAIN ' 
+      else:         x += 'LOCAL        '
+
+      if i['case'] =='case3':
+        if ('swredactdet' in c) or ('swredactmp' in c):      x += ' SOFTWARE-REDACTED '
+        elif ('hwredactdet' in c) or ('hwredactmp' in c):    x += ' HARDWARE-REDACTED '
+        else:                                                x += '                   '
+
+      if 'sync' in c:                                      x += 'Sync Received' 
+      elif 'updateMissionPlan' in c:                       x += 'Received Update Mission Plan'
+      elif 'reqXXXDetections' in c:                        x += 'Received Detection Request for ' + i['msg']['phase']
+      elif 'rcvISRMDetections' in c:                       x += 'Received Collated ISRM Detections' 
+      elif 'rcvEOIRDetections' in c:                       x += 'Received EOIR Detections' 
+      elif 'rcvRDRDetections' in c:                        x += 'Received RDR Detections' 
+      else:                                                x += '' 
+      items.append((x,json.dumps(i['msg']),(i['remote'] if 'xd' in c else i['local'])))
+    return [html.Div([html.Div(x,style={'color':w,'font-weight':'bold'}),html.Div(y),html.Br()]) for x,y,w in items]
 
   @app.callback(Output('bar-chart', 'figure'), [Input('live-update-data', 'children')]) 
   def update_bar_chart(data):
@@ -90,7 +127,7 @@ def setup_gui(args):
     lj = {}
     lj1 = {}
     lj2 = {}
-    try: lj = j[-1]['stats']
+    try: lj = j[-1]['stts']
     except: pass
 
     lj1['count']        = lj['count'] if 'count' in lj else 0
@@ -109,11 +146,17 @@ def setup_gui(args):
     lj.pop('swredactdet',None)
     lj.pop('hwredactmp',None)
     lj.pop('swredactmp',None)
-    fig = go.Figure([
-            go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values())), 
-            go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values())), 
-            go.Bar(name='Redaction counts', x=list(lj2.keys()), y=list(lj2.values()), text=list(lj2.values())), 
-          ])
+    if len(lj) > 1 and j[-1]['case'] == 'case3':
+      fig = go.Figure([
+              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values())), 
+              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values())), 
+              go.Bar(name='Redaction counts', x=list(lj2.keys()), y=list(lj2.values()), text=list(lj2.values())), 
+            ])
+    else:
+      fig = go.Figure([
+              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values())), 
+              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values())), 
+            ])
     fig.update_yaxes(type='log')
     return fig
 
@@ -121,16 +164,17 @@ def setup_gui(args):
   @app.callback(Output('live-update-data', 'children'), Input('interval-component', 'n_intervals'))
   def update_viewdata(n):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    r = requests.get(url, headers=headers)
+    params = {'rnd': uniform(100,10000000)}
+    r = requests.get(url, headers=headers, params=params)
     return json.dumps(r.json())
 
   start_server(app,port=args.port,debug=True)
   return app
 
 # Push data to webserver
-def update_gui(args,m,c,stats):
+def update_gui(args,m,c,st):
   headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-  data = {'msg':m,'tags':c,'stats':stats}
+  data = {'tags':c,'local':args.local_enclave,'remote':args.remote_enclave,'case':args.case,'stts':st,'msg':m}
   r = requests.post('http://localhost:' + str(args.port) + '/data', headers=headers, json=data)
   return r.status_code
 
@@ -160,7 +204,6 @@ def next_msg():
 # Infer message type
 def classify(loc,rem,case,msg):
   a = {}
-  a['unpart']               = True if (loc == rem) else False
   a['xd']                   = True if ('fromRemote' in msg) else False
   a['component_heartbeats'] = True if ('ss' in msg) else False
   a['sync']                 = True if ('ss' in msg) and (msg['ss'] == 'All') else False
@@ -218,7 +261,7 @@ if __name__ == '__main__':
     c = classify(args.local_enclave,args.remote_enclave,args.case,m)
     update_stats(count,c,stats)
     if args.mode == 'txt' and 'salient' in c                                        : print(c, ' : ', m)
-    if args.mode == 'txt' and ((count % args.batch_stats) == 0)                     : print('Stats: ', stats)
+    if args.mode == 'txt' and ('salient' in c or ((count % args.batch_stats) == 0)) : print('Stats: ', stats)
     if args.mode == 'gui' and ('salient' in c or ((count % args.batch_stats) == 0)) : update_gui(args,m,c,stats)
     continue
   if args.mode == 'txt' : print('Final Stats: ', stats)
