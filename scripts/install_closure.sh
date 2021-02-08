@@ -40,8 +40,10 @@ sudo cp $GAPSSRC/hal/autogen/*.py $INSTALLDIR/scripts \
 && sudo cp $GAPSSRC/capo/gedl/*.py $INSTALLDIR/scripts \
 && sudo cp $GAPSSRC/capo/partitioner/src/*.py $INSTALLDIR/scripts \
 && sudo cp $GAPSSRC/capo/partitioner/src/cutzoom/*.py $INSTALLDIR/scripts \
+&& sudo cp $GAPSSRC/mules/schema_gen.sh $INSTALLDIR/scripts \
 && sudo cp $GAPSSRC/mules/cle-preprocessor/src/join_clemaps.py $INSTALLDIR/scripts \
 && sudo cp $GAPSSRC/mules/cle-preprocessor/src/qd_cle_preprocessor.py $INSTALLDIR/scripts \
+&& sudo cp $GAPSSRC/ect/flowspec/*.py $INSTALLDIR/scripts \	
 && sudo chmod +x $INSTALLDIR/scripts/*
 
 #etc
