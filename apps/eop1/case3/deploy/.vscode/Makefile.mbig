@@ -17,11 +17,13 @@ deps:
 	mkdir -p .dependencies/linux/sources
 	cd .dependencies/linux/deb && apt download $(DEBPKGS)
 
-hal:
+hal: haldeploy
+	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x ./xdconf.ini -d $(CFG_DIR)/devices.json -p $(PROG)_hal
+
+haldeploy:
 	cp ../xdcc/egress_xdcc/partitioned/multithreaded/xdconf.ini ./egress_xdconf.ini
 	cp ../xdcc/ingress_xdcc/partitioned/multithreaded/xdconf.ini ./ingress_xdconf.ini
 	$(PYTHON) $(XDCONFMERGER) -f "./egress_xdconf.ini ./ingress_xdconf.ini"
-	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x ./xdconf.ini -d $(CFG_DIR)/devices.json -p $(PROG)_hal
 
 pkg:
 	mkdir -p .dependencies

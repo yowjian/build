@@ -8,6 +8,14 @@
         "args": [],
         "group": "build",
         "problemMatcher": []
+      },
+      {
+        "label": "2 HAL",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig hal",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
       }
     ]
   }

@@ -1,0 +1,12 @@
+hal_*.cfg
+*/design/config.json
+*/*/pinstall/
+*/*/install/
+*/*/lbuild/
+*/*/pinstall
+*/*/lbuild
+*/*/install
+*/*/gaps.ma.dependencies
+*/eop_ma_dependencies.tgz
+*/*/*/walking.avi
+*/*/*/yolov3.weights
