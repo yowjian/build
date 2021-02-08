@@ -38,6 +38,7 @@ handle_opts() {
 	  DEVFILE=/opt/closure/etc/devices_eop_mind.json
 	  ;;
       emu)
+	  DEVFILE=/opt/closure/etc/devices_socat.json
 	  ;;
       *)
 	  usage_exit
