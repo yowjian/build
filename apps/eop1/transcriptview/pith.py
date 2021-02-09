@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 import sys
 import re
+import os
 import json
+import time
 import dash
 import dash_table
 import time
+import subprocess
 import threading
-import multiprocessing
 import requests
 import plotly.express       as px
 import dash_core_components as dcc
@@ -15,7 +17,6 @@ import dash_cytoscape       as cyto
 import plotly.graph_objects as go
 from   dash.dependencies    import Input, Output
 from   argparse             import ArgumentParser
-from   threading            import Thread
 from   flask                import Flask, request
 from   flask_restful        import Resource, Api
 from   random               import uniform
@@ -36,10 +37,11 @@ def load_design(infile, suppmsg):
   for x in m:             
     if not m[x] in suppmsg:
       elts.append({'data': {'source': s[x], 'target':d[x], 'label': m[x]}})
-      #elts.append({'data': {'source': s[x], 'target':d[x], 'label': m[x]+':'+l[x]}})
   return elts
 
+
 lock = threading.Lock()
+
 # REST API where transcript analyzer can push data and where Dashboard can pull data
 class Viewdata(Resource):
   data = []
@@ -57,13 +59,6 @@ class Viewdata(Resource):
     except:
       pass
     return {"status": "okay"}, 200
-
-# Run on a separate process so that it doesn't block
-def start_server(app, **kwargs):
-  def run():
-    app.run_server(**kwargs)
-  server_process = multiprocessing.Process(target=run)
-  server_process.start()
 
 def setup_gui(args):
   server = Flask('pith')
@@ -91,7 +86,7 @@ def setup_gui(args):
       style={'width':'600px','height':'500px','float':'left'}
     ),
     html.Div([dcc.Graph(id="bar-chart")], style={'width':'600px','height':'300px','float':'right','align':'middle'}),
-    html.Div(id='textarea-events', style={'width':'100%','height':'300px','overflow-y':'scroll','float':'left'})
+    html.Div(id='textarea-events', style={'width':'100%','height':'300px','overflowY':'scroll','float':'left'})
   ],style={'width':'1200px'})
 
   @app.callback(Output('textarea-events', 'children'), [Input('live-update-data', 'children')]) 
@@ -148,14 +143,14 @@ def setup_gui(args):
     lj.pop('swredactmp',None)
     if len(lj) > 1 and j[-1]['case'] == 'case3':
       fig = go.Figure([
-              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values())), 
-              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values())), 
-              go.Bar(name='Redaction counts', x=list(lj2.keys()), y=list(lj2.values()), text=list(lj2.values())), 
+              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values())),
+              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values())), 
+              go.Bar(name='Redaction counts', x=list(lj2.keys()), y=list(lj2.values())), 
             ])
     else:
       fig = go.Figure([
-              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values())), 
-              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values())), 
+              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values())), 
+              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values())), 
             ])
     fig.update_yaxes(type='log')
     return fig
@@ -164,15 +159,15 @@ def setup_gui(args):
   @app.callback(Output('live-update-data', 'children'), Input('interval-component', 'n_intervals'))
   def update_viewdata(n):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    #params = {'rnd': str(uniform(100,10000000)),'tm':str(time.time())}
     params = {'rnd': uniform(100,10000000)}
     r = requests.get(url, headers=headers, params=params)
     return json.dumps(r.json())
 
-  start_server(app,port=args.port,debug=True)
-  return app
+  app.run_server(port=args.port,debug=True)
 
 # Push data to webserver
-def update_gui(args,m,c,st):
+def update_gui_data(args,m,c,st):
   headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
   data = {'tags':c,'local':args.local_enclave,'remote':args.remote_enclave,'case':args.case,'stts':st,'msg':m}
   r = requests.post('http://localhost:' + str(args.port) + '/data', headers=headers, json=data)
@@ -181,11 +176,11 @@ def update_gui(args,m,c,st):
 ################################## GUI-specific code ends #########################################################
 
 # Update statistics
-def update_stats(count,c,stats):
+def update_istats(count,c,istats):
   for k in c:
-    if not k in stats: stats[k] = 0
-    stats[k] += 1
-  stats['count'] = count
+    if not (k in istats): istats[k] = 0
+    istats[k] += 1
+  istats['count'] = count
 
 # Regular expression to extract JSON message from transcript
 msgre = re.compile('^.*Received (.*$)')
@@ -252,17 +247,20 @@ def get_args():
 # Run the application
 if __name__ == '__main__':
   args = get_args()
-  if args.mode == 'gui': app = setup_gui(args)
-  time.sleep(1)
+
+  if args.mode == 'gui': 
+    gproc = subprocess.Popen('python3 helper.py ' + ' '.join(sys.argv[1:]), shell=True)
+
+  time.sleep(2)
   count = 0
   stats = {}
   for m in next_msg():
     count += 1
     c = classify(args.local_enclave,args.remote_enclave,args.case,m)
-    update_stats(count,c,stats)
+    update_istats(count,c,stats)
     if args.mode == 'txt' and 'salient' in c                                        : print(c, ' : ', m)
     if args.mode == 'txt' and ('salient' in c or ((count % args.batch_stats) == 0)) : print('Stats: ', stats)
-    if args.mode == 'gui' and ('salient' in c or ((count % args.batch_stats) == 0)) : update_gui(args,m,c,stats)
+    if args.mode == 'gui' and ('salient' in c or ((count % args.batch_stats) == 0)) : update_gui_data(args,m,c,stats)
     continue
   if args.mode == 'txt' : print('Final Stats: ', stats)
 
