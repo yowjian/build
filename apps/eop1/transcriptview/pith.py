@@ -9,6 +9,7 @@ import dash_table
 import time
 import subprocess
 import threading
+import multiprocessing
 import requests
 import plotly.express       as px
 import dash_core_components as dcc
@@ -244,11 +245,19 @@ def get_args():
   p.add_argument('-p', '--port', required=False, type=int, default=11235, help='Dashboard port (11235)')
   return p.parse_args()
 
+def start_server(args):
+  def run():
+    setup_gui(args)
+  server_process = multiprocessing.Process(target=run)
+  server_process.start()
+
 # Run the application
 if __name__ == '__main__':
   args = get_args()
 
+  # XXX: start_server creates a Doppelganger resulting in two processes running main
   if args.mode == 'gui': 
+    # start_server(args)
     gproc = subprocess.Popen('python3 helper.py ' + ' '.join(sys.argv[1:]), shell=True)
 
   time.sleep(2)
