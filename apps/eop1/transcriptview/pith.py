@@ -88,11 +88,11 @@ def setup_gui(args):
         {'selector': 'node', 'style': { 'label': 'data(label)', 'background-color': 'data(level)'}},
         {'selector': 'edge', 'style': { 'width':5, 'label': 'data(label)', 'curve-style': 'bezier', 'control-point-weight': 0.9, 'target-arrow-shape': 'triangle'}}
       ], 
-      style={'width':'500px','height':'400px','float':'left'}
+      style={'width':'550px','height':'400px','float':'left'}
     ),
-    html.Div([dcc.Graph(id="bar-chart")], style={'width':'450px','float':'right','align':'middle'}),
+    html.Div([dcc.Graph(id="bar-chart")], style={'width':'550px','float':'right','align':'middle'}),
     html.Div(id='textarea-events', style={'width':'100%','height':'350px','overflowY':'scroll','float':'left'})
-  ],style={'width':'1000px'})
+  ],style={'width':'1200px'})
 
   @app.callback(Output('textarea-events', 'children'), [Input('live-update-data', 'children')]) 
   def update_events_text(data):
@@ -150,16 +150,16 @@ def setup_gui(args):
     lj.pop('swredactmp',None)
     if len(lj) > 1 and j[-1]['case'] == 'case3':
       fig = go.Figure([
-              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values())),
-              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values())), 
-              go.Bar(name='Redaction counts', x=list(lj2.keys()), y=list(lj2.values())), 
+              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values()), textposition='outside'),
+              go.Bar(name='Aggregate message counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values()), textposition='outside'),
+              go.Bar(name='Redacted message counts', x=list(lj2.keys()), y=list(lj2.values()), text=list(lj2.values()), textposition='outside'),
             ])
     else:
       fig = go.Figure([
-              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values())), 
-              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values())), 
+              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values()), textposition='outside'),
+              go.Bar(name='Aggregate message counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values()), textposition='outside'),
             ])
-    fig.update_yaxes(type='log')
+    fig.update_yaxes(type='log',range=[0,3])
     return fig
 
   # Pull data from webserver 
