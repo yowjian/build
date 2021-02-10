@@ -81,7 +81,7 @@ void padBuffer(char *buf, int size, const char *prefix)
     buf[size - 1] = '\0';
 }
 
-int displayImage(string pathanme)
+int displayImage(string pathanme, int size, string meta)
 {
     std::string image_path = samples::findFile(pathanme);
     Mat img = imread(image_path, IMREAD_COLOR);
@@ -91,6 +91,32 @@ int displayImage(string pathanme)
     }
     Mat detectedFrame;
     img.convertTo(detectedFrame, CV_8U);
+
+    // cv::Mat img(512, 512, CV_8UC3, cv::Scalar(0));
+
+    cv::putText(detectedFrame, //target image
+                "Name: " + pathanme, //text
+                cv::Point(10, img.rows - 100), //top-left position
+                cv::FONT_HERSHEY_DUPLEX,
+                1.0,
+                CV_RGB(0, 255, 0), //font color
+                2);
+
+    cv::putText(detectedFrame, //target image
+                "Size: " + to_string(size), //text
+                cv::Point(10, img.rows - 50), //top-left position
+                cv::FONT_HERSHEY_DUPLEX,
+                1.0,
+                CV_RGB(0, 255, 0), //font color
+                2);
+
+    cv::putText(detectedFrame, //target image
+                "Meta: " + meta, //text
+                cv::Point(10, img.rows - 10), //top-left position
+                cv::FONT_HERSHEY_DUPLEX,
+                1.0,
+                CV_RGB(0, 255, 0), //font color
+                2);
 
     imshow("CLOSURE Image Detector", detectedFrame);
 
@@ -160,7 +186,7 @@ void ImageDetector::run()
 
                 ImageDetector::amq.publish("receiveImageDetectionXD", j, true);
 
-                displayImage(pathname);
+                displayImage(pathname, size, meta);
             }
             catch (fs::filesystem_error &e) {
                 std::cout << e.what() << '\n';
