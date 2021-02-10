@@ -76,7 +76,7 @@ def setup_gui(args):
 
   app.layout = html.Div([
     html.Div([
-      html.H1("CLOSURE EOP1 Demo Cross-Domain Message Flow Visualizer"),
+      html.Div("CLOSURE EOP1 Demo Cross-Domain Message Flow Visualizer", style={'font-size':'32px','font-weight':'bold'}),
       html.Div(id='live-update-data', style={'display': 'none'}),
       dcc.Interval(id='interval-component', interval=2*1000, n_intervals=0)
     ]),
@@ -91,7 +91,7 @@ def setup_gui(args):
       style={'width':'550px','height':'400px','float':'left'}
     ),
     html.Div([dcc.Graph(id="bar-chart")], style={'width':'550px','float':'right','align':'middle'}),
-    html.Div(id='textarea-events', style={'width':'100%','height':'350px','overflowY':'scroll','float':'left'})
+    html.Div(id='textarea-events', style={'width':'100%','height':'300px','overflowX':'scroll','overflowY':'scroll','float':'left'})
   ],style={'width':'1200px'})
 
   @app.callback(Output('textarea-events', 'children'), [Input('live-update-data', 'children')]) 
@@ -112,6 +112,7 @@ def setup_gui(args):
       elif 'rcvISRMDetections' in c:                       x += 'Collated ISRM Detections' 
       elif 'rcvEOIRDetections' in c:                       x += 'EOIR Detections' 
       elif 'rcvRDRDetections' in c:                        x += 'RDR Detections' 
+      elif 'rcvXXXDetections' in c:                        x += 'EOIR, RDR, or ISRM Detections' 
       else:                                                x += '' 
 
       if i['case'] =='case3':
@@ -122,7 +123,7 @@ def setup_gui(args):
       items.append((x,json.dumps(i['msg']),(i['remote'] if 'xd' in c else i['local'])))
       continue
     return [html.Div([html.Div(x,style={'color':'charcoal', 'background-color':w,'font-weight':'bold', 'font-size':'20px'}),
-                      html.Div(y,style={'font-family':'monospace', 'font-size':'10px'}),
+                      html.Div(y,style={'font-family':'monospace', 'white-space': 'nowrap', 'font-size':'12px'}),
                       html.Br( style={ 'display':'block', 'margin-top':'6px', 'line-height':'14px' })]) for x,y,w in items]
 
   @app.callback(Output('bar-chart', 'figure'), [Input('live-update-data', 'children')]) 
@@ -200,6 +201,9 @@ def classify(loc,rem,case,msg):
   a['groundMovers']         = True if ('bearing' in msg) else False
   a['updateMissionPlan']    = True if ('missionPlan' in msg) else False
   a['reqXXXDetections']     = True if ('phase' in msg) else False
+  a['rcvXXXDetections']     = True if ('detects' in msg) else False
+  '''
+  # Heuristic detection does not work too well
   try: 
     a['rcvISRMDetections']  = all(d['classification'] != '' and d['speed'] != -1.0 for d in msg['detects'])
   except: 
@@ -212,6 +216,7 @@ def classify(loc,rem,case,msg):
     a['rcvRDRDetections']   = all(d['classification'] == '' for d in msg['detects'])
   except: 
     a['rcvRDRDetections']   = False
+  '''
   a['swredactdet']          = all(d['alt'] == -9999.0 for d in msg['detects'] if 'alt' in d) if 'detects' in msg else False
   a['hwredactdet']          = (a['xd'] == True and all(d['alt'] == 0.0 for d in msg['detects'] if 'alt' in d)) if 'detects' in msg else False
   try: 
@@ -222,7 +227,8 @@ def classify(loc,rem,case,msg):
     a['hwredactmp']         = (a['xd'] == True and all([w['z'] == 0.0 for w in msg['missionPlan']['vehiclePlan']['wayPoints']]))
   except:
     a['hwredactmp']         = False
-  a['salient']              = a['sync'] or a['updateMissionPlan'] or a['reqXXXDetections'] or a['rcvRDRDetections'] or a['rcvEOIRDetections'] or a['rcvISRMDetections']
+  #a['salient']              = a['sync'] or a['updateMissionPlan'] or a['reqXXXDetections'] or a['rcvRDRDetections'] or a['rcvEOIRDetections'] or a['rcvISRMDetections']
+  a['salient']              = a['sync'] or a['updateMissionPlan'] or a['reqXXXDetections'] or a['rcvXXXDetections'] 
   return [i for i in a if a[i] == True]
 
 # Update statistics
