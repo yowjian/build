@@ -4,25 +4,31 @@ import re
 import os
 import json
 import time
+import atexit
+import subprocess
+import requests
+import signal
 import dash
 import dash_table
-import time
-import subprocess
-import threading
-import multiprocessing
-import requests
 import plotly.express       as px
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_cytoscape       as cyto
 import plotly.graph_objects as go
 from   dash.dependencies    import Input, Output
-from   argparse             import ArgumentParser
 from   flask                import Flask, request
 from   flask_restful        import Resource, Api
-from   random               import uniform
+from   argparse             import ArgumentParser
+from   threading            import Lock
 
 ################################## GUI-specific code begins #########################################################
+# Post extracted data to webserver
+def update_gui_data(args,m,c,st):
+  headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+  data = {'tags':c,'local':args.local_enclave,'remote':args.remote_enclave,'case':args.case,'stts':st,'msg':m}
+  r = requests.post('http://localhost:' + str(args.port) + '/data', headers=headers, json=data)
+  return r.status_code
+
 # Load the design spec for visualization
 def load_design(infile, suppmsg):
   with open(infile, 'r') as inf: j = json.load(inf)
@@ -40,23 +46,21 @@ def load_design(infile, suppmsg):
       elts.append({'data': {'source': s[x], 'target':d[x], 'label': m[x]}})
   return elts
 
-
-lock = threading.Lock()
-
 # REST API where transcript analyzer can push data and where Dashboard can pull data
 class Viewdata(Resource):
   data = []
-  def get(self):
-    lock.acquire()
+  lock = Lock()
+  def get(self):   # GET request from Dashboard
+    Viewdata.lock.acquire()
     d = Viewdata.data 
-    lock.release()
+    Viewdata.lock.release()
     return d
-  def post(self):
+  def post(self):  # POST request from update_gui_data
     try: 
       json_data = request.get_json()
-      lock.acquire()
+      Viewdata.lock.acquire()
       Viewdata.data.append(json_data)
-      lock.release()
+      Viewdata.lock.release()
     except:
       pass
     return {"status": "okay"}, 200
@@ -72,7 +76,7 @@ def setup_gui(args):
 
   app.layout = html.Div([
     html.Div([
-      html.P("CLOSURE EOP1 Demo Cross-Domain Message Flow Visualizer"),
+      html.H1("CLOSURE EOP1 Demo Cross-Domain Message Flow Visualizer"),
       html.Div(id='live-update-data', style={'display': 'none'}),
       dcc.Interval(id='interval-component', interval=2*1000, n_intervals=0)
     ]),
@@ -84,11 +88,11 @@ def setup_gui(args):
         {'selector': 'node', 'style': { 'label': 'data(label)', 'background-color': 'data(level)'}},
         {'selector': 'edge', 'style': { 'width':5, 'label': 'data(label)', 'curve-style': 'bezier', 'control-point-weight': 0.9, 'target-arrow-shape': 'triangle'}}
       ], 
-      style={'width':'600px','height':'500px','float':'left'}
+      style={'width':'500px','height':'400px','float':'left'}
     ),
-    html.Div([dcc.Graph(id="bar-chart")], style={'width':'600px','height':'300px','float':'right','align':'middle'}),
-    html.Div(id='textarea-events', style={'width':'100%','height':'300px','overflowY':'scroll','float':'left'})
-  ],style={'width':'1200px'})
+    html.Div([dcc.Graph(id="bar-chart")], style={'width':'450px','float':'right','align':'middle'}),
+    html.Div(id='textarea-events', style={'width':'100%','height':'350px','overflowY':'scroll','float':'left'})
+  ],style={'width':'1000px'})
 
   @app.callback(Output('textarea-events', 'children'), [Input('live-update-data', 'children')]) 
   def update_events_text(data):
@@ -107,15 +111,17 @@ def setup_gui(args):
         elif ('hwredactdet' in c) or ('hwredactmp' in c):    x += ' HARDWARE-REDACTED '
         else:                                                x += '                   '
 
-      if 'sync' in c:                                      x += 'Sync Received' 
+      if 'sync' in c:                                      x += 'Received Sync Heartbeat' 
       elif 'updateMissionPlan' in c:                       x += 'Received Update Mission Plan'
-      elif 'reqXXXDetections' in c:                        x += 'Received Detection Request for ' + i['msg']['phase']
+      elif 'reqXXXDetections' in c:                        x += 'Received Detection Request - ' + i['msg']['phase']
       elif 'rcvISRMDetections' in c:                       x += 'Received Collated ISRM Detections' 
       elif 'rcvEOIRDetections' in c:                       x += 'Received EOIR Detections' 
       elif 'rcvRDRDetections' in c:                        x += 'Received RDR Detections' 
       else:                                                x += '' 
       items.append((x,json.dumps(i['msg']),(i['remote'] if 'xd' in c else i['local'])))
-    return [html.Div([html.Div(x,style={'color':w,'font-weight':'bold'}),html.Div(y),html.Br()]) for x,y,w in items]
+    return [html.Div([html.Div(x,style={'background-color':w,'font-weight':'bold', 'font-size':'20px'}),
+                      html.Div(y,style={'font-family':'monospace', 'font-size':'10px'}),
+                      html.Br( style={ 'display':'block', 'margin-top':'6px', 'line-height':'14px' })]) for x,y,w in items]
 
   @app.callback(Output('bar-chart', 'figure'), [Input('live-update-data', 'children')]) 
   def update_bar_chart(data):
@@ -160,28 +166,13 @@ def setup_gui(args):
   @app.callback(Output('live-update-data', 'children'), Input('interval-component', 'n_intervals'))
   def update_viewdata(n):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    #params = {'rnd': str(uniform(100,10000000)),'tm':str(time.time())}
-    params = {'rnd': uniform(100,10000000)}
+    params = {'tm':str(time.time())}
     r = requests.get(url, headers=headers, params=params)
     return json.dumps(r.json())
 
   app.run_server(port=args.port,debug=True)
 
-# Push data to webserver
-def update_gui_data(args,m,c,st):
-  headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-  data = {'tags':c,'local':args.local_enclave,'remote':args.remote_enclave,'case':args.case,'stts':st,'msg':m}
-  r = requests.post('http://localhost:' + str(args.port) + '/data', headers=headers, json=data)
-  return r.status_code
-
 ################################## GUI-specific code ends #########################################################
-
-# Update statistics
-def update_istats(count,c,istats):
-  for k in c:
-    if not (k in istats): istats[k] = 0
-    istats[k] += 1
-  istats['count'] = count
 
 # Regular expression to extract JSON message from transcript
 msgre = re.compile('^.*Received (.*$)')
@@ -232,6 +223,13 @@ def classify(loc,rem,case,msg):
   a['salient']              = a['sync'] or a['updateMissionPlan'] or a['reqXXXDetections'] or a['rcvRDRDetections'] or a['rcvEOIRDetections'] or a['rcvISRMDetections']
   return [i for i in a if a[i] == True]
 
+# Update statistics
+def update_istats(count,c,istats):
+  for k in c:
+    if not (k in istats): istats[k] = 0
+    istats[k] += 1
+  istats['count'] = count
+
 # Parse command line argumets
 def get_args():
   p = ArgumentParser(description='CLOSURE EOP Message Transcript Viewer')
@@ -245,20 +243,15 @@ def get_args():
   p.add_argument('-p', '--port', required=False, type=int, default=11235, help='Dashboard port (11235)')
   return p.parse_args()
 
-def start_server(args):
-  def run():
-    setup_gui(args)
-  server_process = multiprocessing.Process(target=run)
-  server_process.start()
+def cleanup(gproc): os.killpg(os.getpgid(gproc.pid), signal.SIGTERM)
 
 # Run the application
 if __name__ == '__main__':
   args = get_args()
 
-  # XXX: start_server creates a Doppelganger resulting in two processes running main
   if args.mode == 'gui': 
-    # start_server(args)
-    gproc = subprocess.Popen('python3 helper.py ' + ' '.join(sys.argv[1:]), shell=True)
+    gproc = subprocess.Popen(['python3', 'helper.py'] + sys.argv[1:], preexec_fn=os.setpgrp)
+    atexit.register(cleanup,gproc)
 
   time.sleep(2)
   count = 0
@@ -271,5 +264,9 @@ if __name__ == '__main__':
     if args.mode == 'txt' and ('salient' in c or ((count % args.batch_stats) == 0)) : print('Stats: ', stats)
     if args.mode == 'gui' and ('salient' in c or ((count % args.batch_stats) == 0)) : update_gui_data(args,m,c,stats)
     continue
-  if args.mode == 'txt' : print('Final Stats: ', stats)
+  print('Final Stats: ', stats)
+  print('End of input data, press Ctrl-C to exit')
+  while True:
+    time.sleep(100000)
+  
 
