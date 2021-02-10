@@ -159,7 +159,7 @@ def setup_gui(args):
               go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values()), textposition='outside'),
               go.Bar(name='Aggregate message counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values()), textposition='outside'),
             ])
-    fig.update_yaxes(type='log',range=[0,3])
+    fig.update_yaxes(type='log',range=[-1,4])
     return fig
 
   # Pull data from webserver 
@@ -252,8 +252,8 @@ if __name__ == '__main__':
   if args.mode == 'gui': 
     gproc = subprocess.Popen(['python3', 'helper.py'] + sys.argv[1:], preexec_fn=os.setpgrp)
     atexit.register(cleanup,gproc)
+    time.sleep(2)
 
-  time.sleep(2)
   count = 0
   stats = {}
   for m in next_msg():
@@ -264,9 +264,10 @@ if __name__ == '__main__':
     if args.mode == 'txt' and ('salient' in c or ((count % args.batch_stats) == 0)) : print('Stats: ', stats)
     if args.mode == 'gui' and ('salient' in c or ((count % args.batch_stats) == 0)) : update_gui_data(args,m,c,stats)
     continue
-  print('Final Stats: ', stats)
-  print('End of input data, press Ctrl-C to exit')
+  print('\nEnd of input data, final stats: ', stats)
+  print('\nPress Ctrl-C to exit')
   while True:
-    time.sleep(100000)
+    try:    time.sleep(100000)
+    except: break
   
 
