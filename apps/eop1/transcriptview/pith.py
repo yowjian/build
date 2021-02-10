@@ -103,23 +103,25 @@ def setup_gui(args):
       c = i['tags']
       if not 'salient' in c: continue
 
-      if 'xd' in c: x += 'CROSS-DOMAIN ' 
-      else:         x += 'LOCAL        '
+      if 'xd' in c: x += '[CROSS-DOMAIN] ' 
+      else:         x += '[LOCAL-DOMAIN] '
+
+      if 'sync' in c:                                      x += 'Sync Heartbeat' 
+      elif 'updateMissionPlan' in c:                       x += 'Update Mission Plan'
+      elif 'reqXXXDetections' in c:                        x += 'Detection Request - ' + i['msg']['phase']
+      elif 'rcvISRMDetections' in c:                       x += 'Collated ISRM Detections' 
+      elif 'rcvEOIRDetections' in c:                       x += 'EOIR Detections' 
+      elif 'rcvRDRDetections' in c:                        x += 'RDR Detections' 
+      else:                                                x += '' 
 
       if i['case'] =='case3':
-        if ('swredactdet' in c) or ('swredactmp' in c):      x += ' SOFTWARE-REDACTED '
-        elif ('hwredactdet' in c) or ('hwredactmp' in c):    x += ' HARDWARE-REDACTED '
-        else:                                                x += '                   '
+        if ('swredactdet' in c) or ('swredactmp' in c):      x += ' <SOFTWARE-REDACTED> '
+        elif ('hwredactdet' in c) or ('hwredactmp' in c):    x += ' <HARDWARE-REDACTED> '
+        else:                                                x += ' '
 
-      if 'sync' in c:                                      x += 'Received Sync Heartbeat' 
-      elif 'updateMissionPlan' in c:                       x += 'Received Update Mission Plan'
-      elif 'reqXXXDetections' in c:                        x += 'Received Detection Request - ' + i['msg']['phase']
-      elif 'rcvISRMDetections' in c:                       x += 'Received Collated ISRM Detections' 
-      elif 'rcvEOIRDetections' in c:                       x += 'Received EOIR Detections' 
-      elif 'rcvRDRDetections' in c:                        x += 'Received RDR Detections' 
-      else:                                                x += '' 
       items.append((x,json.dumps(i['msg']),(i['remote'] if 'xd' in c else i['local'])))
-    return [html.Div([html.Div(x,style={'background-color':w,'font-weight':'bold', 'font-size':'20px'}),
+      continue
+    return [html.Div([html.Div(x,style={'color':'charcoal', 'background-color':w,'font-weight':'bold', 'font-size':'20px'}),
                       html.Div(y,style={'font-family':'monospace', 'font-size':'10px'}),
                       html.Br( style={ 'display':'block', 'margin-top':'6px', 'line-height':'14px' })]) for x,y,w in items]
 
