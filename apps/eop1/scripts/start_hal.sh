@@ -40,6 +40,10 @@ case $CFG in
     *)  CFG="$PWD/$CFG"
 esac
 
+# only matches MIND configs
+IP=`ifconfig eth0 | grep "inet " | awk {'print $2'}`
+sed -i 's/addr_in = "192.*/addr_in = "$IP";/' $CFG
+
 pushd /opt/closure/bin
 ./hal $CFG -l0 &> /tmp/hal_$COLR.out &
 popd
