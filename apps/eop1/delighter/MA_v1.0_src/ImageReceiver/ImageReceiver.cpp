@@ -62,6 +62,30 @@ void ImageReceiver::updateImageDetected(const json &j)
     cv:Mat mat;
     mat = imdecode(imVec, 8);
 
+    cv::putText(mat, //target image
+                "Name: " + name, //text
+                cv::Point(10, mat.rows - 100), //top-left position
+                cv::FONT_HERSHEY_DUPLEX,
+                1.0,
+                CV_RGB(235, 140, 52), //font color
+                2);
+
+    cv::putText(mat, //target image
+                "Size: " + to_string(size), //text
+                cv::Point(10, mat.rows - 50), //top-left position
+                cv::FONT_HERSHEY_DUPLEX,
+                1.0,
+                CV_RGB(235, 140, 52), //font color
+                2);
+
+    cv::putText(mat, //target image
+                "Meta: " + meta, //text
+                cv::Point(10, mat.rows - 10), //top-left position
+                cv::FONT_HERSHEY_DUPLEX,
+                1.0,
+                CV_RGB(235, 140, 52), //font color
+                2);
+
     imshow("CLOSURE Image Receiver", mat);
 
     static bool moved = false;
