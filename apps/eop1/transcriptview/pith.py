@@ -141,7 +141,7 @@ def setup_gui(args):
     lj2['hwredactdet']  = lj['hwredactdet'] if 'hwredactdet' in lj else 0
     lj2['swredactdet']  = lj['swredactdet'] if 'swredactdet' in lj else 0
     lj2['hwredactmp']   = lj['hwredactmp'] if 'hwredactmp' in lj else 0
-    lj2['swredactmp']   = lj['swredactmo'] if 'swredactmp' in lj else 0
+    lj2['swredactmp']   = lj['swredactmp'] if 'swredactmp' in lj else 0
 
     lj.pop('sync',None)
     lj.pop('salient',None)
