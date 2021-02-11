@@ -16,6 +16,14 @@
         "args": [],
         "group": "build",
         "problemMatcher": []
+      },
+      {
+        "label": "3 HALDEPLOY",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig haldeploy",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
       }
     ]
   }

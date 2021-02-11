@@ -1,26 +1,34 @@
 #!/usr/bin/python3
 import sys
 import re
+import os
 import json
+import time
+import atexit
+import subprocess
+import requests
+import signal
 import dash
 import dash_table
-import time
-import threading
-import multiprocessing
-import requests
 import plotly.express       as px
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_cytoscape       as cyto
 import plotly.graph_objects as go
 from   dash.dependencies    import Input, Output
-from   argparse             import ArgumentParser
-from   threading            import Thread
 from   flask                import Flask, request
 from   flask_restful        import Resource, Api
-from   random               import uniform
+from   argparse             import ArgumentParser
+from   threading            import Lock
 
 ################################## GUI-specific code begins #########################################################
+# Post extracted data to webserver
+def update_gui_data(args,m,c,st):
+  headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+  data = {'tags':c,'local':args.local_enclave,'remote':args.remote_enclave,'case':args.case,'stts':st,'msg':m}
+  r = requests.post('http://localhost:' + str(args.port) + '/data', headers=headers, json=data)
+  return r.status_code
+
 # Load the design spec for visualization
 def load_design(infile, suppmsg):
   with open(infile, 'r') as inf: j = json.load(inf)
@@ -36,34 +44,26 @@ def load_design(infile, suppmsg):
   for x in m:             
     if not m[x] in suppmsg:
       elts.append({'data': {'source': s[x], 'target':d[x], 'label': m[x]}})
-      #elts.append({'data': {'source': s[x], 'target':d[x], 'label': m[x]+':'+l[x]}})
   return elts
 
-lock = threading.Lock()
 # REST API where transcript analyzer can push data and where Dashboard can pull data
 class Viewdata(Resource):
   data = []
-  def get(self):
-    lock.acquire()
+  lock = Lock()
+  def get(self):   # GET request from Dashboard
+    Viewdata.lock.acquire()
     d = Viewdata.data 
-    lock.release()
+    Viewdata.lock.release()
     return d
-  def post(self):
+  def post(self):  # POST request from update_gui_data
     try: 
       json_data = request.get_json()
-      lock.acquire()
+      Viewdata.lock.acquire()
       Viewdata.data.append(json_data)
-      lock.release()
+      Viewdata.lock.release()
     except:
       pass
     return {"status": "okay"}, 200
-
-# Run on a separate process so that it doesn't block
-def start_server(app, **kwargs):
-  def run():
-    app.run_server(**kwargs)
-  server_process = multiprocessing.Process(target=run)
-  server_process.start()
 
 def setup_gui(args):
   server = Flask('pith')
@@ -76,7 +76,7 @@ def setup_gui(args):
 
   app.layout = html.Div([
     html.Div([
-      html.P("CLOSURE EOP1 Demo Cross-Domain Message Flow Visualizer"),
+      html.Div("CLOSURE EOP1 Demo Cross-Domain Message Flow Visualizer", style={'font-size':'32px','font-weight':'bold'}),
       html.Div(id='live-update-data', style={'display': 'none'}),
       dcc.Interval(id='interval-component', interval=2*1000, n_intervals=0)
     ]),
@@ -88,10 +88,10 @@ def setup_gui(args):
         {'selector': 'node', 'style': { 'label': 'data(label)', 'background-color': 'data(level)'}},
         {'selector': 'edge', 'style': { 'width':5, 'label': 'data(label)', 'curve-style': 'bezier', 'control-point-weight': 0.9, 'target-arrow-shape': 'triangle'}}
       ], 
-      style={'width':'600px','height':'500px','float':'left'}
+      style={'width':'550px','height':'400px','float':'left'}
     ),
-    html.Div([dcc.Graph(id="bar-chart")], style={'width':'600px','height':'300px','float':'right','align':'middle'}),
-    html.Div(id='textarea-events', style={'width':'100%','height':'300px','overflow-y':'scroll','float':'left'})
+    html.Div([dcc.Graph(id="bar-chart")], style={'width':'550px','float':'right','align':'middle'}),
+    html.Div(id='textarea-events', style={'width':'100%','height':'300px','overflowX':'scroll','overflowY':'scroll','float':'left'})
   ],style={'width':'1200px'})
 
   @app.callback(Output('textarea-events', 'children'), [Input('live-update-data', 'children')]) 
@@ -103,23 +103,28 @@ def setup_gui(args):
       c = i['tags']
       if not 'salient' in c: continue
 
-      if 'xd' in c: x += 'CROSS-DOMAIN ' 
-      else:         x += 'LOCAL        '
+      if 'xd' in c: x += '[CROSS-DOMAIN] ' 
+      else:         x += '[LOCAL-DOMAIN] '
+
+      if 'sync' in c:                                      x += 'Sync Heartbeat' 
+      elif 'updateMissionPlan' in c:                       x += 'Update Mission Plan'
+      elif 'reqXXXDetections' in c:                        x += 'Detection Request - ' + i['msg']['phase']
+      elif 'rcvISRMDetections' in c:                       x += 'Collated ISRM Detections' 
+      elif 'rcvEOIRDetections' in c:                       x += 'EOIR Detections' 
+      elif 'rcvRDRDetections' in c:                        x += 'RDR Detections' 
+      elif 'rcvXXXDetections' in c:                        x += 'EOIR, RDR, or ISRM Detections' 
+      else:                                                x += '' 
 
       if i['case'] =='case3':
-        if ('swredactdet' in c) or ('swredactmp' in c):      x += ' SOFTWARE-REDACTED '
-        elif ('hwredactdet' in c) or ('hwredactmp' in c):    x += ' HARDWARE-REDACTED '
-        else:                                                x += '                   '
+        if ('swredactdet' in c) or ('swredactmp' in c):      x += ' <SOFTWARE-REDACTED> '
+        elif ('hwredactdet' in c) or ('hwredactmp' in c):    x += ' <HARDWARE-REDACTED> '
+        else:                                                x += ' '
 
-      if 'sync' in c:                                      x += 'Sync Received' 
-      elif 'updateMissionPlan' in c:                       x += 'Received Update Mission Plan'
-      elif 'reqXXXDetections' in c:                        x += 'Received Detection Request for ' + i['msg']['phase']
-      elif 'rcvISRMDetections' in c:                       x += 'Received Collated ISRM Detections' 
-      elif 'rcvEOIRDetections' in c:                       x += 'Received EOIR Detections' 
-      elif 'rcvRDRDetections' in c:                        x += 'Received RDR Detections' 
-      else:                                                x += '' 
       items.append((x,json.dumps(i['msg']),(i['remote'] if 'xd' in c else i['local'])))
-    return [html.Div([html.Div(x,style={'color':w,'font-weight':'bold'}),html.Div(y),html.Br()]) for x,y,w in items]
+      continue
+    return [html.Div([html.Div(x,style={'color':'charcoal', 'background-color':w,'font-weight':'bold', 'font-size':'20px'}),
+                      html.Div(y,style={'font-family':'monospace', 'white-space': 'nowrap', 'font-size':'12px'}),
+                      html.Br( style={ 'display':'block', 'margin-top':'6px', 'line-height':'14px' })]) for x,y,w in items]
 
   @app.callback(Output('bar-chart', 'figure'), [Input('live-update-data', 'children')]) 
   def update_bar_chart(data):
@@ -136,7 +141,7 @@ def setup_gui(args):
     lj2['hwredactdet']  = lj['hwredactdet'] if 'hwredactdet' in lj else 0
     lj2['swredactdet']  = lj['swredactdet'] if 'swredactdet' in lj else 0
     lj2['hwredactmp']   = lj['hwredactmp'] if 'hwredactmp' in lj else 0
-    lj2['swredactmp']   = lj['swredactmo'] if 'swredactmp' in lj else 0
+    lj2['swredactmp']   = lj['swredactmp'] if 'swredactmp' in lj else 0
 
     lj.pop('sync',None)
     lj.pop('salient',None)
@@ -148,44 +153,29 @@ def setup_gui(args):
     lj.pop('swredactmp',None)
     if len(lj) > 1 and j[-1]['case'] == 'case3':
       fig = go.Figure([
-              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values())), 
-              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values())), 
-              go.Bar(name='Redaction counts', x=list(lj2.keys()), y=list(lj2.values()), text=list(lj2.values())), 
+              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values()), textposition='outside'),
+              go.Bar(name='Aggregate message counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values()), textposition='outside'),
+              go.Bar(name='Redacted message counts', x=list(lj2.keys()), y=list(lj2.values()), text=list(lj2.values()), textposition='outside'),
             ])
     else:
       fig = go.Figure([
-              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values())), 
-              go.Bar(name='Aggregate counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values())), 
+              go.Bar(name='Message counts by type', x=list(lj.keys()), y=list(lj.values()), text=list(lj.values()), textposition='outside'),
+              go.Bar(name='Aggregate message counts', x=list(lj1.keys()), y=list(lj1.values()), text=list(lj1.values()), textposition='outside'),
             ])
-    fig.update_yaxes(type='log')
+    fig.update_yaxes(type='log',range=[-1,4])
     return fig
 
   # Pull data from webserver 
   @app.callback(Output('live-update-data', 'children'), Input('interval-component', 'n_intervals'))
   def update_viewdata(n):
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    params = {'rnd': uniform(100,10000000)}
+    params = {'tm':str(time.time())}
     r = requests.get(url, headers=headers, params=params)
     return json.dumps(r.json())
 
-  start_server(app,port=args.port,debug=True)
-  return app
-
-# Push data to webserver
-def update_gui(args,m,c,st):
-  headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-  data = {'tags':c,'local':args.local_enclave,'remote':args.remote_enclave,'case':args.case,'stts':st,'msg':m}
-  r = requests.post('http://localhost:' + str(args.port) + '/data', headers=headers, json=data)
-  return r.status_code
+  app.run_server(port=args.port,debug=True)
 
 ################################## GUI-specific code ends #########################################################
-
-# Update statistics
-def update_stats(count,c,stats):
-  for k in c:
-    if not k in stats: stats[k] = 0
-    stats[k] += 1
-  stats['count'] = count
 
 # Regular expression to extract JSON message from transcript
 msgre = re.compile('^.*Received (.*$)')
@@ -211,6 +201,9 @@ def classify(loc,rem,case,msg):
   a['groundMovers']         = True if ('bearing' in msg) else False
   a['updateMissionPlan']    = True if ('missionPlan' in msg) else False
   a['reqXXXDetections']     = True if ('phase' in msg) else False
+  a['rcvXXXDetections']     = True if ('detects' in msg) else False
+  '''
+  # Heuristic detection does not work too well
   try: 
     a['rcvISRMDetections']  = all(d['classification'] != '' and d['speed'] != -1.0 for d in msg['detects'])
   except: 
@@ -223,6 +216,7 @@ def classify(loc,rem,case,msg):
     a['rcvRDRDetections']   = all(d['classification'] == '' for d in msg['detects'])
   except: 
     a['rcvRDRDetections']   = False
+  '''
   a['swredactdet']          = all(d['alt'] == -9999.0 for d in msg['detects'] if 'alt' in d) if 'detects' in msg else False
   a['hwredactdet']          = (a['xd'] == True and all(d['alt'] == 0.0 for d in msg['detects'] if 'alt' in d)) if 'detects' in msg else False
   try: 
@@ -233,8 +227,16 @@ def classify(loc,rem,case,msg):
     a['hwredactmp']         = (a['xd'] == True and all([w['z'] == 0.0 for w in msg['missionPlan']['vehiclePlan']['wayPoints']]))
   except:
     a['hwredactmp']         = False
-  a['salient']              = a['sync'] or a['updateMissionPlan'] or a['reqXXXDetections'] or a['rcvRDRDetections'] or a['rcvEOIRDetections'] or a['rcvISRMDetections']
+  #a['salient']              = a['sync'] or a['updateMissionPlan'] or a['reqXXXDetections'] or a['rcvRDRDetections'] or a['rcvEOIRDetections'] or a['rcvISRMDetections']
+  a['salient']              = a['sync'] or a['updateMissionPlan'] or a['reqXXXDetections'] or a['rcvXXXDetections'] 
   return [i for i in a if a[i] == True]
+
+# Update statistics
+def update_istats(count,c,istats):
+  for k in c:
+    if not (k in istats): istats[k] = 0
+    istats[k] += 1
+  istats['count'] = count
 
 # Parse command line argumets
 def get_args():
@@ -249,20 +251,31 @@ def get_args():
   p.add_argument('-p', '--port', required=False, type=int, default=11235, help='Dashboard port (11235)')
   return p.parse_args()
 
+def cleanup(gproc): os.killpg(os.getpgid(gproc.pid), signal.SIGTERM)
+
 # Run the application
 if __name__ == '__main__':
   args = get_args()
-  if args.mode == 'gui': app = setup_gui(args)
-  time.sleep(1)
+
+  if args.mode == 'gui': 
+    gproc = subprocess.Popen(['python3', 'helper.py'] + sys.argv[1:], preexec_fn=os.setpgrp)
+    atexit.register(cleanup,gproc)
+    time.sleep(2)
+
   count = 0
   stats = {}
   for m in next_msg():
     count += 1
     c = classify(args.local_enclave,args.remote_enclave,args.case,m)
-    update_stats(count,c,stats)
+    update_istats(count,c,stats)
     if args.mode == 'txt' and 'salient' in c                                        : print(c, ' : ', m)
     if args.mode == 'txt' and ('salient' in c or ((count % args.batch_stats) == 0)) : print('Stats: ', stats)
-    if args.mode == 'gui' and ('salient' in c or ((count % args.batch_stats) == 0)) : update_gui(args,m,c,stats)
+    if args.mode == 'gui' and ('salient' in c or ((count % args.batch_stats) == 0)) : update_gui_data(args,m,c,stats)
     continue
-  if args.mode == 'txt' : print('Final Stats: ', stats)
+  print('\nEnd of input data, final stats: ', stats)
+  print('\nPress Ctrl-C to exit')
+  while True:
+    try:    time.sleep(100000)
+    except: break
+  
 
