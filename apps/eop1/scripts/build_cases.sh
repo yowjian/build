@@ -75,7 +75,7 @@ do
     build_xdcc
     popd
     pushd ../$CASE/deploy
-    runtask "2 HAL"
+    runtask "3 HALDEPLOY"
     python3 /opt/closure/scripts/hal_autoconfig.py -o . -x ./xdconf.ini -d $DEVFILE -p hal_$CASE
     popd
 done
