@@ -1,7 +1,7 @@
 # override PROG in closure_env.sh
 PROG=deploy
 
-CLOSURE_DIR=~/gaps/build
+CLOSURE_DIR=/home/closure/gaps/build
 ODIR=./partitioned/$(IPCMODE)
 CFG_DIR=$(CLOSURE_DIR)/src/emu/config/$(PROG)
 
@@ -14,7 +14,7 @@ LIBS=../autogen/libcodecs.a -lpthread
 
 DEBPKGS=$(shell cat .vscode/clean.list)
 PYPKGS=
-DEPENDENCIES=deploy/.dependencies
+DEPENDENCIES=.dependencies
 MA_SRC=./MA_v1.0_src
 
 deps:
@@ -26,17 +26,22 @@ hal:
 	cp ./xdcc/egress_xdcc/partitioned/multithreaded/xdconf.ini deploy/egress_xdconf.ini
 	cp ./xdcc/ingress_xdcc/partitioned/multithreaded/xdconf.ini deploy/ingress_xdconf.ini
 	$(PYTHON) $(XDCONFMERGER) -f "deploy/egress_xdconf.ini deploy/ingress_xdconf.ini"
-	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x deploy/xdconf.ini -d $(CFG_DIR)/devices.json -p $(PROG)_hal
+	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x xdconf.ini -d /opt/closure/etc/devices_socat.json -p $(PROG)_hal
 
 pkg:
+	$(eval CASE = $(shell basename `pwd`))
 	mkdir -p $(DEPENDENCIES)
-	$(eval CASE = $(shell basename $(shell dirname `pwd`)))
-	cd $(MA_SRC) && ./package.sh && cd ../../ && ./package.sh ${CASE} && cd ${CASE}/deploy
-	tar cf $(PROG)-orange-enclave-gw-G.tar $(DEPENDENCIES) -C $(MA_SRC) MA_1.0.tgz -C ../../ ${CASE}.tgz
-	tar cf $(PROG)-green-enclave-gw-O.tar $(DEPENDENCIES)  -C $(MA_SRC) MA_1.0.tgz -C ../../ ${CASE}.tgz
+	cd ../ && ./package.sh ${CASE} #&& cd ${CASE}/deploy  
+	rm -f *.tar
+	tar cf $(PROG)-orange-enclave-gw-G.tar $(DEPENDENCIES) -C ../ ${CASE}.tgz
+	tar cf $(PROG)-green-enclave-gw-O.tar $(DEPENDENCIES)  -C ../ ${CASE}.tgz
+
+emu:	
 	rm -rf $(CLOSURE_DIR)/src/emu/.apps
 	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
-	mv *.tar $(CLOSURE_DIR)/src/emu/.apps/
+	cp *.tar $(CLOSURE_DIR)/src/emu/.apps/
+	cp deploy/*.cfg $(CLOSURE_DIR)/src/emu/config/deploy
+
 
 cleandeps:
 	rm -rf $(DEPENDENCIES)

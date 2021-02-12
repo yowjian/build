@@ -12,7 +12,7 @@
       {
         "label": "A1 SCHEMA GENERATION",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; ${CLOSURE_SCRIPTS}/schema_gen.sh -i ../captured-messages -o design/schema-new",
+        "command": "source .vscode/closure_env.sh; mkdir -p design/schema-new; ${CLOSURE_SCRIPTS}/schema_gen.sh -i ../capturedessages -o design/schema-new",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -36,7 +36,7 @@
       {
         "label": "A4 DESIGN VALIDATION",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; ${PYTHON} ${FLOW_SOLVER}/FlowSolver.py design/design_spec.json",
+        "command": "source .vscode/closure_env.sh; ${PYTHON} ${FLOW_SOLVER} design/design_spec.json",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -90,7 +90,7 @@
       {
         "label": "B INIT",
         "type": "shell",
-        "command": "cd ../amqlib && make libclean && make",
+        "command": "source .vscode/closure_env.sh; cd ../amqlib && PINSTALL=$PINSTALL make libclean && make",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -98,7 +98,15 @@
       {
         "label": "B0 CLEAN SOURCE",
         "type": "shell",
-        "command": "cd xdcc/${input:direction}_xdcc; rm -rf annotated partitioned divvied refactored *working *.json;",
+        "command": "cd xdcc/egress_xdcc; rm -rf annotated partitioned divvied refactored *working *.json; cd ../ingress_xdcc; rm -rf annotated partitioned divvied refactored *working *.json;",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "BUILD CASE",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh && cd ../scripts && ./build_cases.sh -d $CASE  $HWMODE",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -106,7 +114,7 @@
       {
         "label": "B1 ANNOTATE",
         "type": "shell",
-        "command": "cd xdcc/${input:direction}_xdcc; mkdir annotated; cp -R xdcc_autogen/* annotated; echo Prepared sources for CLE annotation by developer under ./annotated; echo Move to Conflict Analysis when done annotating",
+        "command": "cd xdcc/egress_xdcc; mkdir annotated; cp -R xdcc_autogen/* annotated; cd ../ingress_xdcc; mkdir annotated; cp -R xdcc_autogen/* annotated; echo Prepared sources for CLE annotation by developer under ./annotated; echo Move to Conflict Analysis when done annotating",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -114,7 +122,7 @@
       {
         "label": "B2 ANALYZE PARTITION CONFLICTS",
         "type": "shell",
-        "command": "cd xdcc/${input:direction}_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts dot && make -f .vscode/Makefile.conflicts enclaves && mkdir -p ./refactored  && make -f .vscode/Makefile.conflicts clean && cp -r ./annotated/* ./refactored",
+        "command": "cd xdcc/egress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts dot && make -f .vscode/Makefile.conflicts enclaves && mkdir -p ./refactored  && make -f .vscode/Makefile.conflicts clean && cp -r ./annotated/* ./refactored; cd ../ingress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts dot && make -f .vscode/Makefile.conflicts enclaves && mkdir -p ./refactored  && make -f .vscode/Makefile.conflicts clean && cp -r ./annotated/* ./refactored",
         "args": [],
         "group": {
           "kind": "build",
@@ -143,7 +151,7 @@
       {
         "label": "B9a DIVIDE",
         "type": "shell",
-        "command": "cd xdcc/${input:direction}_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.divvied",
+        "command": "cd xdcc/egress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.divvied; cd ../ingress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.divvied",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -151,7 +159,7 @@
       {
         "label": "B9b AUTOGEN GEDL, RPCs, IDL, Codecs",
         "type": "shell",
-        "command": "cd xdcc/${input:direction}_xdcc; source .vscode/closure_env.sh && mkdir -p partitioned && cp -r /opt/closure/heuristics ./partitioned && make -f .vscode/Makefile.gedl gedl && make -f .vscode/Makefile.gedl rautogen && make -f .vscode/Makefile.gedl rpc",
+        "command": "source .vscode/closure_env.sh; cd xdcc/egress_xdcc; source .vscode/closure_env.sh && mkdir -p partitioned && cp -r /opt/closure/heuristics ./partitioned && make -f .vscode/Makefile.gedl gedl && make -f .vscode/Makefile.gedl rautogen && make -f .vscode/Makefile.gedl rpc && cd ../ingress_xdcc && source .vscode/closure_env.sh && mkdir -p partitioned && cp -r /opt/closure/heuristics ./partitioned && make -f .vscode/Makefile.gedl gedl && make -f .vscode/Makefile.gedl rautogen && make -f .vscode/Makefile.gedl rpc",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -159,15 +167,7 @@
       {
         "label": "B9c VERIFY",
         "type": "shell",
-        "command": "cd xdcc/${input:direction}_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier verify",
-        "args": [],
-        "group": "build",
-        "problemMatcher": []
-      },
-      {
-        "label": "B9d VISUALIZE CROSS-DOMAIN CUT",
-        "type": "shell",
-        "command": "cd xdcc/${input:direction}_xdcc; source .vscode/closure_env.sh; bash .vscode/cutzoom.sh; xdot -f fdp partitioned/multithreaded/abridged_1_colored.dot",
+        "command": "cd xdcc/egress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier verify; cd ../ingress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier verify",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -175,7 +175,7 @@
       {
         "label": "B9e BUILD",
         "type": "shell",
-        "command": "cd xdcc/${input:direction}_xdcc; source .vscode/closure_env.sh; cd ../xdcc_echo && cp ../${input:direction}_xdcc/.vscode/Makefile.xdcc_echo ./Makefile && make && cd ../${input:direction}_xdcc; make -C partitioned/multithreaded/orange -f ../../../.vscode/Makefile.xdcc; make -C partitioned/multithreaded/green -f ../../../.vscode/Makefile.xdcc",
+        "command": "source .vscode/closure_env.sh; cd ..; ./build.sh -x -b -c orange -d ${CASE} && ./build.sh -x -b -c green -d ${CASE}",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -199,11 +199,18 @@
         ],
         "problemMatcher": []
       },
-
+      {
+        "label": "C INIT",
+        "type": "shell",
+        "command": "cd ../scripts && bash -f ./build_pinstall.sh",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
       {
         "label": "C0 BUILD MISSION APP",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; cd MA_v1.0_src/scripts; bash -f install-ma.sh",
+        "command": "source .vscode/closure_env.sh; cd MA_v1.0_src/scripts; rm -rf ../lbuild; bash -f install.sh",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -211,7 +218,7 @@
       {
         "label": "C1 PACKAGE",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; CASE=`basename ${PWD}` && pushd .. && echo ${PWD} && ./package.sh ${CASE} && popd; cd MA_v1.0_src; ./package.sh",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig deps; make -f .vscode/Makefile.mbig pkg;",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -219,19 +226,12 @@
       {                                                                                                 
         "label": "C2 EMULATE",                                                                           
         "type": "shell",                                                                                
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig hal; make -f .vscode/Makefile.mbig deps; make -f .vscode/Makefile.mbig pkg; cd ~/gaps/build/src/emu/; ./start.sh ${PROG}",    
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig emu; cd ~/gaps/build/src/emu/; ./start.sh ${PROG}",    
         "args": [],                                                                                     
         "group": "build",                                                                               
         "problemMatcher": []                                                                            
       },
-      {
-        "label": "C3 HAL",
-        "type": "shell",
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig hal",
-        "args": [],
-        "group": "build",
-        "problemMatcher": []
-      },
+   
       {
         "label": "C BUILD AND EMULATE",
         "type": "shell",

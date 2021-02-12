@@ -307,3 +307,8 @@ uuid-dev
 x11-common
 x11-utils
 zlib1g
+libssl-dev
+libavcodec-dev
+libavformat-dev
+libswscale-dev
+clang-10

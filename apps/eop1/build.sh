@@ -86,7 +86,7 @@ build () {
 
 
 handle_opts "$@"
-
+export CASE=$DIR
 if [[ "$CLEAN" == "yes" ]]; then
     clean
 fi
