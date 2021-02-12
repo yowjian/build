@@ -3,20 +3,23 @@
 HWMODE=
 DEVFILE=
 PWD=`pwd`
+CASES="case1 case2 case3"
 
 usage_exit() {
   [[ -n "$1" ]] && echo $1
   echo "Usage: $0 [ -mh ]"
   echo "-h          Help"
   echo "-m          Hardware Mode (ilip, mind, pl, emu)"
+  echo "-d          case1, case2, or case3 (if not used, all built)"
   exit 1
 }
 
 handle_opts() {
   local OPTIND
-  while getopts "im:h" options; do
+  while getopts "im:d:h" options; do
       case "${options}" in
 	  m) HWMODE=${OPTARG}       ;;
+	  d) CASES=${OPTARG}        ;;
 	  h) usage_exit             ;;
 	  :) usage_exit "Error: -${OPTARG} requires argument." ;;
 	  *) usage_exit
@@ -63,7 +66,7 @@ build_xdcc() {
 
 handle_opts "$@"
 
-for CASE in case1 case2 case3
+for CASE in $CASES
 do
     pushd ../$CASE/design
     bash README.md
