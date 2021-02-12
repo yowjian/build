@@ -12,7 +12,7 @@
       {
         "label": "A1 SCHEMA GENERATION",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; mkdir -p design/schema-new; ${CLOSURE_SCRIPTS}/schema_gen.sh -i ../capturedessages -o design/schema-new",
+        "command": "source .vscode/closure_env.sh; mkdir -p design/schema-new; ${CLOSURE_SCRIPTS}/schema_gen.sh -i ../captured-messages -o design/schema-new",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -106,7 +106,7 @@
       {
         "label": "BUILD CASE",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh && cd ../scripts && ./build_cases.sh -d $CASE  $HWMODE",
+        "command": "source .vscode/closure_env.sh && cd ../scripts && ./build_cases.sh -d $CASE -m $HWMODE",
         "args": [],
         "group": "build",
         "problemMatcher": []
