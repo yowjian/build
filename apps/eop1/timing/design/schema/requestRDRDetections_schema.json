@@ -5,7 +5,8 @@
 	"title": "Root", 
 	"type": "object",
 	"required": [
-		"phase"
+		"phase",
+		"timestamp"
 	],
 	"properties": {
 		"phase": {
@@ -18,6 +19,15 @@
 				"find"
 			],
 			"pattern": "^.*$"
+		},
+		"timestamp": {
+			"$id": "#root/timestamp",
+			"title": "Timestamp",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
 		}
 	}
 }
