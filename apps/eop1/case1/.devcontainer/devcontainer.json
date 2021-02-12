@@ -29,5 +29,5 @@
 		"source=/IMAGES,target=/IMAGES,type=bind"
 	],
 	"workspaceMount": "source=/home/${localEnv:USER}/gaps/,target=/home/closure/gaps,type=bind",
-	"workspaceFolder": "/home/closure/gaps/build/apps/eop1/delighter"
+	"workspaceFolder": "/home/closure/gaps/build/apps/eop1/case1"
 }
