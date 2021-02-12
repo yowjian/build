@@ -1,6 +1,6 @@
 #!/bin/bash
-export PROG=$(eval basename `pwd`)
-export PYTHON="/usr/bin/python3 -u"
+export PROG=deploy
+export PYTHON=/usr/bin/python3
 
 CLOSURE_TOOLS=/opt/closure
 export CLOSURE_BINS=${CLOSURE_TOOLS}/bin
@@ -17,7 +17,6 @@ export LIBPDG=${CLOSURE_LIBS}/libpdg.so
 export LIBGEDL=${CLOSURE_LIBS}/libgedl.so
 
 export PREPROCESSOR=${CLOSURE_SCRIPTS}/qd_cle_preprocessor.py
-export JOINCLEMAPS=${CLOSURE_SCRIPTS}/join_clemaps.py
 export PARTITIONER=${CLOSURE_SCRIPTS}/partitioner.py
 export TAGPROC=${CLOSURE_SCRIPTS}/tag_processor.py
 export CUTZOOM=${CLOSURE_SCRIPTS}/cutzoom.py
@@ -26,6 +25,9 @@ export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
 export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator_rk.py
 export AUTOGEN=${CLOSURE_SCRIPTS}/autogen.py
 export HALGEN=${CLOSURE_SCRIPTS}/hal_autoconfig.py
+export XDCONFMERGER=${CLOSURE_SCRIPTS}/merge_xdconf_ini.py
+export FLOW_SOLVER=${CLOSURE_SCRIPTS}/FlowSolver.py
+export XDMF_VIEW=${CLOSURE_SCRIPTS}/xdmfview.py
 
 LLVM_RELEASE=/usr/local
 export CLANG=${LLVM_RELEASE}/bin/clang-10
@@ -38,22 +40,7 @@ export LLVM_DIR=${LLVM_RELEASE}
 export IPCMODE=multithreaded
 export ENCLAVES="orange green"
 export EXT=c
-
-if [[ x$CASE == x ]]; then
-    export CASE=`cd ../../ && basename \`pwd\``
-fi    
-
-export MUXBASE=0
-if [[ $HWMODE == "ilip" ]] || [[ $HWMODE == "ILIP" ]]; then
-    if [[ "$CASE" == "case1" ]]; then
-       export MUXBASE=`echo '2^30' | bc`
-    elif [[ "$CASE" == "case2" ]]; then
-       export MUXBASE=`echo '2^31' | bc`
-    elif [[ "$CASE" == "case3" ]]; then
-       export MUXBASE=`echo '2^30 + 2^31' | bc`
-    else
-        echo "Case: $CASE not supported for ILIP, default to base=0"
-        export MUXBASE=0
-    fi
-fi
-echo "HW=$HWMODE BASE=$MUXBASE CASE=$CASE"
+export USER=`whoami`
+export CASE=$(eval basename `pwd`)
+export HWMODE=emu
+export PINSTALL=/home/${USER}/gaps/build/apps/eop1/case1/MA_v1.0_src/pinstall

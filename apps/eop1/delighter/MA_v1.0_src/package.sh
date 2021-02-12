@@ -1,2 +1,3 @@
 #!/bin/sh
-tar zcf MA_1.0.tgz EOIR External include ISRM ISRMshadow MPU MPX RDR scripts TestMA CMakeLists.txt gaps.ma.dependencies.tgz --dereference
+rm -f MA_1.0.tgz
+tar zcf MA_1.0.tgz include scripts ImageDetector ImageReceiver CMakeLists.txt --dereference #gaps.ma.dependencies 
