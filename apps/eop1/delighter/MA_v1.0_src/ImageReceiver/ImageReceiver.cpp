@@ -18,7 +18,6 @@ using namespace cv;
 
 static BlockingQueue<json> messageQueue;
 static const string WINDOW_NAME = "CLOSURE Image Receiver";
-static Mat imageMat;
 static const cv::Scalar ENCLAVE_COLOR = CV_RGB(235, 140, 52);
 static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
 static const cv::Point NAME_POINT(10, 450);
@@ -26,6 +25,8 @@ static const cv::Point SIZE_POINT(10, 500);
 static const cv::Point META_POINT(10, 550);
 static const double FONT_SCALE = 1.0;
 static const int FONT_THICKNESS = 2;
+
+static cv::Mat imageMat;
 
 ImageReceiver::ImageReceiver()
 {
@@ -76,14 +77,13 @@ void displayImage(const json &j)
     hexToBin(imageData, img, size);
 
     vector<unsigned char> imVec(img, img + size);
-    cv:Mat mat;
-    mat = imdecode(imVec, IMREAD_COLOR);
+    imdecode(imVec, IMREAD_COLOR, &imageMat);
 
-    cv::putText(mat, "Name: " + name,            NAME_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
-    cv::putText(mat, "Size: " + to_string(size), SIZE_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
-    cv::putText(mat, "MEta: " + meta,            META_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
+    cv::putText(imageMat, "Name: " + name,            NAME_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
+    cv::putText(imageMat, "Size: " + to_string(size), SIZE_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
+    cv::putText(imageMat, "Meta: " + meta,            META_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
 
-    imshow(WINDOW_NAME, mat);
+    imshow(WINDOW_NAME, imageMat);
     waitKey(10); // Wait for any keystroke in the window
 }
 
@@ -95,10 +95,9 @@ int displaySplash(string pathanme)
         std::cout << "Could not read the image: " << image_path << std::endl;
         return 1;
     }
-    Mat detectedFrame;
-    img.convertTo(detectedFrame, CV_8U);
+    img.convertTo(imageMat, CV_8U);
 
-    imshow(WINDOW_NAME, detectedFrame);
+    imshow(WINDOW_NAME, imageMat);
     moveWindow(WINDOW_NAME, 900, 100);
     waitKey(1000); // Wait for any keystroke in the window
 
