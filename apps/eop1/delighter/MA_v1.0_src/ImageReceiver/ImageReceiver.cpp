@@ -16,8 +16,16 @@ using namespace cms;
 using namespace std;
 using namespace cv;
 
-BlockingQueue<json> messageQueue;
-const string WINDOW_NAME = "CLOSURE Image Receiver";
+static BlockingQueue<json> messageQueue;
+static const string WINDOW_NAME = "CLOSURE Image Receiver";
+static Mat imageMat;
+static const cv::Scalar ENCLAVE_COLOR = CV_RGB(235, 140, 52);
+static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
+static const cv::Point NAME_POINT(10, 450);
+static const cv::Point SIZE_POINT(10, 500);
+static const cv::Point META_POINT(10, 550);
+static const double FONT_SCALE = 1.0;
+static const int FONT_THICKNESS = 2;
 
 ImageReceiver::ImageReceiver()
 {
@@ -39,7 +47,6 @@ void ImageReceiver::updateImageDetected(const json &j)
 {
     messageQueue.push(j);
 }
-
 
 void hexToBin(string hexData, char *image_buf, int image_buf_size)
 {
@@ -70,31 +77,11 @@ void displayImage(const json &j)
 
     vector<unsigned char> imVec(img, img + size);
     cv:Mat mat;
-    mat = imdecode(imVec, 8);
+    mat = imdecode(imVec, IMREAD_COLOR);
 
-    cv::putText(mat, //target image
-                "Name: " + name, //text
-                cv::Point(10, mat.rows - 100), //top-left position
-                cv::FONT_HERSHEY_DUPLEX,
-                1.0,
-                CV_RGB(235, 140, 52), //font color
-                2);
-
-    cv::putText(mat, //target image
-                "Size: " + to_string(size), //text
-                cv::Point(10, mat.rows - 50), //top-left position
-                cv::FONT_HERSHEY_DUPLEX,
-                1.0,
-                CV_RGB(235, 140, 52), //font color
-                2);
-
-    cv::putText(mat, //target image
-                "Meta: " + meta, //text
-                cv::Point(10, mat.rows - 10), //top-left position
-                cv::FONT_HERSHEY_DUPLEX,
-                1.0,
-                CV_RGB(235, 140, 52), //font color
-                2);
+    cv::putText(mat, "Name: " + name,            NAME_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
+    cv::putText(mat, "Size: " + to_string(size), SIZE_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
+    cv::putText(mat, "MEta: " + meta,            META_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
 
     imshow(WINDOW_NAME, mat);
     waitKey(10); // Wait for any keystroke in the window
