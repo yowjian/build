@@ -16,7 +16,6 @@ using namespace cms;
 using namespace std;
 using namespace cv;
 
-static BlockingQueue<json> messageQueue;
 static const string WINDOW_NAME = "CLOSURE Image Receiver";
 static const cv::Scalar ENCLAVE_COLOR = CV_RGB(235, 140, 52);
 static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
@@ -26,6 +25,7 @@ static const cv::Point META_POINT(10, 550);
 static const double FONT_SCALE = 1.0;
 static const int FONT_THICKNESS = 2;
 
+static BlockingQueue<json> messageQueue;
 static cv::Mat imageMat;
 
 ImageReceiver::ImageReceiver()
@@ -98,7 +98,7 @@ int displaySplash(string pathanme)
     img.convertTo(imageMat, CV_8U);
 
     imshow(WINDOW_NAME, imageMat);
-    moveWindow(WINDOW_NAME, 900, 100);
+    moveWindow(WINDOW_NAME, 0, 100);
     waitKey(1000); // Wait for any keystroke in the window
 
     return 0;

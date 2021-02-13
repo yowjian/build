@@ -294,5 +294,22 @@ static json loadConfig(json configPlan) {
 	k.close();
 	return j;
 }
+
+static string getField(json js, string field)
+{
+    if (js.find(field) == js.end()) {
+        cout << "No such field " + field << endl;
+        return "";
+    }
+    string val;
+    try {
+        val = js[field];
+    }
+    catch (nlohmann::detail::type_error &e) {
+        val = to_string(js[field]);
+    }
+
+    return val;
+}
 };
 #endif

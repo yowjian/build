@@ -9,12 +9,26 @@
 #include <Utils.h>
 
 #include <opencv2/opencv.hpp>
+#include <heartbeat/HeartBeat.h>
 
 using namespace amqm;
 using namespace cms;
 using namespace std;
 using namespace cv;
 namespace fs = boost::filesystem;
+
+static const string WINDOW_NAME = "CLOSURE Image Receiver";
+static const cv::Scalar ENCLAVE_COLOR = CV_RGB(0, 255, 0);
+static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
+static const cv::Point NAME_POINT(10, 450);
+static const cv::Point SIZE_POINT(10, 500);
+static const cv::Point META_POINT(10, 550);
+static const double FONT_SCALE = 1.0;
+static const int FONT_THICKNESS = 2;
+
+static cv::Mat imageMat;
+static int waittime = 3000;
+static int savedtime = 0;
 
 ImageDetector::ImageDetector()
 {
@@ -26,26 +40,14 @@ ImageDetector::ImageDetector()
 
 void ImageDetector::processConfigContent(json j)
 {
-	imageDir = j["imageDir"];
+	imageDir = Utils::getField(j, "imageDir");
+
+	string waittimeStr = Utils::getField(j, "waittime");
+	if (!waittimeStr.empty())
+	    waittime = stoi(waittimeStr);
 }
 
 ImageDetector::~ImageDetector() {
-}
-
-bool selectIt()
-{
-    static bool inited = false;
-
-    if (!inited) {
-        srand( (unsigned)time(NULL) );
-        inited = true;
-    }
-
-    /* skip rand() readings that would make n%6 non-uniformly distributed
-          (assuming rand() itself is uniformly distributed from 0 to RAND_MAX) */
-    int n = rand();
-
-    return (n & 0x1) == 0;
 }
 
 void readImage(string pathanem, int image_size, char *buffer, int buffer_size)
@@ -81,49 +83,38 @@ void padBuffer(char *buf, int size, const char *prefix)
     buf[size - 1] = '\0';
 }
 
-int displayImage(string pathanme, int size, string meta, string objectName)
+void loadImage(string pathname, Mat &imageMat)
 {
-    std::string image_path = samples::findFile(pathanme);
+    std::string image_path = samples::findFile(pathname);
     Mat img = imread(image_path, IMREAD_COLOR);
     if (img.empty()) {
         std::cout << "Could not read the image: " << image_path << std::endl;
-        return 1;
+        return;
     }
-    Mat detectedFrame;
-    img.convertTo(detectedFrame, CV_8U);
+    img.convertTo(imageMat, CV_8U);
+}
 
-    // cv::Mat img(512, 512, CV_8UC3, cv::Scalar(0));
+void displaySplash(string pathname)
+{
+    loadImage(pathname, imageMat);
 
-    cv::putText(detectedFrame, //target image
-                "Name: " + objectName, //text
-                cv::Point(10, img.rows - 100), //top-left position
-                cv::FONT_HERSHEY_DUPLEX,
-                1.0,
-                CV_RGB(0, 255, 0), //font color
-                2);
+    imshow(WINDOW_NAME, imageMat);
+    moveWindow(WINDOW_NAME, 900, 100);
+    waitKey(1000); // Wait for any keystroke in the window
+}
 
-    cv::putText(detectedFrame, //target image
-                "Size: " + to_string(size), //text
-                cv::Point(10, img.rows - 50), //top-left position
-                cv::FONT_HERSHEY_DUPLEX,
-                1.0,
-                CV_RGB(0, 255, 0), //font color
-                2);
+int displayImage(string pathname, int size, string meta, string objectName)
+{
+    loadImage(pathname, imageMat);
 
-    cv::putText(detectedFrame, //target image
-                "Meta: " + meta, //text
-                cv::Point(10, img.rows - 10), //top-left position
-                cv::FONT_HERSHEY_DUPLEX,
-                1.0,
-                CV_RGB(0, 255, 0), //font color
-                2);
+    cv::putText(imageMat, "Name: " + objectName,      NAME_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
+    cv::putText(imageMat, "Size: " + to_string(size), SIZE_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
+    cv::putText(imageMat, "Meta: " + meta,            META_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
 
-    imshow("CLOSURE Image Detector", detectedFrame);
-
-    static int waittime = 3000;
-    static int savedtime = waittime;
+    imshow(WINDOW_NAME, imageMat);
 
     int k = waitKey(waittime); // Wait for a keystroke in the window
+
     if (k == 'p') {
         savedtime = waittime;
         waittime = 0;
@@ -138,9 +129,7 @@ int displayImage(string pathanme, int size, string meta, string objectName)
     else if (k != -1) {
         waittime = savedtime;
     }
-
     cout << "wait time = " << waittime << " ms" << endl;
-    //    destroyWindow(pathanme); //destroy the created window
 
     return 0;
 }
@@ -153,6 +142,11 @@ void ImageDetector::run()
         cout << "directory " << " does not exist: " << imageDir << endl;
         exit(1);
     }
+
+    displaySplash(imageDir + "/splash-detector.jpg");
+
+    HeartBeat isrm_HB("ImageDetector");
+    isrm_HB.startup_Listener("ImageReceiver");
 
     char pad[240];
     padBuffer(pad, 240, NULL);
@@ -175,7 +169,7 @@ void ImageDetector::run()
                 readImage(pathname, size, hexImage, hex_buf_size);
 
                 json j;
-		string objName = "Object " + to_string(i);
+                string objName = "Object " + to_string(i);
                 j["A_name"] = objName; // pathname;
                 j["B_size"] = size;
                 j["C_pad"] = pad;
@@ -192,74 +186,10 @@ void ImageDetector::run()
                 std::cout << e.what() << '\n';
             }
         }
-//        Utils::sleep_for(10000);
     }
 }
 
-void ImageDetector::handleImageDetectedAck(json j) {
+void ImageDetector::handleImageDetectedAck(json j)
+{
     amq.publish("imageDetectedAck", j, true);
 }
-
-#if 0
-void ImageDetector::run() {
-    fs::path dir(imageDir);
-
-    if (!fs::exists(dir)) {
-        cout << "directory " << " does not exist: " << imageDir << endl;
-        exit(1);
-    }
-
-    const int IMAGE_HEX_SIZE = 40;
-    char name[20];
-    int size;
-    char pad[240];
-    padBuffer(pad, 240, NULL);
-
-    char meta[64];
-    padBuffer(meta, 64, "SENSITIVE");
-
-    char img[IMAGE_HEX_SIZE]; // [9000];
-
-    const string suffix = ".jpg";
-    while (true) {
-        for (const auto & entry : fs::directory_iterator(imageDir)) {
-            std::cout << entry.path() << std::endl;
-            string pathname = entry.path().string();
-            if (pathname.length() >= suffix.length()) {
-                if (0 == pathname.compare(pathname.length() - suffix.length(), suffix.length(), suffix)) {
-                    if (!selectIt())
-                        continue;
-
-                    displayImage(pathname);
-
-                    cout << "Select " << pathname << endl;
-                    readImage(pathname, img, IMAGE_HEX_SIZE);
-
-                    try {
-                        size = fs::file_size(entry.path());
-                        cout << "size of " << pathname << " is " << size << endl;
-
-                        json j;
-                        j["A_name"] = pathname;
-                        j["B_size"] = size;
-                        j["C_pad"] = pad;
-                        j["D_metadata"] = meta;
-                        j["E_imgData"] = img;
-
-                        cout << j.dump(2) << endl;
-
-                        ImageDetector::amq.publish("imageDetected", j, true);
-                    }
-                    catch (fs::filesystem_error &e) {
-                        std::cout << e.what() << '\n';
-                    }
-                    break;
-                }
-            }
-        }
-
-        Utils::sleep_for(10000);
-        cout << "Detector wakes up." << endl;
-    }
-}
-#endif
