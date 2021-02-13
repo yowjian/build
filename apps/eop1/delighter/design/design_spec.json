@@ -8,7 +8,7 @@
       "dummyOG1:03",
       "dummyOG3:11",
       "dummyOG2:12",
-      "receiveImageDections:13",
+      "receiveImageDetections:13",
       "FlowID (encodes mux and typ): PQMM component P->Q, message MM"
     ],
     "topology": [
@@ -42,7 +42,7 @@
         {"flowId": 3711,"message":"dummyOG3","label":"ALLOW_ORANGE_GREEN"},
 
         {"flowId": 7301,"message":"component_heartbeats","label":"ALLOW_GREEN_ORANGE"},
-        {"flowId": 7313,"message":"receiveImageDections","label":"ALLOW_GREEN_ORANGE"}
+        {"flowId": 7313,"message":"receiveImageDetections","label":"ALLOW_GREEN_ORANGE"}
     ],
     "messages": [
         {
@@ -58,7 +58,7 @@
             "schemaFile": "schema/dummyOG3_schema.json"
         },
         {
-            "name": "receiveImageDections",
+            "name": "receiveImageDetections",
             "topic": true,
             "schemaType": "JSONSchema",
             "schemaFile": "schema/receiveImageDetections_schema.json"

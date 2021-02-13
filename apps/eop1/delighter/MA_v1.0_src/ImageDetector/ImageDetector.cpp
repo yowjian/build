@@ -81,7 +81,7 @@ void padBuffer(char *buf, int size, const char *prefix)
     buf[size - 1] = '\0';
 }
 
-int displayImage(string pathanme, int size, string meta)
+int displayImage(string pathanme, int size, string meta, string objectName)
 {
     std::string image_path = samples::findFile(pathanme);
     Mat img = imread(image_path, IMREAD_COLOR);
@@ -95,7 +95,7 @@ int displayImage(string pathanme, int size, string meta)
     // cv::Mat img(512, 512, CV_8UC3, cv::Scalar(0));
 
     cv::putText(detectedFrame, //target image
-                "Name: " + pathanme, //text
+                "Name: " + objectName, //text
                 cv::Point(10, img.rows - 100), //top-left position
                 cv::FONT_HERSHEY_DUPLEX,
                 1.0,
@@ -162,7 +162,7 @@ void ImageDetector::run()
     padBuffer(meta, 64, (char *)REDACT.c_str());
     string metaStr(meta);
 
-    char pathname[20];
+    char pathname[200];
 
     const string suffix = ".jpg";
     while (true) {
@@ -176,7 +176,8 @@ void ImageDetector::run()
                 readImage(pathname, size, hexImage, hex_buf_size);
 
                 json j;
-                j["A_name"] = pathname;
+		string objName = "Object " + to_string(i);
+                j["A_name"] = objName; // pathname;
                 j["B_size"] = size;
                 j["C_pad"] = pad;
                 j["D_meatdata"] = metaStr.replace(0, REDACT.length(), "XXXXXXXXX");
@@ -184,9 +185,9 @@ void ImageDetector::run()
 
                 cout << "Detector sent " << pathname << " : " << size << " : " << meta << endl;
 
-                ImageDetector::amq.publish("receiveImageDetectionXD", j, true);
+                ImageDetector::amq.publish("receiveImageDetections", j, true);
 
-                displayImage(pathname, size, meta);
+                displayImage(pathname, size, meta, objName);
             }
             catch (fs::filesystem_error &e) {
                 std::cout << e.what() << '\n';
