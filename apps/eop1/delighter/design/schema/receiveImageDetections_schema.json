@@ -13,7 +13,7 @@
       "type": "string",
       "maxLength": 240
     },
-    "D_meatdata": {
+    "D_metadata": {
       "type": "string",
       "maxLength": 64
     },
@@ -26,7 +26,7 @@
     "A_name",
     "B_size",
     "C_pad",
-    "D_meatdata",
+    "D_metadata",
     "E_imgData"
   ]
 }

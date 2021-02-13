@@ -73,10 +73,10 @@ void readImage(string pathanem, int image_size, char *buffer, int buffer_size)
 
 void padBuffer(char *buf, int size, const char *prefix)
 {
-    memset(buf, '-', size);
+    memset(buf, ' ', size);
     if (prefix != NULL) {
         sprintf(buf, prefix);
-        buf[strlen(prefix)] = '-';
+        buf[strlen(prefix)] = ' ';
     }
     buf[size - 1] = '\0';
 }
@@ -157,13 +157,12 @@ void ImageDetector::run()
     char pad[240];
     padBuffer(pad, 240, NULL);
 
-    const string REDACT = "SENSITIVE";
+    const string REDACT = "REDONDO BEACH";
     char meta[64];
     padBuffer(meta, 64, (char *)REDACT.c_str());
     string metaStr(meta);
 
     char pathname[200];
-
     const string suffix = ".jpg";
     while (true) {
         for (int i = 0; i < 10; i++) {
@@ -180,7 +179,7 @@ void ImageDetector::run()
                 j["A_name"] = objName; // pathname;
                 j["B_size"] = size;
                 j["C_pad"] = pad;
-                j["D_meatdata"] = metaStr.replace(0, REDACT.length(), "XXXXXXXXX");
+                j["D_metadata"] = metaStr.replace(0, REDACT.length(), "XXXXXXXXX");
                 j["E_imgData"] = string(hexImage);
 
                 cout << "Detector sent " << pathname << " : " << size << " : " << meta << endl;
@@ -244,7 +243,7 @@ void ImageDetector::run() {
                         j["A_name"] = pathname;
                         j["B_size"] = size;
                         j["C_pad"] = pad;
-                        j["D_meatdata"] = meta;
+                        j["D_metadata"] = meta;
                         j["E_imgData"] = img;
 
                         cout << j.dump(2) << endl;

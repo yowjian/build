@@ -50,7 +50,7 @@ void ImageReceiver::updateImageDetected(const json &j)
     string name = j["A_name"].get<string>();
     int size = j["B_size"];
     string pad = j["C_pad"].get<string>();
-    string meta = j["D_meatdata"].get<string>();
+    string meta = j["D_metadata"].get<string>();
     string imageData = j["E_imgData"].get<string>();
 
     cout << "Receiver rcvd " << name << " : " << size << " : " << meta << endl;

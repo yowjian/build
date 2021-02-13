@@ -51,6 +51,8 @@ if [[ $HWMODE == "ilip" ]] || [[ $HWMODE == "ILIP" ]]; then
        export MUXBASE=`echo '2^31' | bc`
     elif [[ "$CASE" == "case3" ]]; then
        export MUXBASE=`echo '2^30 + 2^31' | bc`
+    elif [[ "$CASE" == "delighter" ]]; then
+       export MUXBASE=`echo '2^30 + 2^31' | bc`	
     else
         echo "Case: $CASE not supported for ILIP, default to base=0"
         export MUXBASE=0
