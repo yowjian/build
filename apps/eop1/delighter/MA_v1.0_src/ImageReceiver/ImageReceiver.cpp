@@ -106,7 +106,7 @@ int displaySplash(string pathanme)
 
 void ImageReceiver::run()
 {
-    displaySplash("config/images/splash.jpg");
+    displaySplash("config/images/splash-receiver.jpg");
 
     HeartBeat isrm_HB("ImageReceiver");
     isrm_HB.startup_Listener("ImageDetector");
