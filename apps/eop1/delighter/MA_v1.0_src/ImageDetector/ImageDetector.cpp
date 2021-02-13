@@ -27,8 +27,8 @@ static const double FONT_SCALE = 1.0;
 static const int FONT_THICKNESS = 2;
 
 static cv::Mat imageMat;
-static int waittime = 3000;
-static int savedtime = 0;
+static int waitTime = 3000;
+static int savedTime = 0;
 
 ImageDetector::ImageDetector()
 {
@@ -42,9 +42,9 @@ void ImageDetector::processConfigContent(json j)
 {
 	imageDir = Utils::getField(j, "imageDir");
 
-	string waittimeStr = Utils::getField(j, "waittime");
+	string waittimeStr = Utils::getField(j, "waitTime");
 	if (!waittimeStr.empty())
-	    waittime = stoi(waittimeStr);
+	    waitTime = stoi(waittimeStr);
 }
 
 ImageDetector::~ImageDetector() {
@@ -113,23 +113,23 @@ int displayImage(string pathname, int size, string meta, string objectName)
 
     imshow(WINDOW_NAME, imageMat);
 
-    int k = waitKey(waittime); // Wait for a keystroke in the window
+    int k = waitKey(waitTime); // Wait for a keystroke in the window
 
     if (k == 'p') {
-        savedtime = waittime;
-        waittime = 0;
+        savedTime = waitTime;
+        waitTime = 0;
     }
     else if (k == '+')
-        waittime += 1000;
+        waitTime += 1000;
     else if (k == '-') {
-        waittime -= 1000;
-        if (waittime <= 0)
-            waittime = 1000;
+        waitTime -= 1000;
+        if (waitTime <= 0)
+            waitTime = 1000;
     }
     else if (k != -1) {
-        waittime = savedtime;
+        waitTime = savedTime;
     }
-    cout << "wait time = " << waittime << " ms" << endl;
+    cout << "wait time = " << waitTime << " ms" << endl;
 
     return 0;
 }
