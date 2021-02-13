@@ -16,6 +16,8 @@ using namespace cms;
 using namespace std;
 using namespace cv;
 
+#define OVERLAY(text,pos)  cv::putText(imageMat,text,pos,ENCLAVE_FONT,FONT_SCALE,ENCLAVE_COLOR,FONT_THICKNESS)
+
 static const string WINDOW_NAME = "CLOSURE Image Receiver";
 static const cv::Scalar ENCLAVE_COLOR = CV_RGB(235, 140, 52);
 static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
@@ -79,29 +81,27 @@ void displayImage(const json &j)
     vector<unsigned char> imVec(img, img + size);
     imdecode(imVec, IMREAD_COLOR, &imageMat);
 
-    cv::putText(imageMat, "Name: " + name,            NAME_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
-    cv::putText(imageMat, "Size: " + to_string(size), SIZE_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
-    cv::putText(imageMat, "Meta: " + meta,            META_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
+    OVERLAY("Name: " + name, NAME_POINT);
+    OVERLAY("Size: " + to_string(size), SIZE_POINT);
+    OVERLAY("Meta: " + meta, META_POINT);
 
     imshow(WINDOW_NAME, imageMat);
     waitKey(10); // Wait for any keystroke in the window
 }
 
-int displaySplash(string pathanme)
+void displaySplash(string pathanme)
 {
     std::string image_path = samples::findFile(pathanme);
     Mat img = imread(image_path, IMREAD_COLOR);
     if (img.empty()) {
         std::cout << "Could not read the image: " << image_path << std::endl;
-        return 1;
+        return;
     }
     img.convertTo(imageMat, CV_8U);
 
     imshow(WINDOW_NAME, imageMat);
     moveWindow(WINDOW_NAME, 0, 100);
     waitKey(1000); // Wait for any keystroke in the window
-
-    return 0;
 }
 
 void ImageReceiver::run()

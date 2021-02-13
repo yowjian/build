@@ -17,6 +17,8 @@ using namespace std;
 using namespace cv;
 namespace fs = boost::filesystem;
 
+#define OVERLAY(text,pos)  cv::putText(imageMat,text,pos,ENCLAVE_FONT,FONT_SCALE,ENCLAVE_COLOR,FONT_THICKNESS)
+
 static const string WINDOW_NAME = "CLOSURE Image Receiver";
 static const cv::Scalar ENCLAVE_COLOR = CV_RGB(0, 255, 0);
 static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
@@ -107,9 +109,9 @@ int displayImage(string pathname, int size, string meta, string objectName)
 {
     loadImage(pathname, imageMat);
 
-    cv::putText(imageMat, "Name: " + objectName,      NAME_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
-    cv::putText(imageMat, "Size: " + to_string(size), SIZE_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
-    cv::putText(imageMat, "Meta: " + meta,            META_POINT, ENCLAVE_FONT, FONT_SCALE, ENCLAVE_COLOR, FONT_THICKNESS);
+    OVERLAY("Name: " + objectName, NAME_POINT);
+    OVERLAY("Size: " + to_string(size), SIZE_POINT);
+    OVERLAY("Meta: " + meta, META_POINT);
 
     imshow(WINDOW_NAME, imageMat);
 
@@ -137,7 +139,6 @@ int displayImage(string pathname, int size, string meta, string objectName)
 void ImageDetector::run()
 {
     fs::path dir(imageDir);
-
     if (!fs::exists(dir)) {
         cout << "directory " << " does not exist: " << imageDir << endl;
         exit(1);
@@ -147,6 +148,8 @@ void ImageDetector::run()
 
     HeartBeat isrm_HB("ImageDetector");
     isrm_HB.startup_Listener("ImageReceiver");
+
+    char objname[20];
 
     char pad[240];
     padBuffer(pad, 240, NULL);
@@ -169,18 +172,19 @@ void ImageDetector::run()
                 readImage(pathname, size, hexImage, hex_buf_size);
 
                 json j;
-                string objName = "Object " + to_string(i);
-                j["A_name"] = objName; // pathname;
+                string obj = "Object " + to_string(i);
+                padBuffer(objname, 20, (char *)obj.c_str());
+                j["A_name"] = objname;
                 j["B_size"] = size;
                 j["C_pad"] = pad;
                 j["D_metadata"] = metaStr.replace(0, REDACT.length(), "XXXXXXXXX");
                 j["E_imgData"] = string(hexImage);
 
-                cout << "Detector sent " << pathname << " : " << size << " : " << meta << endl;
+                cout << "Detector sent " << objname << " : " << size << " : " << meta << endl;
 
                 ImageDetector::amq.publish("receiveImageDetections", j, true);
 
-                displayImage(pathname, size, meta, objName);
+                displayImage(pathname, size, meta, obj);
             }
             catch (fs::filesystem_error &e) {
                 std::cout << e.what() << '\n';
