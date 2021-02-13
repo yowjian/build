@@ -8,28 +8,38 @@
 #include <nlohmann/json.hpp>
 
 #include <opencv2/opencv.hpp>
+#include <heartbeat/HeartBeat.h>
+#include <BlockingQueue.h>
 
 using namespace amqm;
 using namespace cms;
 using namespace std;
 using namespace cv;
 
-ImageReceiver::ImageReceiver() {
+BlockingQueue<json> messageQueue;
+const string WINDOW_NAME = "CLOSURE Image Receiver";
+
+ImageReceiver::ImageReceiver()
+{
 	amq.listen("receiveImageDetections", std::bind(&ImageReceiver::updateImageDetected, this, _1), true);
 
 	json j = Utils::loadDefaultConfig();
 	processConfigContent(j);
 }
 
-void ImageReceiver::processConfigContent(json j) {
+void ImageReceiver::processConfigContent(json j)
+{
 }
 
-ImageReceiver::~ImageReceiver() {
+ImageReceiver::~ImageReceiver()
+{
 }
 
-void ImageReceiver::run() {
-
+void ImageReceiver::updateImageDetected(const json &j)
+{
+    messageQueue.push(j);
 }
+
 
 void hexToBin(string hexData, char *image_buf, int image_buf_size)
 {
@@ -45,7 +55,7 @@ void hexToBin(string hexData, char *image_buf, int image_buf_size)
     }
 }
 
-void ImageReceiver::updateImageDetected(const json &j)
+void displayImage(const json &j)
 {
     string name = j["A_name"].get<string>();
     int size = j["B_size"];
@@ -86,12 +96,39 @@ void ImageReceiver::updateImageDetected(const json &j)
                 CV_RGB(235, 140, 52), //font color
                 2);
 
-    imshow("CLOSURE Image Receiver", mat);
-
-    static bool moved = false;
-    if (!moved) {
-        moveWindow("CLOSURE Image Receiver", 900, 0);
-        moved = true;
-    }
+    imshow(WINDOW_NAME, mat);
     waitKey(10); // Wait for any keystroke in the window
 }
+
+int displaySplash(string pathanme)
+{
+    std::string image_path = samples::findFile(pathanme);
+    Mat img = imread(image_path, IMREAD_COLOR);
+    if (img.empty()) {
+        std::cout << "Could not read the image: " << image_path << std::endl;
+        return 1;
+    }
+    Mat detectedFrame;
+    img.convertTo(detectedFrame, CV_8U);
+
+    imshow(WINDOW_NAME, detectedFrame);
+    moveWindow(WINDOW_NAME, 900, 100);
+    waitKey(1000); // Wait for any keystroke in the window
+
+    return 0;
+}
+
+void ImageReceiver::run()
+{
+    displaySplash("config/images/splash.jpg");
+
+    HeartBeat isrm_HB("ImageReceiver");
+    isrm_HB.startup_Listener("ImageDetector");
+
+    while (true) {
+        json msg = messageQueue.pop();
+
+        displayImage(msg);
+    }
+}
+

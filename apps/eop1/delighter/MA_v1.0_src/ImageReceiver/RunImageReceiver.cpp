@@ -2,32 +2,29 @@
 #include <heartbeat/HeartBeat.h>
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <pthread.h>
 
 using namespace cv;
 using namespace std;
 
-int xxx(string pathanme)
+//static void*
+//display_thread(void * param)
+//{
+//}
+
+int main(int argc, char **argv)
 {
-    std::string image_path = samples::findFile(pathanme);
-    Mat img = imread(image_path, IMREAD_COLOR);
-    if (img.empty()) {
-        std::cout << "Could not read the image: " << image_path << std::endl;
-        return 1;
-    }
-    Mat detectedFrame;
-    img.convertTo(detectedFrame, CV_8U);
+//    pthread_t image_display_thread;
+//
+//    int rtn = pthread_create(&image_display_thread, NULL, &display_thread, NULL);
+//    if (rtn != 0) {
+//        exit(1);
+//    }
 
-    imshow("CLOSURE Image Receiver", detectedFrame);
-    waitKey(1000); // Wait for any keystroke in the window
-
-    return 0;
-}
-
-int main(int argc, char **argv) {
-    xxx("config/images/test00.jpg");
+//    xxx("config/images/test00.jpg");
 	ImageReceiver isrm;
-	HeartBeat isrm_HB("ImageReceiver");
-	isrm_HB.startup_Listener("ImageDetector");
+//	HeartBeat isrm_HB("ImageReceiver");
+//	isrm_HB.startup_Listener("ImageDetector");
 	isrm.run();
 	Utils::sleep_forever();
 	return 0;
