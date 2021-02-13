@@ -7,6 +7,8 @@
 using namespace cv;
 using namespace std;
 
+
+
 int xxx(string pathanme)
 {
     std::string image_path = samples::findFile(pathanme);
@@ -18,8 +20,8 @@ int xxx(string pathanme)
     Mat detectedFrame;
     img.convertTo(detectedFrame, CV_8U);
 
-    imshow("CLOSURE", detectedFrame);
-    waitKey(0); // Wait for any keystroke in the window
+    imshow("CLOSURE Image Detector", detectedFrame);
+    waitKey(1000); // Wait for any keystroke in the window
 
 //    destroyWindow(pathanme); //destroy the created window
 
@@ -42,6 +44,7 @@ int main(int argc, char **argv) {
 //        }
 //    }
 
+    xxx("config/images/test00.jpg");
 	ImageDetector isrm;
 	HeartBeat isrm_HB("ImageDetector");
 	isrm_HB.startup_Listener("ImageReceiver");
