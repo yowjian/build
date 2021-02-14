@@ -32,10 +32,10 @@ static cv::Mat imageMat;
 
 ImageReceiver::ImageReceiver()
 {
-	amq.listen("receiveImageDetections", std::bind(&ImageReceiver::updateImageDetected, this, _1), true);
+    amq.listen("receiveImageDetections", std::bind(&ImageReceiver::updateImageDetected, this, _1), true);
 
-	json j = Utils::loadDefaultConfig();
-	processConfigContent(j);
+    json j = Utils::loadDefaultConfig();
+    processConfigContent(j);
 }
 
 void ImageReceiver::processConfigContent(json j)

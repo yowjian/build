@@ -34,19 +34,19 @@ static int savedTime = 0;
 
 ImageDetector::ImageDetector()
 {
-	amq.listen("receiveImageDetectionXDAck", std::bind(&ImageDetector::handleImageDetectedAck, this, _1), true);
+    amq.listen("receiveImageDetectionXDAck", std::bind(&ImageDetector::handleImageDetectedAck, this, _1), true);
 
-	json j = Utils::loadDefaultConfig();
-	processConfigContent(j);
+    json j = Utils::loadDefaultConfig();
+    processConfigContent(j);
 }
 
 void ImageDetector::processConfigContent(json j)
 {
-	imageDir = Utils::getField(j, "imageDir");
+    imageDir = Utils::getField(j, "imageDir");
 
-	string waittimeStr = Utils::getField(j, "waitTime");
-	if (!waittimeStr.empty())
-	    waitTime = stoi(waittimeStr);
+    string waittimeStr = Utils::getField(j, "waitTime");
+    if (!waittimeStr.empty())
+        waitTime = stoi(waittimeStr);
 }
 
 ImageDetector::~ImageDetector() {
