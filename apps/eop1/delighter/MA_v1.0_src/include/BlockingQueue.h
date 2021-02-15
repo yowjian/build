@@ -11,6 +11,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <deque>
+#include <chrono>
 
 template <typename T>
 class BlockingQueue
@@ -35,6 +36,20 @@ public:
         T rc(std::move(this->d_queue.back()));
         this->d_queue.pop_back();
         return rc;
+    }
+
+    T pop(int timeout, T& obj) {
+        std::unique_lock<std::mutex> lock(this->d_mutex);
+
+        bool ok = this->d_condition.wait_for(lock, timeout*1000ms, [=]{ return !this->d_queue.empty(); });
+        if (ok) {
+            T rc(std::move(this->d_queue.back()));
+            this->d_queue.pop_back();
+            return rc;
+        }
+        else {
+            return obj;
+        }
     }
 };
 
