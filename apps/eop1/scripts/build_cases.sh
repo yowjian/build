@@ -3,7 +3,7 @@
 HWMODE=
 DEVFILE=
 PWD=`pwd`
-CASES="case1 case2 case3"
+CASES="case1 case2 case3 delighter"
 
 usage_exit() {
   [[ -n "$1" ]] && echo $1

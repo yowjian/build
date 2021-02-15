@@ -61,7 +61,19 @@ do
     popd
 done
 
-for CASE in case1 case2 case3
+for CASE in delighter
+do
+    pushd ../$CASE/MA_v1.0_src
+    rm -f gaps.ma.dependencies
+    ln -s ../../case1/MA_v1.0_src/gaps.ma.dependencies .
+    rm -f install
+    ln -s ../../case1/MA_v1.0_src/install .
+    rm -f pinstall
+    ln -s ../../case1/MA_v1.0_src/pinstall .
+    popd
+done
+
+for CASE in case1 case2 case3 delighter
 do
     pushd ../$CASE/MA_v1.0_src
     rm -rf lbuild
