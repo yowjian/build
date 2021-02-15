@@ -297,15 +297,15 @@ static json loadConfig(json configPlan) {
 	return j;
 }
 
-static const long TIME_BASE = 1613412080768569;
+static const long TIME_BASE = 1613412080768;
 
 static long getTimestamp() {
-    return duration_cast<microseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
 }
 
 static long getElapsedTime(json j) {
-    auto us_since_epoch = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
-    return us_since_epoch - j["timestamp"].get<long>();
+    auto ms_since_epoch = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
+    return ms_since_epoch - j["timestamp"].get<long>();
 }
 
 static void logElapsedTime(json j, string component, string msg) {
@@ -323,7 +323,7 @@ static void logElapsedTime(json j, string component, string msg) {
         streamMap[component] = of;
     }
 
-    *of << component << " received, " << msg << ", in, " << Utils::getElapsedTime(j) << ", us\n" << std::flush;
+    *of << component << " received, " << msg << ", in, " << Utils::getElapsedTime(j) << "\n" << std::flush;
 }
 };
 #endif
