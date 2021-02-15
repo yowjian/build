@@ -297,12 +297,14 @@ static json loadConfig(json configPlan) {
 	return j;
 }
 
+static const long TIME_BASE = 1613412080768569;
+
 static long getTimestamp() {
-    return duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
+    return duration_cast<microseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
 }
 
 static long getElapsedTime(json j) {
-    auto us_since_epoch = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
+    auto us_since_epoch = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
     return us_since_epoch - j["timestamp"].get<long>();
 }
 
