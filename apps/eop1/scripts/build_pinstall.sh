@@ -44,7 +44,7 @@ fi
 bash -f install-opencv.sh 
 popd
 
-for CASE in case2 case3
+for CASE in case2 case3 timing
 do
     pushd ../$CASE/MA_v1.0_src
     rm -f gaps.ma.dependencies 
@@ -73,7 +73,7 @@ do
     popd
 done
 
-for CASE in case1 case2 case3 delighter
+for CASE in case1 case2 case3 delighter timing
 do
     pushd ../$CASE/MA_v1.0_src
     rm -rf lbuild
