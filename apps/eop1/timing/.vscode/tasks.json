@@ -1,0 +1,310 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "A0 SAMPLE MESSAGE COLLECTION",
+        "type": "shell",
+        "command": "echo Please capture samples messges from the mission app.",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "A1 SCHEMA GENERATION",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; mkdir -p design/schema-new; ${CLOSURE_SCRIPTS}/schema_gen.sh -i ../captured-messages -o design/schema-new",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "A2 SCHEMA FINE-TUNING",
+        "type": "shell",
+        "command": "echo Please edit the generated schemas and add maxLength to fields of string type and numElements to those of array type, ",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "A3 DESIGN EDITING",
+        "type": "shell",
+        "command": "echo Please edit the design specified in design_spec.json",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "A4 DESIGN VALIDATION",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; ${PYTHON} ${FLOW_SOLVER} design/design_spec.json",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "A5 DESIGN VISUALIZATION",
+        "type": "shell",
+        "command": "firefox --new-window http://127.0.0.1:8050/",
+        "args": [],
+        "group": "build",
+        // This task is run before some debug tasks.
+        // Problem is, it's a watch script, and since it never exits, VSCode
+        // complains. All this is needed so VSCode just lets it run.
+        "problemMatcher": [
+        ],
+        "dependsOrder": "sequence",
+        "dependsOn": [
+  
+        ]         
+      },
+      {
+        "label": "A6 CODE GENERATION",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; cd design; bash -f README.md",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "A DESIGN",
+        "type": "shell",
+        "command": "",
+        "args": [],
+        "group": {
+          "kind": "build",
+        },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+            "A0 SAMPLE MESSAGE COLLECTION",
+            "A1 SCHEMA GENERATION",
+            "A2 SCHEMA FINE-TUNING",
+            "A3 DESIGN EDITING",
+            "A4 DESIGN VALIDATION",
+            "A5 DESIGN VISUALIZATION",
+            "A6 CODE GENERATION"
+        ],
+        "problemMatcher": []
+      },
+
+
+      {
+        "label": "B INIT",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; cd ../amqlib && PINSTALL=$PINSTALL make libclean && make",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "B0 CLEAN SOURCE",
+        "type": "shell",
+        "command": "cd xdcc/egress_xdcc; rm -rf annotated partitioned divvied refactored *working *.json; cd ../ingress_xdcc; rm -rf annotated partitioned divvied refactored *working *.json;",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "BUILD CASE",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh && cd ../scripts && ./build_cases.sh -d $CASE -m $HWMODE",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "B1 ANNOTATE",
+        "type": "shell",
+        "command": "cd xdcc/egress_xdcc; mkdir annotated; cp -R xdcc_autogen/* annotated; cd ../ingress_xdcc; mkdir annotated; cp -R xdcc_autogen/* annotated; echo Prepared sources for CLE annotation by developer under ./annotated; echo Move to Conflict Analysis when done annotating",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "B2 ANALYZE PARTITION CONFLICTS",
+        "type": "shell",
+        "command": "cd xdcc/egress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts dot && make -f .vscode/Makefile.conflicts enclaves && mkdir -p ./refactored  && make -f .vscode/Makefile.conflicts clean && cp -r ./annotated/* ./refactored; cd ../ingress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts dot && make -f .vscode/Makefile.conflicts enclaves && mkdir -p ./refactored  && make -f .vscode/Makefile.conflicts clean && cp -r ./annotated/* ./refactored",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "B3 AUTOMAGIC",
+        "type": "shell",
+        "command": "",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+          "B9a DIVIDE",
+          "B9b AUTOGEN GEDL, RPCs, IDL, Codecs",
+          "B9c VERIFY",
+          "B9e BUILD"
+        ],
+        "problemMatcher": []
+      },
+      {
+        "label": "B9a DIVIDE",
+        "type": "shell",
+        "command": "cd xdcc/egress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.divvied; cd ../ingress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.divvied",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "B9b AUTOGEN GEDL, RPCs, IDL, Codecs",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; cd xdcc/egress_xdcc; source .vscode/closure_env.sh && mkdir -p partitioned && cp -r /opt/closure/heuristics ./partitioned && make -f .vscode/Makefile.gedl gedl && make -f .vscode/Makefile.gedl rautogen && make -f .vscode/Makefile.gedl rpc && cd ../ingress_xdcc && source .vscode/closure_env.sh && mkdir -p partitioned && cp -r /opt/closure/heuristics ./partitioned && make -f .vscode/Makefile.gedl gedl && make -f .vscode/Makefile.gedl rautogen && make -f .vscode/Makefile.gedl rpc",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "B9c VERIFY",
+        "type": "shell",
+        "command": "cd xdcc/egress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier verify; cd ../ingress_xdcc; source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier verify",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "B9e BUILD",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; cd ..; ./build.sh -x -b -c orange -d ${CASE} && ./build.sh -x -b -c green -d ${CASE}",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "B DEPLOY",
+        "type": "shell",
+        "command": "",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+            "B INIT",
+            "B0 CLEAN SOURCE",
+            "B1 ANNOTATE",
+            "B2 ANALYZE PARTITION CONFLICTS",
+            "B3 AUTOMAGIC",
+        ],
+        "problemMatcher": []
+      },
+      {
+        "label": "C INIT",
+        "type": "shell",
+        "command": "cd ../scripts && bash -f ./build_pinstall.sh",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "C0 BUILD MISSION APP",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; cd MA_v1.0_src/scripts; rm -rf ../lbuild; bash -f install.sh",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
+        "label": "C1 PACKAGE",
+        "type": "shell",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig deps; make -f .vscode/Makefile.mbig pkg;",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {                                                                                                 
+        "label": "C2 EMULATE",                                                                           
+        "type": "shell",                                                                                
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig emu; cd ~/gaps/build/src/emu/; ./start.sh ${PROG}",    
+        "args": [],                                                                                     
+        "group": "build",                                                                               
+        "problemMatcher": []                                                                            
+      },
+   
+      {
+        "label": "C BUILD AND EMULATE",
+        "type": "shell",
+        "command": "",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+            "C0 BUILD MISSION APP",
+            "C1 PACKAGE",
+            "C2 EMULATE",
+            "C3 HAL",
+        ],
+        "problemMatcher": []
+      },
+        
+      {
+        "label": "DESIGN, DEPLOY AND EMULATE",
+        "type": "shell",
+        "command": "",
+        "args": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "dependsOrder": "sequence",
+        "dependsOn": [
+            "A DESIGN",
+            "B DEPLOY",
+            "C BUILD AND EMULATE",
+        ],
+        "problemMatcher": []
+      },
+
+        
+      {
+        "label": "VIEWER SERVER",
+        "type": "shell",
+        "isBackground": true,
+        "command": "source .vscode/closure_env.sh; ${PYTHON} ${XDMF_VIEW} -f design/design_spec.json < /dev/null > /dev/null 2>&1 ",
+        "args": [],
+        "group": "build",
+        // This task is run before some debug tasks.
+        // Problem is, it's a watch script, and since it never exits, VSCode
+        // complains. All this is needed so VSCode just lets it run.
+        "problemMatcher": [
+          {
+            "pattern": [
+              {
+                "regexp": ".",
+                "file": 1,
+                "location": 2,
+                "message": 3
+              }
+            ],
+            "background": {
+              "activeOnStart": true,
+              "beginsPattern": ".",
+              "endsPattern": ".",
+            }
+          }
+        ]
+      }
+    ],
+    "inputs": [
+        {
+            "id": "direction",
+            "description": "egress or ingress",
+            "default": "egress",
+            "type": "promptString"
+        },
+    ]    
+  }
