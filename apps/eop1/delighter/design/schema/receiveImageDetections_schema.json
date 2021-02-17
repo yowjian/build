@@ -19,7 +19,7 @@
     },
     "E_imgData": {
       "type": "string",
-      "maxLength": 36000
+      "maxLength": 24216
     }
   },
   "required": [
