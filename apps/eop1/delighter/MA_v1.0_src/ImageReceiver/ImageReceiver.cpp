@@ -21,9 +21,9 @@ using namespace cv;
 static const string WINDOW_NAME = "CLOSURE Image Receiver";
 static const cv::Scalar ENCLAVE_COLOR = CV_RGB(235, 140, 52);
 static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
-static const cv::Point NAME_POINT(10, 450);
-static const cv::Point SIZE_POINT(10, 500);
-static const cv::Point META_POINT(10, 550);
+static const cv::Point NAME_POINT(10, 400);
+static const cv::Point SIZE_POINT(10, 440);
+static const cv::Point META_POINT(10, 480);
 static const double FONT_SCALE = 1.0;
 static const int FONT_THICKNESS = 2;
 
@@ -86,7 +86,8 @@ void displayImage(const json &j)
     OVERLAY("Meta: " + meta, META_POINT);
 
     imshow(WINDOW_NAME, imageMat);
-    waitKey(10); // Wait for any keystroke in the window
+    // GIve enough time for iamge to render, 800ms seems adequate
+    waitKey(800); // Wait for any keystroke in the window
 }
 
 void displaySplash(string pathanme)
