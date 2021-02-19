@@ -91,7 +91,7 @@ def setup_gui(args):
       style={'width':'550px','height':'400px','float':'left'}
     ),
     html.Div([dcc.Graph(id="bar-chart")], style={'width':'550px','float':'right','align':'middle'}),
-    html.Div(id='textarea-events', style={'width':'100%','height':'300px','overflowX':'scroll','overflowY':'scroll','float':'left'})
+    html.Div(id='textarea-events', style={'width':'100%','height':'900px','overflowX':'scroll','overflowY':'scroll','float':'left'})
   ],style={'width':'1200px'})
 
   @app.callback(Output('textarea-events', 'children'), [Input('live-update-data', 'children')]) 
