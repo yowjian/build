@@ -28,14 +28,14 @@ static int interval = 1000;
 const static string MESSAGES[] = {
    "component_heartbeats",
    "updateMissionPlan",
-   "recieveISRMDetections",
-   "groundMovers",
-   "requestISRMDetections",
    "pnt",
+   "requestISRMDetections",
+   "recieveISRMDetections",
    "requestEOIRDetections",
-   "requestRDRDetections",
    "recieveEOIRDetections",
+   "requestRDRDetections",
    "recieveRDRDetections",
+   "groundMovers",
 };
 
 const static int NUM_MESSAGES = sizeof(MESSAGES) / sizeof(MESSAGES[0]);
@@ -236,6 +236,8 @@ void Sender::run()
     for (int j = 0; j < instancesPerMessage; j++) {
         for (int i = 0; i < NUM_MESSAGES; i++) {
             try {
+                cout << (j + 1) << "[" << instancesPerMessage << "] / "
+                     << (i + 1) << "[" << NUM_MESSAGES << "] " << MESSAGES[i] << endl;
                 amq.publish(MESSAGES[i], messageJsons[i], true);
             }
             catch (fs::filesystem_error &e) {
@@ -246,5 +248,6 @@ void Sender::run()
     }
 
     cout << "Done\n";
+    Utils::logAvgTime(instancesPerMessage);
 }
 

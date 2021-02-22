@@ -21,6 +21,9 @@ using namespace std::chrono;
 static long TIME_NOWMS = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 static long TIME_BASE = TIME_NOWMS - (TIME_NOWMS % (24 * 60 * 60 * 1000));
 
+static map<string, map<string, long>> totalmap;  // message to local /xd to total elaspsed time
+
+
 /**
 * @brief – Class responsible for providing useful functions that can be used by all systems.
 *
@@ -331,12 +334,46 @@ static long getElapsedTime(json j) {
 static void logElapsedTime(json j, string msg, bool fromRemote) {
     static ofstream ofs("timings.csv");
 
-    ofs << getTimestamp() << ","
-        << (fromRemote ? "xd" : "local") << ","
+    long elapsedTime = Utils::getElapsedTime(j);
+    string loc = (fromRemote ? "xd" : "local");
+
+    ofs // << getTimestamp() << ","
+        << loc << ","
         << msg << ", "
-        << Utils::getElapsedTime(j)
+        << elapsedTime
         << "\n"
         << std::flush;
+
+//    static map<string, map<string, long>> count;
+
+    map<string, map<string, long>>::iterator it = totalmap.find(msg);
+    map<string, long> *tmap;
+    if (it == totalmap.end()) {
+        totalmap.insert(make_pair(msg, map<string, long>()));
+        it = totalmap.find(msg);
+    }
+    tmap = &(it->second);
+
+    long curr = 0;
+    map<string, long>::iterator it2 = tmap->find(loc);
+    if (it2 != tmap->end()) {
+        curr = it2->second;
+    }
+    (*tmap)[loc] = curr + elapsedTime;
+}
+
+static void logAvgTime(int count)
+{
+    static ofstream ofs("average.csv");
+
+    map<string, map<string, long>>::iterator itr;
+    map<string, long>::iterator ptr;
+
+    for (itr = totalmap.begin(); itr != totalmap.end(); itr++) {
+        for (ptr = itr->second.begin(); ptr != itr->second.end(); ptr++) {
+            ofs << itr->first << ", " << ptr->first << " ," <<  ptr->second / (double) count << endl;
+        }
+    }
 }
 };
 #endif
