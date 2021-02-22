@@ -9,8 +9,14 @@
 #include <Utils.h>
 #include <mutex>
 #include <atomic>
+#include <chrono>
+
+#include "Utils.h"
+
 using namespace std;
 using json = nlohmann::json;
+using namespace std::chrono;
+
 namespace amqm {
 	/**
 	* @brief – Class responsible for handling the listen and publish functionality for each subsystem
@@ -128,6 +134,8 @@ namespace amqm {
 			}
 			MessageProducer *producer = producer = session->createProducer(destination);
 			producer->setDeliveryMode(DeliveryMode::PERSISTENT);
+
+			data["timestamp"] = Utils::getTimestamp();
 
 			string text = (string)data.dump();
 			TextMessage *message = session->createTextMessage(text);

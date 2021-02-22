@@ -9,11 +9,18 @@
 #include <thread>
 #include <chrono>
 #include <missions/Detect.h>
+
 #ifndef UTILS_H
 #define UTILS_H
 using namespace uas;
 using json = nlohmann::json;
 using namespace std;
+using namespace std::chrono;
+
+// start all components on the same day!
+static long TIME_NOWMS = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+static long TIME_BASE = TIME_NOWMS - (TIME_NOWMS % (24 * 60 * 60 * 1000));
+
 /**
 * @brief – Class responsible for providing useful functions that can be used by all systems.
 *
@@ -310,6 +317,26 @@ static string getField(json js, string field)
     }
 
     return val;
+}
+
+static long getTimestamp() {
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
+}
+
+static long getElapsedTime(json j) {
+    auto ms_since_epoch = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
+    return ms_since_epoch - j["timestamp"].get<long>();
+}
+
+static void logElapsedTime(json j, string msg, bool fromRemote) {
+    static ofstream ofs("timings.csv");
+
+    ofs << getTimestamp() << ","
+        << (fromRemote ? "remote" : "local") << ","
+        << msg << ", "
+        << Utils::getElapsedTime(j)
+        << "\n"
+        << std::flush;
 }
 };
 #endif

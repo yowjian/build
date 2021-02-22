@@ -1,5 +1,5 @@
 {
     "maxDetects": 8,
     "waitTime": 10000,
-    "imageDir": "config/images"
+    "messageDir": "../../../captured-messages"
 }

@@ -17,23 +17,19 @@ using namespace cms;
 using namespace std;
 using namespace cv;
 
-#define OVERLAY(text,pos)  cv::putText(imageMat,text,pos,ENCLAVE_FONT,FONT_SCALE,ENCLAVE_COLOR,FONT_THICKNESS)
-
-static const string WINDOW_NAME = "CLOSURE Image Receiver";
-static const cv::Scalar ENCLAVE_COLOR = CV_RGB(235, 140, 52);
-static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
-static const cv::Point NAME_POINT(10, 400);
-static const cv::Point SIZE_POINT(10, 440);
-static const cv::Point META_POINT(10, 480);
-static const double FONT_SCALE = 1.0;
-static const int FONT_THICKNESS = 2;
-
-static BlockingQueue<json> messageQueue;
-static cv::Mat imageMat;
 
 Echoer::Echoer()
 {
-    amq.listen("receiveImageDetections", std::bind(&Echoer::updateImageDetected, this, _1), true);
+    amq.listen("component_heartbeats", std::bind(&Echoer::echo_component_heartbeats, this, _1), true);
+    amq.listen("updateMissionPlan", std::bind(&Echoer::echo_updateMissionPlan, this, _1), true);
+    amq.listen("recieveISRMDetections", std::bind(&Echoer::echo_component_heartbeats, this, _1), true);
+    amq.listen("groundMovers", std::bind(&Echoer::echo_groundMovers, this, _1), true);
+    amq.listen("requestISRMDetections", std::bind(&Echoer::echo_requestISRMDetections, this, _1), true);
+    amq.listen("pnt", std::bind(&Echoer::echo_pnt, this, _1), true);
+    amq.listen("requestEOIRDetections", std::bind(&Echoer::echo_requestEOIRDetections, this, _1), true);
+    amq.listen("requestRDRDetections", std::bind(&Echoer::echo_requestRDRDetections, this, _1), true);
+    amq.listen("recieveEOIRDetections", std::bind(&Echoer::echo_recieveEOIRDetections, this, _1), true);
+    amq.listen("recieveRDRDetections", std::bind(&Echoer::echo_recieveRDRDetections, this, _1), true);
 
     json j = Utils::loadDefaultConfig();
     processConfigContent(j);
@@ -47,88 +43,79 @@ Echoer::~Echoer()
 {
 }
 
-void Echoer::updateImageDetected(const json &j)
+void Echoer::echo_component_heartbeats(const json &j)
 {
-    messageQueue.push(j);
+    amq.publish("component_heartbeats_remote", j, true);
 }
 
-void hexToBin(string hexData, char *image_buf, int image_buf_size)
+void Echoer::echo_updateMissionPlan(const json &j)
 {
-    int buf_size = hexData.length();
-    if (image_buf_size < buf_size / 2) {
-        cout << "ERROR: buffer too small: " << buf_size << " v.s. " << image_buf_size << endl;
-        buf_size = image_buf_size * 2;
-    }
-
-    int k = 0;
-    for (int i = 0; i < buf_size; i += 2) {
-        image_buf[k++] = std::stoul(hexData.substr(i, 2), nullptr, 16);
-    }
+    amq.publish("updateMissionPlan_remote", j, true);
 }
 
-void displayImage(const json &j)
+void Echoer::echo_recieveISRMDetections(const json &j)
 {
-    string name = j["A_name"].get<string>();
-    int size = j["B_size"];
-    string pad = j["C_pad"].get<string>();
-    string meta = j["D_metadata"].get<string>();
-    string imageData = j["E_imgData"].get<string>();
-
-    cout << "Receiver rcvd " << name << " : " << size << " : " << meta << endl;
-
-    char img[size];
-    hexToBin(imageData, img, size);
-
-    vector<unsigned char> imVec(img, img + size);
-    imdecode(imVec, IMREAD_COLOR, &imageMat);
-
-    OVERLAY("Name: " + name, NAME_POINT);
-    OVERLAY("Size: " + to_string(size), SIZE_POINT);
-    OVERLAY("Meta: " + meta, META_POINT);
-
-    imshow(WINDOW_NAME, imageMat);
-    // GIve enough time for iamge to render, 800ms seems adequate
-    waitKey(800); // Wait for any keystroke in the window
+    amq.publish("recieveISRMDetections_remote", j, true);
 }
 
-void displaySplash(string pathanme)
+void Echoer::echo_groundMovers(const json &j)
 {
-    std::string image_path = samples::findFile(pathanme);
-    Mat img = imread(image_path, IMREAD_COLOR);
-    if (img.empty()) {
-        std::cout << "Could not read the image: " << image_path << std::endl;
-        return;
-    }
-    img.convertTo(imageMat, CV_8U);
+    amq.publish("groundMovers_remote", j, true);
+}
 
-    imshow(WINDOW_NAME, imageMat);
-    moveWindow(WINDOW_NAME, 0, 100);
-    waitKey(1000); // Wait for any keystroke in the window
+void Echoer::echo_requestISRMDetections(const json &j)
+{
+    amq.publish("requestISRMDetections_remote", j, true);
+}
+
+void Echoer::echo_pnt(const json &j)
+{
+    amq.publish("pnt_remote", j, true);
+}
+
+void Echoer::echo_requestEOIRDetections(const json &j)
+{
+    amq.publish("requestEOIRDetections_remote", j, true);
+}
+
+void Echoer::echo_requestRDRDetections(const json &j)
+{
+    amq.publish("requestRDRDetections_remote", j, true);
+}
+
+void Echoer::echo_recieveEOIRDetections(const json &j)
+{
+    amq.publish("recieveEOIRDetections_remote", j, true);
+}
+
+void Echoer::echo_recieveRDRDetections(const json &j)
+{
+    amq.publish("recieveRDRDetections_remote", j, true);
 }
 
 void Echoer::run()
 {
-    displaySplash("config/images/splash-receiver.jpg");
-
     HeartBeat isrm_HB("Echoer");
-    isrm_HB.startup_Listener("ImageDetector");
+    isrm_HB.startup_Listener("Sender");
 
     json timeout;
     timeout["A_name"] = "timeout";
 
-    while (true) {
-        json msg = messageQueue.pop(1, timeout);
-        string name = msg["A_name"].get<string>();
+    Utils::sleep_forever();
+//    while (true) {
 
-        // imshow will not refresh the window after waitKey returns
-        // refresh it if no new message is received
-        if (!name.compare("timeout")) {
-            imshow(WINDOW_NAME, imageMat);
-            waitKey(10);
-        }
-        else {
-            displayImage(msg);
-        }
-    }
+//        json msg = messageQueue.pop(1, timeout);
+//        string name = msg["A_name"].get<string>();
+//
+//        // imshow will not refresh the window after waitKey returns
+//        // refresh it if no new message is received
+//        if (!name.compare("timeout")) {
+//            imshow(WINDOW_NAME, imageMat);
+//            waitKey(10);
+//        }
+//        else {
+////            displayImage(msg);
+//        }
+//    }
 }
 

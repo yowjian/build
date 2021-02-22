@@ -17,24 +17,51 @@ using namespace std;
 using namespace cv;
 namespace fs = boost::filesystem;
 
-#define OVERLAY(text,pos)  cv::putText(imageMat,text,pos,ENCLAVE_FONT,FONT_SCALE,ENCLAVE_COLOR,FONT_THICKNESS)
+//static const string WINDOW_NAME = "CLOSURE Image Detector";
 
-static const string WINDOW_NAME = "CLOSURE Image Detector";
-static const cv::Scalar ENCLAVE_COLOR = CV_RGB(0, 255, 0);
-static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
-static const cv::Point NAME_POINT(10, 400);
-static const cv::Point SIZE_POINT(10, 440);
-static const cv::Point META_POINT(10, 480);
-static const double FONT_SCALE = 1.0;
-static const int FONT_THICKNESS = 2;
+static bool synced = false;
 
-static cv::Mat imageMat;
-static int waitTime = 3000;
-static int savedTime = 0;
+static string messageDir = "../../../captured-messages";
+
+const static string MESSAGES[] = {
+   "component_heartbeats",
+   "updateMissionPlan",
+   "recieveISRMDetections",
+   "groundMovers",
+   "requestISRMDetections",
+   "pnt",
+   "requestEOIRDetections",
+   "requestRDRDetections",
+   "recieveEOIRDetections",
+   "recieveRDRDetections",
+};
+
+const static int NUM_MESSAGES = sizeof(MESSAGES) / sizeof(MESSAGES[0]);
+static json messageJsons[NUM_MESSAGES];
 
 Sender::Sender()
 {
-    amq.listen("receiveImageDetectionXDAck", std::bind(&Sender::handleImageDetectedAck, this, _1), true);
+    amq.listen("component_heartbeats", std::bind(&Sender::echo_component_heartbeats, this, _1), true);
+    amq.listen("updateMissionPlan", std::bind(&Sender::echo_updateMissionPlan, this, _1), true);
+    amq.listen("recieveISRMDetections", std::bind(&Sender::echo_component_heartbeats, this, _1), true);
+    amq.listen("groundMovers", std::bind(&Sender::echo_groundMovers, this, _1), true);
+    amq.listen("requestISRMDetections", std::bind(&Sender::echo_requestISRMDetections, this, _1), true);
+    amq.listen("pnt", std::bind(&Sender::echo_pnt, this, _1), true);
+    amq.listen("requestEOIRDetections", std::bind(&Sender::echo_requestEOIRDetections, this, _1), true);
+    amq.listen("requestRDRDetections", std::bind(&Sender::echo_requestRDRDetections, this, _1), true);
+    amq.listen("recieveEOIRDetections", std::bind(&Sender::echo_recieveEOIRDetections, this, _1), true);
+    amq.listen("recieveRDRDetections", std::bind(&Sender::echo_recieveRDRDetections, this, _1), true);
+
+    amq.listen("component_heartbeats_remote", std::bind(&Sender::echo_component_heartbeats_remote, this, _1), true);
+    amq.listen("updateMissionPlan_remote", std::bind(&Sender::echo_updateMissionPlan_remote, this, _1), true);
+    amq.listen("recieveISRMDetections_remote", std::bind(&Sender::echo_component_heartbeats_remote, this, _1), true);
+    amq.listen("groundMovers_remote", std::bind(&Sender::echo_groundMovers_remote, this, _1), true);
+    amq.listen("requestISRMDetections_remote", std::bind(&Sender::echo_requestISRMDetections_remote, this, _1), true);
+    amq.listen("pnt_remote", std::bind(&Sender::echo_pnt_remote, this, _1), true);
+    amq.listen("requestEOIRDetections_remote", std::bind(&Sender::echo_requestEOIRDetections_remote, this, _1), true);
+    amq.listen("requestRDRDetections_remote", std::bind(&Sender::echo_requestRDRDetections_remote, this, _1), true);
+    amq.listen("recieveEOIRDetections_remote", std::bind(&Sender::echo_recieveEOIRDetections_remote, this, _1), true);
+    amq.listen("recieveRDRDetections_remote", std::bind(&Sender::echo_recieveRDRDetections_remote, this, _1), true);
 
     json j = Utils::loadDefaultConfig();
     processConfigContent(j);
@@ -42,158 +69,176 @@ Sender::Sender()
 
 void Sender::processConfigContent(json j)
 {
-    imageDir = Utils::getField(j, "imageDir");
-
-    string waittimeStr = Utils::getField(j, "waitTime");
-    if (!waittimeStr.empty())
-        waitTime = stoi(waittimeStr);
+    messageDir = Utils::getField(j, "messageDir");
 }
 
 Sender::~Sender() {
 }
 
-void readImage(string pathanem, int image_size, char *buffer, int buffer_size)
+static void proc_local(const string &topic, const json&j)
 {
-    char img[image_size];
-
-    std::ifstream fin(pathanem, ios::in | ios::binary);
-    fin.read(img, image_size);
-    if (!fin) {
-        cout << "ERROR: image read, only " << fin.gcount() << " could be read\n";
-    }
-    fin.close();
-
-    if (buffer_size < image_size * 2 + 1) {
-        cout << "ERROR: buffer too small: " << (image_size * 2 + 1) << " v.s. " << buffer_size;
-        image_size = (buffer_size - 1) / 2;
-    }
-
-    char *p = buffer;
-    for (int i = 0; i < image_size; i++)
-        p += sprintf(p, "%02x", img[i] & 0xff);
-
-    buffer[image_size * 2] = '\0';
 }
 
-void padBuffer(char *buf, int size, const char *prefix)
+static void proc_remote(const string &topic, const json&j)
 {
-    memset(buf, ' ', size);
-    if (prefix != NULL) {
-        sprintf(buf, prefix);
-        buf[strlen(prefix)] = ' ';
-    }
-    buf[size - 1] = '\0';
 }
 
-void loadImage(string pathname, Mat &imageMat)
+void Sender::echo_component_heartbeats(const json &j)
 {
-    std::string image_path = samples::findFile(pathname);
-    Mat img = imread(image_path, IMREAD_COLOR);
-    if (img.empty()) {
-        std::cout << "Could not read the image: " << image_path << std::endl;
-        return;
-    }
-    img.convertTo(imageMat, CV_8U);
+   if (synced)
+      Utils::logElapsedTime(j, "component_heartbeats", false);
 }
 
-void displaySplash(string pathname)
+void Sender::echo_updateMissionPlan(const json &j)
 {
-    loadImage(pathname, imageMat);
-
-    imshow(WINDOW_NAME, imageMat);
-    moveWindow(WINDOW_NAME, 900, 100);
-    waitKey(1000); // Wait for any keystroke in the window
+   if (synced)
+      Utils::logElapsedTime(j, "updateMissionPlan", false);
 }
 
-int displayImage(string pathname, int size, string meta, string objectName)
+void Sender::echo_recieveISRMDetections(const json &j)
 {
-    loadImage(pathname, imageMat);
-
-    OVERLAY("Name: " + objectName, NAME_POINT);
-    OVERLAY("Size: " + to_string(size), SIZE_POINT);
-    OVERLAY("Meta: " + meta, META_POINT);
-
-    imshow(WINDOW_NAME, imageMat);
-
-    int k = waitKey(waitTime); // Wait for a keystroke in the window
-
-    if (k == 'p') {
-        savedTime = waitTime;
-        waitTime = 0;
-    }
-    else if (k == '+')
-        waitTime += 1000;
-    else if (k == '-') {
-        waitTime -= 1000;
-        if (waitTime <= 0)
-            waitTime = 1000;
-    }
-    else if (k != -1) {
-        waitTime = savedTime;
-    }
-    cout << "wait time = " << waitTime << " ms" << endl;
-
-    return 0;
+   if (synced)
+      Utils::logElapsedTime(j, "recieveISRMDetections", false);
 }
 
+void Sender::echo_groundMovers(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "groundMovers", false);
+}
+
+void Sender::echo_requestISRMDetections(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "requestISRMDetections", false);
+}
+
+void Sender::echo_pnt(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "pnt", false);
+}
+
+void Sender::echo_requestEOIRDetections(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "requestEOIRDetections", false);
+}
+
+void Sender::echo_requestRDRDetections(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "requestRDRDetections", false);
+}
+
+void Sender::echo_recieveEOIRDetections(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "recieveEOIRDetections", false);
+}
+
+void Sender::echo_recieveRDRDetections(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "recieveRDRDetections", false);
+}
+
+void Sender::echo_component_heartbeats_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "component_heartbeats", true);
+}
+
+void Sender::echo_updateMissionPlan_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "updateMissionPlan", true);
+}
+
+void Sender::echo_recieveISRMDetections_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "recieveISRMDetections", true);
+}
+
+void Sender::echo_groundMovers_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "groundMovers", true);
+}
+
+void Sender::echo_requestISRMDetections_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "requestISRMDetections", true);
+}
+
+void Sender::echo_pnt_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "pnt", true);
+}
+
+void Sender::echo_requestEOIRDetections_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "requestEOIRDetections", true);
+}
+
+void Sender::echo_requestRDRDetections_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "requestRDRDetections", true);
+}
+
+void Sender::echo_recieveEOIRDetections_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "recieveEOIRDetections", true);
+}
+
+void Sender::echo_recieveRDRDetections_remote(const json &j)
+{
+   if (synced)
+      Utils::logElapsedTime(j, "recieveRDRDetections", true);
+}
+
+void readMessages()
+{                                                                                           
+   for (int i = 0; i < NUM_MESSAGES; i++) {
+      std::ifstream msgStream(messageDir + "/" + MESSAGES[i] + ".json");
+      if (msgStream.fail()) {                                                              
+         cout << "ERROR: failed to read " << MESSAGES[i] << endl;
+         continue;
+      }
+      msgStream >> messageJsons[i];                                                             
+      msgStream.close();
+
+      // cout << MESSAGES[i] << "\n" << messageJsons[i].dump(2) << endl << endl;
+   }
+}                                                                                           
+  
 void Sender::run()
 {
-    fs::path dir(imageDir);
-    if (!fs::exists(dir)) {
-        cout << "directory " << " does not exist: " << imageDir << endl;
-        exit(1);
-    }
-
-    displaySplash(imageDir + "/splash-detector.jpg");
-
     HeartBeat isrm_HB("Sender");
-    isrm_HB.startup_Listener("ImageReceiver");
+    isrm_HB.startup_Listener("Echoer");
 
-    char objname[20];
+    // wait for all pre-sync HB to be received.
+    Utils::sleep_for(1000);
+    synced = true;
 
-    char pad[240];
-    padBuffer(pad, 240, NULL);
-
-    const string REDACT = "REDONDO BEACH";
-    char meta[64];
-    padBuffer(meta, 64, (char *)REDACT.c_str());
-    string metaStr(meta);
-
-    char pathname[200];
-    const string suffix = ".jpg";
+    readMessages();
+    
     while (true) {
-        for (int i = 0; i < 10; i++) {
-            try {
-                sprintf(pathname, "%s/test%02d.jpg", imageDir.c_str(), i);
-                int size = fs::file_size(pathname);
-
-                int hex_buf_size = size * 2 + 1;
-                char hexImage[size * 2 + 1]; // [9000];
-                readImage(pathname, size, hexImage, hex_buf_size);
-
-                json j;
-                string obj = "Object " + to_string(i);
-                padBuffer(objname, 20, (char *)obj.c_str());
-                j["A_name"] = objname;
-                j["B_size"] = size;
-                j["C_pad"] = pad;
-                j["D_metadata"] = metaStr.replace(0, REDACT.length(), "XXXXXXXXX");
-                j["E_imgData"] = string(hexImage);
-
-                cout << "Detector sent " << objname << " : " << size << " : " << meta << endl;
-
-                Sender::amq.publish("receiveImageDetections", j, true);
-
-                displayImage(pathname, size, meta, obj);
-            }
-            catch (fs::filesystem_error &e) {
-                std::cout << e.what() << '\n';
-            }
+        for (int i = 0; i < NUM_MESSAGES; i++) {
+           try {
+               amq.publish(MESSAGES[i], messageJsons[i], true);
+           }
+           catch (fs::filesystem_error &e) {
+              std::cout << e.what() << '\n';
+           }
+           Utils::sleep_for(1000);
         }
     }
 }
 
-void Sender::handleImageDetectedAck(json j)
-{
-    amq.publish("imageDetectedAck", j, true);
-}
