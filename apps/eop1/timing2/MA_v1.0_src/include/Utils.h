@@ -332,7 +332,7 @@ static void logElapsedTime(json j, string msg, bool fromRemote) {
     static ofstream ofs("timings.csv");
 
     ofs << getTimestamp() << ","
-        << (fromRemote ? "remote" : "local") << ","
+        << (fromRemote ? "xd" : "local") << ","
         << msg << ", "
         << Utils::getElapsedTime(j)
         << "\n"

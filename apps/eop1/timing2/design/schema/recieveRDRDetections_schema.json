@@ -1,0 +1,122 @@
+{
+	"definitions": {},
+	"$schema": "http://json-schema.org/draft-07/schema#", 
+	"$id": "https://example.com/object1608757300.json", 
+	"title": "Root", 
+	"type": "object",
+	"required": [
+		"detects",
+		"timestamp"
+	],
+	"properties": {
+		"detects": {
+			"$id": "#root/detects", 
+			"title": "Detects", 
+			"type": "array",
+			"numElements": 8,
+			"default": [],
+			"items":{
+				"$id": "#root/detects/items", 
+				"title": "Items", 
+				"type": "object",
+				"required": [
+					"TGT_ISRM_ID",
+					"alt",
+					"bearing",
+					"classification",
+					"confidence",
+					"lat",
+					"lon",
+					"speed"
+				],
+				"properties": {
+					"TGT_ISRM_ID": {
+						"$id": "#root/detects/items/TGT_ISRM_ID", 
+						"title": "Tgt_isrm_id", 
+						"type": "string",
+						"maxLength": 32, 
+						"default": "",
+						"examples": [
+							"355586"
+						],
+						"pattern": "^.*$"
+					},
+					"alt": {
+						"$id": "#root/detects/items/alt", 
+						"title": "Alt", 
+						"type": "number",
+						"examples": [
+							0.0
+						],
+						"default": 0.0
+					},
+					"bearing": {
+						"$id": "#root/detects/items/bearing", 
+						"title": "Bearing", 
+						"type": "number",
+						"examples": [
+							237.98623638133768
+						],
+						"default": 0.0
+					},
+					"classification": {
+						"$id": "#root/detects/items/classification", 
+						"title": "Classification", 
+						"type": "string",
+						"maxLength": 64, 
+						"default": "",
+						"examples": [
+							""
+						],
+						"pattern": "^.*$"
+					},
+					"confidence": {
+						"$id": "#root/detects/items/confidence", 
+						"title": "Confidence", 
+						"type": "number",
+						"examples": [
+							-1.0
+						],
+						"default": 0.0
+					},
+					"lat": {
+						"$id": "#root/detects/items/lat", 
+						"title": "Lat", 
+						"type": "number",
+						"examples": [
+							30.687774320048185
+						],
+						"default": 0.0
+					},
+					"lon": {
+						"$id": "#root/detects/items/lon", 
+						"title": "Lon", 
+						"type": "number",
+						"examples": [
+							-117.21310154166385
+						],
+						"default": 0.0
+					},
+					"speed": {
+						"$id": "#root/detects/items/speed", 
+						"title": "Speed", 
+						"type": "number",
+						"examples": [
+							112.92731367797232
+						],
+						"default": 0.0
+					}
+				}
+			}
+		},
+		"timestamp": {
+			"$id": "#root/timestamp",
+			"title": "Timestamp",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
+		}
+	}
+}

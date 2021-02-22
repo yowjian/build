@@ -22,6 +22,8 @@ namespace fs = boost::filesystem;
 static bool synced = false;
 
 static string messageDir = "../../../captured-messages";
+static int instancesPerMessage = 10;
+static int interval = 1000;
 
 const static string MESSAGES[] = {
    "component_heartbeats",
@@ -70,6 +72,8 @@ Sender::Sender()
 void Sender::processConfigContent(json j)
 {
     messageDir = Utils::getField(j, "messageDir");
+    instancesPerMessage = std::stoi(Utils::getField(j, "instancesPerMessage"), nullptr, 10);
+    interval = std::stoi(Utils::getField(j, "interval"), nullptr, 10);
 }
 
 Sender::~Sender() {
@@ -229,16 +233,18 @@ void Sender::run()
 
     readMessages();
     
-    while (true) {
+    for (int j = 0; j < instancesPerMessage; j++) {
         for (int i = 0; i < NUM_MESSAGES; i++) {
-           try {
-               amq.publish(MESSAGES[i], messageJsons[i], true);
-           }
-           catch (fs::filesystem_error &e) {
-              std::cout << e.what() << '\n';
-           }
-           Utils::sleep_for(1000);
+            try {
+                amq.publish(MESSAGES[i], messageJsons[i], true);
+            }
+            catch (fs::filesystem_error &e) {
+                std::cout << e.what() << '\n';
+            }
+            Utils::sleep_for(interval);
         }
     }
+
+    cout << "Done\n";
 }
 

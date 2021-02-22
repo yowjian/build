@@ -1,5 +1,5 @@
 {
-    "maxDetects": 8,
-    "waitTime": 10000,
+    "interval": 1000,
+    "instancesPerMessage": 10,
     "messageDir": "../../../captured-messages"
 }
