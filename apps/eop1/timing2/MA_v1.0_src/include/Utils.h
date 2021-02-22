@@ -21,7 +21,7 @@ using namespace std::chrono;
 static long TIME_NOWMS = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 static long TIME_BASE = TIME_NOWMS - (TIME_NOWMS % (24 * 60 * 60 * 1000));
 
-static map<string, map<string, long>> totalmap;  // message to local /xd to total elaspsed time
+static map<string, map<string, double>> totalmap;  // message to local /xd to total elaspsed time
 
 
 /**
@@ -334,28 +334,28 @@ static long getElapsedTime(json j) {
 static void logElapsedTime(json j, string msg, bool fromRemote) {
     static ofstream ofs("timings.csv");
 
-    long elapsedTime = Utils::getElapsedTime(j);
+    double elapsedTime = Utils::getElapsedTime(j);    // round trip
     string loc = (fromRemote ? "xd" : "local");
 
     ofs // << getTimestamp() << ","
-        << loc << ","
         << msg << ", "
+        << loc << ", "
         << elapsedTime
         << "\n"
         << std::flush;
 
 //    static map<string, map<string, long>> count;
 
-    map<string, map<string, long>>::iterator it = totalmap.find(msg);
-    map<string, long> *tmap;
+    map<string, map<string, double>>::iterator it = totalmap.find(msg);
+    map<string, double> *tmap;
     if (it == totalmap.end()) {
-        totalmap.insert(make_pair(msg, map<string, long>()));
+        totalmap.insert(make_pair(msg, map<string, double>()));
         it = totalmap.find(msg);
     }
     tmap = &(it->second);
 
-    long curr = 0;
-    map<string, long>::iterator it2 = tmap->find(loc);
+    double curr = 0;
+    map<string, double>::iterator it2 = tmap->find(loc);
     if (it2 != tmap->end()) {
         curr = it2->second;
     }
@@ -366,12 +366,15 @@ static void logAvgTime(int count)
 {
     static ofstream ofs("average.csv");
 
-    map<string, map<string, long>>::iterator itr;
-    map<string, long>::iterator ptr;
+    map<string, map<string, double>>::iterator itr;
+    map<string, double>::iterator ptr;
 
     for (itr = totalmap.begin(); itr != totalmap.end(); itr++) {
         for (ptr = itr->second.begin(); ptr != itr->second.end(); ptr++) {
-            ofs << itr->first << ", " << ptr->first << " ," <<  ptr->second / (double) count << endl;
+            ofs << itr->first << ", "
+                << ptr->first << ", "
+                <<  (ptr->second / count) / 2   // round trip
+                << endl;
         }
     }
 }
