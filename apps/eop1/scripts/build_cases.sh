@@ -3,14 +3,14 @@
 HWMODE=
 DEVFILE=
 PWD=`pwd`
-CASES="case1 case2 case3"
+CASES="case1 case2 case3 delighter timing"
 
 usage_exit() {
   [[ -n "$1" ]] && echo $1
   echo "Usage: $0 [ -mh ]"
   echo "-h          Help"
   echo "-m          Hardware Mode (ilip, mind, pl, emu)"
-  echo "-d          case1, case2, or case3 (if not used, all built)"
+  echo "-d          case1, case2, or case3, delighter, timing (if not used, all built)"
   exit 1
 }
 

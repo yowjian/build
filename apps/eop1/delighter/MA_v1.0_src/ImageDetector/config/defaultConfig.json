@@ -1,5 +1,5 @@
 {
-    "maxDetects": 20,
-    "waitTime": 3000,
+    "maxDetects": 8,
+    "waitTime": 10000,
     "imageDir": "config/images"
 }
