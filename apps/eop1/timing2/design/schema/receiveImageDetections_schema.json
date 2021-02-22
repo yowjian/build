@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "A_name": {
+      "type": "string",
+      "maxLength": 20
+    },
+    "B_size": {
+      "type": "integer"
+    },
+    "C_pad": {
+      "type": "string",
+      "maxLength": 240
+    },
+    "D_metadata": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "E_imgData": {
+      "type": "string",
+      "maxLength": 24216
+    }
+  },
+  "required": [
+    "A_name",
+    "B_size",
+    "C_pad",
+    "D_metadata",
+    "E_imgData"
+  ]
+}
