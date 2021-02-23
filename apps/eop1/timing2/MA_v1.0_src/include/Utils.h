@@ -346,20 +346,20 @@ static void logElapsedTime(json j, string msg, bool fromRemote) {
 
 //    static map<string, map<string, long>> count;
 
-    map<string, map<string, double>>::iterator it = totalmap.find(msg);
+    map<string, map<string, double>>::iterator it = totalmap.find(loc);
     map<string, double> *tmap;
     if (it == totalmap.end()) {
-        totalmap.insert(make_pair(msg, map<string, double>()));
-        it = totalmap.find(msg);
+        totalmap.insert(make_pair(loc, map<string, double>()));
+        it = totalmap.find(loc);
     }
     tmap = &(it->second);
 
     double curr = 0;
-    map<string, double>::iterator it2 = tmap->find(loc);
+    map<string, double>::iterator it2 = tmap->find(msg);
     if (it2 != tmap->end()) {
         curr = it2->second;
     }
-    (*tmap)[loc] = curr + elapsedTime;
+    (*tmap)[msg] = curr + elapsedTime;
 }
 
 static void logAvgTime(int count)
@@ -371,8 +371,8 @@ static void logAvgTime(int count)
 
     for (itr = totalmap.begin(); itr != totalmap.end(); itr++) {
         for (ptr = itr->second.begin(); ptr != itr->second.end(); ptr++) {
-            ofs << itr->first << ", "
-                << ptr->first << ", "
+            ofs << ptr->first << ", "
+                << itr->first << ", "
                 <<  (ptr->second / count) / 2   // round trip
                 << endl;
         }
