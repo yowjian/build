@@ -45,52 +45,52 @@ Echoer::~Echoer()
 
 void Echoer::echo_component_heartbeats(const json &j)
 {
-    amq.publish("component_heartbeats_remote", j, true);
+    amq.publishNoTS("component_heartbeats_remote", j, true);
 }
 
 void Echoer::echo_updateMissionPlan(const json &j)
 {
-    amq.publish("updateMissionPlan_remote", j, true);
+    amq.publishNoTS("updateMissionPlan_remote", j, true);
 }
 
 void Echoer::echo_recieveISRMDetections(const json &j)
 {
-    amq.publish("recieveISRMDetections_remote", j, true);
+    amq.publishNoTS("recieveISRMDetections_remote", j, true);
 }
 
 void Echoer::echo_groundMovers(const json &j)
 {
-    amq.publish("groundMovers_remote", j, true);
+    amq.publishNoTS("groundMovers_remote", j, true);
 }
 
 void Echoer::echo_requestISRMDetections(const json &j)
 {
-    amq.publish("requestISRMDetections_remote", j, true);
+    amq.publishNoTS("requestISRMDetections_remote", j, true);
 }
 
 void Echoer::echo_pnt(const json &j)
 {
-    amq.publish("pnt_remote", j, true);
+    amq.publishNoTS("pnt_remote", j, true);
 }
 
 void Echoer::echo_requestEOIRDetections(const json &j)
 {
-    amq.publish("requestEOIRDetections_remote", j, true);
+    amq.publishNoTS("requestEOIRDetections_remote", j, true);
 }
 
 void Echoer::echo_requestRDRDetections(const json &j)
 {
-    amq.publish("requestRDRDetections_remote", j, true);
+    amq.publishNoTS("requestRDRDetections_remote", j, true);
 }
 
 void Echoer::echo_recieveEOIRDetections(const json &j)
 {
-    amq.publish("recieveEOIRDetections_remote", j, true);
+    amq.publishNoTS("recieveEOIRDetections_remote", j, true);
 }
 
 void Echoer::echo_recieveRDRDetections(const json &j)
 {
-    amq.publish("recieveRDRDetections_remote", j, true);
+    amq.publishNoTS("recieveRDRDetections_remote", j, true);
 }
 
 void Echoer::run()

@@ -118,38 +118,46 @@ namespace amqm {
 		 */
 
 		void publish(const string &channelName, json data, bool topic) {
-			ActiveMQConnectionFactory *connectionFactory = new ActiveMQConnectionFactory(brokerURI);
+		    publishInternal(channelName, data, topic, true);
+		}
 
-			Connection *connection = connectionFactory->createConnection();
-
-			connection->start();
-
-			Session *session = connection->createSession(Session::AUTO_ACKNOWLEDGE);
-			Destination *destination;
-			if (topic) {
-				 destination = session->createTopic(channelName);
-			}
-			else {
-				destination = session->createQueue(channelName);
-			}
-			MessageProducer *producer = producer = session->createProducer(destination);
-			producer->setDeliveryMode(DeliveryMode::PERSISTENT);
-
-			data["timestamp"] = Utils::getTimestamp();
-
-			string text = (string)data.dump();
-			TextMessage *message = session->createTextMessage(text);
-			producer->send(message);
-
-			delete message;
-			delete destination;
-			delete session;
-			delete connection;
-			delete connectionFactory;
-			delete producer;
+		void publishNoTS(const string &channelName, json data, bool topic) {
+		    publishInternal(channelName, data, topic, false);
 		}
 
 	private:
+        void publishInternal(const string &channelName, json data, bool topic, bool changeTS) {
+            ActiveMQConnectionFactory *connectionFactory = new ActiveMQConnectionFactory(brokerURI);
+
+            Connection *connection = connectionFactory->createConnection();
+
+            connection->start();
+
+            Session *session = connection->createSession(Session::AUTO_ACKNOWLEDGE);
+            Destination *destination;
+            if (topic) {
+                 destination = session->createTopic(channelName);
+            }
+            else {
+                destination = session->createQueue(channelName);
+            }
+            MessageProducer *producer = producer = session->createProducer(destination);
+            producer->setDeliveryMode(DeliveryMode::PERSISTENT);
+
+            if (changeTS)
+                data["timestamp"] = Utils::getTimestamp();
+
+            string text = (string)data.dump();
+            TextMessage *message = session->createTextMessage(text);
+            producer->send(message);
+
+            delete message;
+            delete destination;
+            delete session;
+            delete connection;
+            delete connectionFactory;
+            delete producer;
+        }
 		/**
 		 * @brief if channel name does not exist in map, a new thread will be created alongside a MessageHandler instance
 		 * and the process will be checked for termination every 100 ms

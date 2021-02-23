@@ -326,20 +326,27 @@ static long getTimestamp() {
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
 }
 
+static long getBase() {
+    return TIME_BASE;
+}
+
 static long getElapsedTime(json j) {
-    auto ms_since_epoch = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
+    long ms_since_epoch = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
     return ms_since_epoch - j["timestamp"].get<long>();
 }
 
 static void logElapsedTime(json j, string msg, bool fromRemote) {
     static ofstream ofs("timings.csv");
 
-    double elapsedTime = Utils::getElapsedTime(j);    // round trip
+    long now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
+    long then = j["timestamp"].get<long>();
+    long elapsedTime = now - then;
+
     string loc = (fromRemote ? "xd" : "local");
 
-    ofs // << getTimestamp() << ","
-        << msg << ", "
-        << loc << ", "
+    ofs << now << "," << then << ","
+        << msg << ","
+        << loc << ","
         << elapsedTime
         << "\n"
         << std::flush;
@@ -371,8 +378,8 @@ static void logAvgTime(int count)
 
     for (itr = totalmap.begin(); itr != totalmap.end(); itr++) {
         for (ptr = itr->second.begin(); ptr != itr->second.end(); ptr++) {
-            ofs << ptr->first << ", "
-                << itr->first << ", "
+            ofs << ptr->first << ","
+                << itr->first << ","
                 <<  (ptr->second / count) / 2   // round trip
                 << endl;
         }

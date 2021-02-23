@@ -32,14 +32,14 @@
         {
             "component": "Sender",
             "label": "SENDER_CLE_LABEL",
-            "inFlows":  [ 2111, 2112, 2113, 2114, 2115, 2116, 2117, 2118, 2119, 2120 ],
+            "inFlows":  [ 2101, 2111, 2112, 2113, 2114, 2115, 2116, 2117, 2118, 2119, 2120 ],
             "outFlows": [ 1201, 1202, 1203, 1204, 1205, 1206, 1207, 1208, 1209, 1210 ]
         },
         {
             "component": "Echoer",
             "label": "ECHOER_CLE_LABEL",
             "inFlows":  [ 1201, 1202, 1203, 1204, 1205, 1206, 1207, 1208, 1209, 1210 ],
-            "outFlows": [ 2111, 2112, 2113, 2114, 2115, 2116, 2117, 2118, 2119, 2120 ]
+            "outFlows": [ 2101, 2111, 2112, 2113, 2114, 2115, 2116, 2117, 2118, 2119, 2120 ]
         }
     ],
     "flows": [
@@ -53,7 +53,8 @@
         {"flowId": 1208,"message":"requestRDRDetections",       "label":"ALLOW_ORANGE_GREEN"},
         {"flowId": 1209,"message":"recieveRDRDetections",       "label":"ALLOW_ORANGE_GREEN"},
         {"flowId": 1210,"message":"groundMovers",               "label":"ALLOW_ORANGE_GREEN"},
-
+        
+        {"flowId": 2101,"message":"component_heartbeats",         "label":"ALLOW_GREEN_ORANGE"},
         {"flowId": 2111,"message":"component_heartbeats_remote",  "label":"ALLOW_GREEN_ORANGE"},
         {"flowId": 2112,"message":"updateMissionPlan_remote",     "label":"ALLOW_GREEN_ORANGE"},
         {"flowId": 2113,"message":"pnt_remote",                   "label":"ALLOW_GREEN_ORANGE"},
@@ -210,6 +211,7 @@
                             [ "ALLOW_GREEN_ORANGE" ],
                             [ "ALLOW_GREEN_ORANGE" ],
                             [ "ALLOW_GREEN_ORANGE" ],
+                            [ "ALLOW_GREEN_ORANGE" ],
                             [ "ALLOW_GREEN_ORANGE" ], 
                                                     
                             [ "ALLOW_ORANGE_GREEN" ],
@@ -254,6 +256,7 @@
                             [ "ALLOW_ORANGE_GREEN" ],
                             [ "ALLOW_ORANGE_GREEN" ],
                             
+                            [ "ALLOW_GREEN_ORANGE" ],
                             [ "ALLOW_GREEN_ORANGE" ],
                             [ "ALLOW_GREEN_ORANGE" ],
                             [ "ALLOW_GREEN_ORANGE" ],
