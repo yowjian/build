@@ -45,7 +45,7 @@ Sender::Sender()
 {
     amq.listen("component_heartbeats", std::bind(&Sender::echo_component_heartbeats, this, _1), true);
     amq.listen("updateMissionPlan", std::bind(&Sender::echo_updateMissionPlan, this, _1), true);
-    amq.listen("recieveISRMDetections", std::bind(&Sender::echo_component_heartbeats, this, _1), true);
+    amq.listen("recieveISRMDetections", std::bind(&Sender::echo_recieveISRMDetections, this, _1), true);
     amq.listen("groundMovers", std::bind(&Sender::echo_groundMovers, this, _1), true);
     amq.listen("requestISRMDetections", std::bind(&Sender::echo_requestISRMDetections, this, _1), true);
     amq.listen("pnt", std::bind(&Sender::echo_pnt, this, _1), true);
@@ -56,7 +56,7 @@ Sender::Sender()
 
     amq.listen("component_heartbeats_remote", std::bind(&Sender::echo_component_heartbeats_remote, this, _1), true);
     amq.listen("updateMissionPlan_remote", std::bind(&Sender::echo_updateMissionPlan_remote, this, _1), true);
-    amq.listen("recieveISRMDetections_remote", std::bind(&Sender::echo_component_heartbeats_remote, this, _1), true);
+    amq.listen("recieveISRMDetections_remote", std::bind(&Sender::echo_recieveISRMDetections_remote, this, _1), true);
     amq.listen("groundMovers_remote", std::bind(&Sender::echo_groundMovers_remote, this, _1), true);
     amq.listen("requestISRMDetections_remote", std::bind(&Sender::echo_requestISRMDetections_remote, this, _1), true);
     amq.listen("pnt_remote", std::bind(&Sender::echo_pnt_remote, this, _1), true);
@@ -224,9 +224,10 @@ void readMessages()
   
 void Sender::run()
 {
-    HeartBeat isrm_HB("Sender");
-    isrm_HB.startup_Listener("Echoer");
+//    HeartBeat isrm_HB("Sender");
+//    isrm_HB.startup_Listener("Echoer");
 
+    amq.publish(MESSAGES[0], messageJsons[0], true);
     // wait for all pre-sync HB to be received.
     Utils::sleep_for(1000);
     synced = true;

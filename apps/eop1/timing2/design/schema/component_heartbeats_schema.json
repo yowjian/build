@@ -7,7 +7,8 @@
 	"required": [
 		"ss",
 		"st",
-		"timestamp"
+	        "timestamp1",
+		"timestamp2"
 	],
 	"properties": {
 		"ss": {
@@ -32,9 +33,18 @@
 			],
 			"pattern": "^.*$"
 		},
-		"timestamp": {
-			"$id": "#root/timestamp",
-			"title": "Timestamp",
+		"timestamp1": {
+			"$id": "#root/timestamp1",
+			"title": "Timestamp1",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
+		},
+		"timestamp2": {
+			"$id": "#root/timestamp2",
+			"title": "Timestamp2",
 			"type": "integer",
 			"examples": [
 					1613096150620111

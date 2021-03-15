@@ -11,11 +11,11 @@ function start(){
 
 	#echo "Not running ImageReceiver to avoid loops..."
 	#echo "Use mission-application.closure script and run correct components on each side"
-	echo "Running Echoer..."
-	cd $SCRIPT_DIR/../Echoer
-	./../lbuild/Echoer/Echoer& > /dev/null 2>&1
-	echo $! >> $SCRIPT_DIR/pid
-	echo "Success."
+#	echo "Running Echoer..."
+#	cd $SCRIPT_DIR/../Echoer
+#	./../lbuild/Echoer/Echoer& > /dev/null 2>&1
+#	echo $! >> $SCRIPT_DIR/pid
+#	echo "Success."
  }
 
 function stop(){

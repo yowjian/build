@@ -95,8 +95,8 @@ void Echoer::echo_recieveRDRDetections(const json &j)
 
 void Echoer::run()
 {
-    HeartBeat isrm_HB("Echoer");
-    isrm_HB.startup_Listener("Sender");
+//    HeartBeat isrm_HB("Echoer");
+//    isrm_HB.startup_Listener("Sender");
 
     json timeout;
     timeout["A_name"] = "timeout";

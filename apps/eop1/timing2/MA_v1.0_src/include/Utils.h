@@ -18,7 +18,7 @@ using namespace std;
 using namespace std::chrono;
 
 // start all components on the same day!
-static long TIME_NOWMS = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+static uint64_t TIME_NOWMS = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
 static long TIME_BASE = TIME_NOWMS - (TIME_NOWMS % (24 * 60 * 60 * 1000));
 
 static map<string, map<string, double>> totalmap;  // message to local /xd to total elaspsed time
@@ -322,8 +322,8 @@ static string getField(json js, string field)
     return val;
 }
 
-static long getTimestamp() {
-    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
+static uint64_t getTimestamp() {
+    return duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 static long getBase() {
@@ -338,9 +338,11 @@ static long getElapsedTime(json j) {
 static void logElapsedTime(json j, string msg, bool fromRemote) {
     static ofstream ofs("timings.csv");
 
-    long now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
-    long then = j["timestamp"].get<long>();
-    long elapsedTime = now - then;
+    uint64_t now = getTimestamp();
+    uint64_t then1 = j["timestamp1"].get<long>();
+    uint64_t then2 = j["timestamp2"].get<long>();
+    uint64_t then = (then1 << 31) | (then2);
+    long elapsedTime = (long) (now - then);
 
     string loc = (fromRemote ? "xd" : "local");
 
@@ -377,10 +379,12 @@ static void logAvgTime(int count)
     map<string, double>::iterator ptr;
 
     for (itr = totalmap.begin(); itr != totalmap.end(); itr++) {
+        string type = itr->first;
+        int div = (type.compare("xd") == 0) ? 2 : 1;
         for (ptr = itr->second.begin(); ptr != itr->second.end(); ptr++) {
             ofs << ptr->first << ","
                 << itr->first << ","
-                <<  (ptr->second / count) / 2   // round trip
+                <<  (ptr->second / count) / div   // round trip
                 << endl;
         }
     }

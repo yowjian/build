@@ -144,8 +144,11 @@ namespace amqm {
             MessageProducer *producer = producer = session->createProducer(destination);
             producer->setDeliveryMode(DeliveryMode::PERSISTENT);
 
-            if (changeTS)
-                data["timestamp"] = Utils::getTimestamp();
+            if (changeTS) {
+                uint64_t now = Utils::getTimestamp();
+                data["timestamp1"] = (now >> 31) & 0x7fffffff;  //bits 0-30 are lost, 31-62 are kept, bit 63 lost
+                data["timestamp2"] = now & 0x7fffffff; // keeps bits 0-30
+            }
 
             string text = (string)data.dump();
             TextMessage *message = session->createTextMessage(text);
