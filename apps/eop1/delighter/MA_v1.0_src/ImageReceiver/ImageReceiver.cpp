@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include <fstream>
+
 #include <amqm/AMQManager.h>
 #include <Utils.h>
 #include "ImageReceiver.h"
@@ -112,10 +113,22 @@ void ImageReceiver::run()
     HeartBeat isrm_HB("ImageReceiver");
     isrm_HB.startup_Listener("ImageDetector");
 
-    while (true) {
-        json msg = messageQueue.pop();
+    json timeout;
+    timeout["A_name"] = "timeout";
 
-        displayImage(msg);
+    while (true) {
+        json msg = messageQueue.pop(1, timeout);
+        string name = msg["A_name"].get<string>();
+
+        // imshow will not refresh the window after waitKey returns
+        // refresh it if no new message is received
+        if (!name.compare("timeout")) {
+            imshow(WINDOW_NAME, imageMat);
+            waitKey(10);
+        }
+        else {
+            displayImage(msg);
+        }
     }
 }
 

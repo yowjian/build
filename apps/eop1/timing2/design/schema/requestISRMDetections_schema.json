@@ -1,0 +1,43 @@
+{
+	"definitions": {},
+	"$schema": "http://json-schema.org/draft-07/schema#", 
+	"$id": "https://example.com/object1601910457.json", 
+	"title": "Root", 
+	"type": "object",
+	"required": [
+		"phase",
+                "timestamp1",
+                "timestamp2"
+	],
+	"properties": {
+		"phase": {
+			"$id": "#root/phase", 
+			"title": "Phase", 
+			"type": "string",
+			"maxLength": 32,
+			"default": "",
+			"examples": [
+				"find"
+			],
+			"pattern": "^.*$"
+		},
+		"timestamp1": {
+			"$id": "#root/timestamp1",
+			"title": "Timestamp1",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
+		},
+		"timestamp2": {
+			"$id": "#root/timestamp2",
+			"title": "Timestamp2",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
+		}
+	}
+}
