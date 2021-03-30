@@ -43,7 +43,7 @@ export CASE=`cd ../../ && basename \`pwd\``
 
 export MUXBASE=0
 if [[ $HWMODE == "ilip" ]] || [[ $HWMODE == "ILIP" ]]; then
-    if [[ "$CASE" == "case1" ]]; then
+    if [[ "$CASE" == "case1" ]] || [[ "$CASE" == "timing" ]]; then
        export MUXBASE=`echo '2^30' | bc`
     elif [[ "$CASE" == "case2" ]]; then
        export MUXBASE=`echo '2^31' | bc`

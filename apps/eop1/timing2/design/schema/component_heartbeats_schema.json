@@ -1,0 +1,55 @@
+{
+	"definitions": {},
+	"$schema": "http://json-schema.org/draft-07/schema#", 
+	"$id": "https://example.com/object1601910282.json", 
+	"title": "Root", 
+	"type": "object",
+	"required": [
+		"ss",
+		"st",
+	        "timestamp1",
+		"timestamp2"
+	],
+	"properties": {
+		"ss": {
+			"$id": "#root/ss", 
+			"title": "Ss", 
+			"type": "string",
+			"maxLength": 32,
+			"default": "",
+			"examples": [
+				"EOIR"
+			],
+			"pattern": "^.*$"
+		},
+		"st": {
+			"$id": "#root/st", 
+			"title": "St", 
+			"type": "string",
+			"maxLength": 64,
+			"default": "",
+			"examples": [
+				"ready"
+			],
+			"pattern": "^.*$"
+		},
+		"timestamp1": {
+			"$id": "#root/timestamp1",
+			"title": "Timestamp1",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
+		},
+		"timestamp2": {
+			"$id": "#root/timestamp2",
+			"title": "Timestamp2",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
+		}
+	}
+}

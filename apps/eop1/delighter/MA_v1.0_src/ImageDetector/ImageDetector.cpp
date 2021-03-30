@@ -19,7 +19,7 @@ namespace fs = boost::filesystem;
 
 #define OVERLAY(text,pos)  cv::putText(imageMat,text,pos,ENCLAVE_FONT,FONT_SCALE,ENCLAVE_COLOR,FONT_THICKNESS)
 
-static const string WINDOW_NAME = "CLOSURE Image Receiver";
+static const string WINDOW_NAME = "CLOSURE Image Detector";
 static const cv::Scalar ENCLAVE_COLOR = CV_RGB(0, 255, 0);
 static const cv::HersheyFonts  ENCLAVE_FONT = cv::FONT_HERSHEY_DUPLEX;
 static const cv::Point NAME_POINT(10, 400);
