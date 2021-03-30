@@ -57,8 +57,8 @@ handle_opts() {
 
 start() {
     if [[ "x"$PINSTALL == "x" ]]; then
-	echo "PINSTALL not set."
-	exit 1
+	PWD=`pwd`
+	export PINSTALL="$PWD/pinstall"
     fi
     if [[ "x"`pgrep egress_xdcc` != "x" ]] || [[ "x"`pgrep ingress_xdcc` != "x" ]]; then
 	echo "XDCC appears to be running"

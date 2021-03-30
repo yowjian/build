@@ -22,16 +22,10 @@ deps:
 	mkdir -p $(DEPENDENCIES)/linux/sources
 	cd $(DEPENDENCIES)/linux/deb && apt download $(DEBPKGS)
 
-#hal:
-#	cp ./xdcc/egress_xdcc/partitioned/multithreaded/xdconf.ini deploy/egress_xdconf.ini
-#	cp ./xdcc/ingress_xdcc/partitioned/multithreaded/xdconf.ini deploy/ingress_xdconf.ini
-#	$(PYTHON) $(XDCONFMERGER) -f "deploy/egress_xdconf.ini deploy/ingress_xdconf.ini"
-#	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x xdconf.ini -d /opt/closure/etc/devices_socat.json -p $(PROG)_hal
-
 pkg:
 	$(eval CASE = $(shell basename `pwd`))
 	mkdir -p $(DEPENDENCIES)
-	cd ../ && ./package.sh ${CASE} #&& cd ${CASE}/deploy  
+	cd ../ && ./package.sh ${CASE}
 	rm -f *.tar
 	tar cf $(PROG)-orange-enclave-gw-G.tar $(DEPENDENCIES) -C ../ ${CASE}.tgz
 	tar cf $(PROG)-green-enclave-gw-O.tar $(DEPENDENCIES)  -C ../ ${CASE}.tgz
@@ -41,7 +35,6 @@ emu:
 	rm -rf $(CLOSURE_DIR)/src/emu/.apps
 	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
 	cp *.tar $(CLOSURE_DIR)/src/emu/.apps/
-	#cp deploy/*.cfg $(CLOSURE_DIR)/src/emu/config/${PROG}
 	rm -f $(CLOSURE_DIR)/src/emu/config/${PROG}/*.cfg
 	cp deploy/hal_${CASE}_orange.cfg $(CLOSURE_DIR)/src/emu/config/${PROG}/${PROG}_hal_orange.cfg
 	cp deploy/hal_${CASE}_green.cfg $(CLOSURE_DIR)/src/emu/config/${PROG}/${PROG}_hal_green.cfg
