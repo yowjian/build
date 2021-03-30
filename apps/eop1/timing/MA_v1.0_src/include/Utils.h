@@ -16,6 +16,11 @@ using namespace uas;
 using json = nlohmann::json;
 using namespace std;
 using namespace std::chrono;
+
+// start all components on the same day!
+static long TIME_NOWMS = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+static long TIME_BASE = TIME_NOWMS - (TIME_NOWMS % (24 * 60 * 60 * 1000));
+
 /**
 * @brief – Class responsible for providing useful functions that can be used by all systems.
 *
@@ -27,6 +32,7 @@ using namespace std::chrono;
 * putting a thread to sleep, various unit conversions and other useful mathematical calculations, handling mission plan, 
 * and any other logic that can be useful for more than one system. All functions are provided statically.
 */
+
 class Utils {
 public :
 	/**
@@ -297,7 +303,6 @@ static json loadConfig(json configPlan) {
 	return j;
 }
 
-static const long TIME_BASE = 1613412080768;
 
 static long getTimestamp() {
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() - TIME_BASE;
@@ -323,7 +328,7 @@ static void logElapsedTime(json j, string component, string msg) {
         streamMap[component] = of;
     }
 
-    *of << component << " received, " << msg << ", in, " << Utils::getElapsedTime(j) << "\n" << std::flush;
+    *of << getTimestamp() << "," << component << ",received," << msg << ",in," << Utils::getElapsedTime(j) << "\n" << std::flush;
 }
 };
 #endif

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 COLOR="NONE"
+RCOLOR="NONE"
 CASE="NONE"
 ACTION="restart"
 
@@ -37,9 +38,13 @@ handle_opts() {
     esac
 
     case $COLOR in
-	orange)  ;;
-	green)   ;;
-	*)        usage_exit "Unsupported enclave color $COLOR" ;;
+	orange)  
+	    RCOLOR="green"
+	    ;;
+	green)
+	    RCOLOR="orange"
+	    ;;
+	*)  usage_exit "Unsupported enclave color $COLOR" ;;
     esac
     if [[ $CASE == "NONE" ]]; then
 	usage_exit "-d not specified"
@@ -69,8 +74,12 @@ start() {
     echo $LD_LIBRARY_PATH
     rm -f /tmp/*xdcc*.out
     rm -f /tmp/*.${COLOR}
+    touch /tmp/transcript.${COLOR}
     pushd ${PINSTALL}/../gaps.ma.dependencies/deps/activemq/activemq/bin
-    ./activemq consumer --messageCount 1000000 --destination topic://* &> /tmp/transcript.${COLOR} &
+    ./activemq consumer --messageCount 1000000 --destination topic://* &>> /tmp/transcript.${COLOR} &
+    popd
+    pushd transcriptview
+    nohup tail -f /tmp/transcript.${COLOR} | python3 pith.py -s "dummyOG1,dummyOG2,dummyOG3,component_heartbeats" -l ${COLOR} -r ${RCOLOR} -c ${CASE} -b 50 -m gui -f ../${CASE}/design/design_spec.json -p 24680 &> /tmp/transcriptview.log &
     popd
     pushd ${CASE}/xdcc/egress_xdcc/partitioned/multithreaded/${COLOR}
     ./egress_xdcc &> /tmp/egress_xdcc.out &
@@ -84,6 +93,9 @@ stop() {
     pkill -f "egress_xdcc"
     pkill -f "ingress_xdcc"
     pkill -f "activemq.jar consumer"
+    pkill -f "python3 pith"
+    pkill -f "helper.py"
+    pkill -f "tail"
 }
 
 restart() {
