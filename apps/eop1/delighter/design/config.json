@@ -1,0 +1,7 @@
+{
+    "egressDir": "../xdcc/egress_xdcc/xdcc_autogen",
+    "ingressDir": "../xdcc/ingress_xdcc/xdcc_autogen",
+    "echoDir": "../xdcc/xdcc_echo",
+    "enclave": "orange",
+    "xdccFlow": "design_spec.json"
+}

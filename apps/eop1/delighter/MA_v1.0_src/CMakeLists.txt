@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.5)
+project(MA_v0.7)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(ACTIVEMQ_INCLUDES )
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Add libraries for linking activeMQ
+include_directories(BEFORE  pinstall/include/activemq-cpp-3.9.5 /usr/include/apr-1.0/)
+
+link_directories(BEFORE install/lib64 pinstall/lib gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib)
+
+add_subdirectory(ImageDetector)
+add_subdirectory(ImageReceiver)

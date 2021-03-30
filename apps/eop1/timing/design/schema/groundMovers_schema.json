@@ -1,0 +1,73 @@
+{
+	"definitions": {},
+	"$schema": "http://json-schema.org/draft-07/schema#", 
+	"$id": "https://example.com/object1609974423.json", 
+	"title": "Root", 
+	"type": "object",
+	"required": [
+		"bearing",
+		"lat",
+		"lon",
+		"speed",
+		"vehicleID",
+		"timestamp"
+	],
+	"properties": {
+		"bearing": {
+			"$id": "#root/bearing", 
+			"title": "Bearing", 
+			"type": "number",
+			"examples": [
+				50.26230304960208
+			],
+			"default": 0.0
+		},
+		"lat": {
+			"$id": "#root/lat", 
+			"title": "Lat", 
+			"type": "number",
+			"examples": [
+				32.715736
+			],
+			"default": 0.0
+		},
+		"lon": {
+			"$id": "#root/lon", 
+			"title": "Lon", 
+			"type": "number",
+			"examples": [
+				-117.161087
+			],
+			"default": 0.0
+		},
+		"speed": {
+			"$id": "#root/speed", 
+			"title": "Speed", 
+			"type": "number",
+			"examples": [
+				112.60642434450348
+			],
+			"default": 0.0
+		},
+		"vehicleID": {
+			"$id": "#root/vehicleID", 
+			"title": "Vehicleid", 
+			"type": "string",
+			"maxLength": 15,
+			"default": "",
+			"examples": [
+				"293127"
+			],
+			"pattern": "^.*$"
+		},
+		"timestamp": {
+			"$id": "#root/timestamp",
+			"title": "Timestamp",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
+		}
+	}
+}

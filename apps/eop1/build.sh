@@ -67,8 +67,8 @@ clean () {
 
 build () {
     if [[ x${PINSTALL} == x ]]; then
-	echo "Error: PINSTALL environment variable not set"
-	exit
+	PWD=`pwd`
+	export PINSTALL="$PWD/pinstall"
     fi
     echo "*** Begin Build ($COLOR) ***"
     echo "Using PINSTALL=${PINSTALL}"
@@ -86,7 +86,7 @@ build () {
 
 
 handle_opts "$@"
-
+export CASE=$DIR
 if [[ "$CLEAN" == "yes" ]]; then
     clean
 fi

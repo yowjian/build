@@ -10,3 +10,9 @@ hal_*.cfg
 */eop_ma_dependencies.tgz
 */*/*/walking.avi
 */*/*/yolov3.weights
+*.tar
+*/.dependencies/
+*/design/schema-new/
+*.smt2
+*/model.json
+*/rules.json

@@ -1,0 +1,54 @@
+#!/bin/sh
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+function start(){	
+	echo "Running ImageDetector..."
+	cd $SCRIPT_DIR/../ImageDetector
+	./../lbuild/ImageDetector/ImageDetector& > /dev/null 2>&1
+	echo $! >> $SCRIPT_DIR/pid
+	echo "Success."
+
+	#echo "Not running ImageReceiver to avoid loops..."
+	#echo "Use mission-application.closure script and run correct components on each side"
+	echo "Running ImageReceiver..."
+	cd $SCRIPT_DIR/../ImageReceiver
+	./../lbuild/ImageReceiver/ImageReceiver& > /dev/null 2>&1
+	echo $! >> $SCRIPT_DIR/pid
+	echo "Success."
+ }
+
+function stop(){
+        set +e
+	if [ -e $SCRIPT_DIR/pid ]; then
+		echo "Killing running processes..."
+	        while read p; do
+                output=$(ps -p "$p")
+                if [ "$?" -eq 0 ]; then
+                        kill -9 "$p"
+                        wait $! 2>/dev/null
+                fi
+        	done < $SCRIPT_DIR/pid
+        	echo "Success."
+        	echo "Removing old pid file..."
+        	rm $SCRIPT_DIR/pid
+        	echo "Success."
+	fi
+	set -e
+}
+
+if [ -z $1 ]; then
+         echo "ERROR: Pass start/stop to start or stop Mission Application"
+
+elif [ $1 = "start" ]; then
+        if [ -e $SCRIPT_DIR/pid ]; then
+                stop
+        fi
+        start
+
+elif [ $1 = "stop" ]; then
+        stop
+else
+        echo "ERROR: Pass start/stop to start or stop Mission Application"
+fi
+

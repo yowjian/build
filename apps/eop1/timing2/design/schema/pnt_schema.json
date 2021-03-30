@@ -1,0 +1,71 @@
+{
+	"definitions": {},
+	"$schema": "http://json-schema.org/draft-07/schema#", 
+	"$id": "https://example.com/object1608294277.json", 
+	"title": "Root", 
+	"type": "object",
+	"required": [
+		"alt",
+		"lat",
+		"lon",
+		"time",
+                "timestamp1",
+                "timestamp2"
+	],
+	"properties": {
+		"alt": {
+			"$id": "#root/alt", 
+			"title": "Alt", 
+			"type": "number",
+			"examples": [
+				0.1
+			],
+			"default": 0.0
+		},
+		"lat": {
+			"$id": "#root/lat", 
+			"title": "Lat", 
+			"type": "number",
+			"examples": [
+				29.50464225007952
+			],
+			"default": 0.0
+		},
+		"lon": {
+			"$id": "#root/lon", 
+			"title": "Lon", 
+			"type": "number",
+			"examples": [
+				-116.00761807405785
+			],
+			"default": 0.0
+		},
+		"time": {
+			"$id": "#root/time", 
+			"title": "Time", 
+			"type": "integer",
+			"examples": [
+				1608250052
+			],
+			"default": 0
+		},
+		"timestamp1": {
+			"$id": "#root/timestamp1",
+			"title": "Timestamp1",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
+		},
+		"timestamp2": {
+			"$id": "#root/timestamp2",
+			"title": "Timestamp2",
+			"type": "integer",
+			"examples": [
+					1613096150620111
+			],                                  
+			"default": 0
+		}
+	}
+}

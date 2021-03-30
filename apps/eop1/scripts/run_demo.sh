@@ -7,7 +7,7 @@ usage_exit() {
   echo "Usage: $0 [ -h ] [ -c COLR] [ -d CASE ]"
   echo "-h          Help"
   echo "-c COLR     Enclave color (e.g, orange, green)"
-  echo "-d CASE     case1, case2, or case3"
+  echo "-d CASE     case1, case2, case3, delighter"
   exit 1
 }
 
@@ -36,7 +36,7 @@ handle_opts "$@"
 case $COLR in
     orange)
 	case $CASE in
-	    case1)
+	    timing|case1)
 		COMPONENTS="MPU MPX ISRM RDR"
 		;;
 	    case2)
@@ -45,14 +45,17 @@ case $COLR in
 	    case3)
 		COMPONENTS="MPU MPX ISRM"
 		;;
+	    delighter)
+		COMPONENTS="ImageReceiver"
+		;;
 	    *)
-		echo "Arg2 must be case1,case2,or case3"
+		echo "Arg2 must be case1,case2, case3, or delighter"
 		exit 1
 	esac
 	;;
     green)
 	case $CASE in
-	    case1)
+	    timing|case1)
 		COMPONENTS="EOIR External"
 		;;
 	    case2)
@@ -61,8 +64,11 @@ case $COLR in
 	    case3)
 		COMPONENTS="ISRMshadow EOIR RDR External"
 		;;
+	    delighter)
+		COMPONENTS="ImageDetector"
+		;;
 	    *)
-		echo "Arg2 must be case1,case2,or case3"
+		echo "Arg2 must be case1,case2, case3, detector"
 		exit 1
 	esac
 	;;

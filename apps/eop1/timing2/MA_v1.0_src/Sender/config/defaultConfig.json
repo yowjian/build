@@ -1,0 +1,5 @@
+{
+    "interval": 300,
+    "instancesPerMessage": 10,
+    "messageDir": "../../../captured-messages"
+}

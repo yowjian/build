@@ -24,11 +24,13 @@ handle_opts() {
     if [[ "x$CASE" == "x" ]]; then
 	usage_exit
     fi
+    PWD=`pwd`
+    PINSTALL="${PWD}/../$CASE/MA_v1.0_src/pinstall"
 }
 handle_opts "$@"
 
 pushd ../$CASE/MA_v1.0_src/scripts
-bash -f mission-application.closure stop
+PINSTALL=$PINSTALL bash -f mission-application.closure stop
 pkill -f MPU 
 pkill -f MPX
 pkill -f ISRM 
@@ -36,6 +38,11 @@ pkill -f ISRMshadow
 pkill -f EOIR 
 pkill -f RDR 
 pkill -f External
+pkill -f ImageDetector
+pkill -f ImageReceiver
+pkill -f "helper.py"
+pkill -f "python3 pith.py"
+pkill -f tail
 popd
 
 pushd ..

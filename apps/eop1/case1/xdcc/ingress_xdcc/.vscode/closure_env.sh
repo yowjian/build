@@ -39,7 +39,9 @@ export IPCMODE=multithreaded
 export ENCLAVES="orange green"
 export EXT=c
 
-export CASE=`cd ../../ && basename \`pwd\``
+if [[ x$CASE == x ]]; then
+    export CASE=`cd ../../ && basename \`pwd\``
+fi    
 
 export MUXBASE=0
 if [[ $HWMODE == "ilip" ]] || [[ $HWMODE == "ILIP" ]]; then

@@ -1,0 +1,5 @@
+*.ini
+*xdcc_autogen*
+*MA_1.0.tgz
+xdcc/xdcc_echo
+*topology.json
