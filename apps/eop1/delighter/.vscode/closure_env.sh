@@ -42,5 +42,5 @@ export ENCLAVES="orange green"
 export EXT=c
 export USER=`whoami`
 export CASE=$(eval basename `pwd`)
-export HWMODE=emu
+export HWMODE=ilip
 export PINSTALL=/home/${USER}/gaps/build/apps/eop1/case1/MA_v1.0_src/pinstall
