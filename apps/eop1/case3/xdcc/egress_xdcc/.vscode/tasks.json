@@ -12,7 +12,7 @@
       {
         "label": "0 CLEAN SOURCE",
         "type": "shell",
-        "command": "rm -rf annotated partitioned divvied refactored *working *.json;",
+        "command": "rm -rf annotated partitioned divvied refactored jsons *working *.json;",
         "args": [],
         "group": "build",
         "problemMatcher": []

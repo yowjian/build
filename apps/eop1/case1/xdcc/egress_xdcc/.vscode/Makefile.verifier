@@ -43,6 +43,9 @@ $(REFACTORED)/preproc.done: $(REFACTORED)/cleancopy.done
 	$(foreach p,$(PREPROCH), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
 	$(foreach p,$(PREPROCC), mv $(basename $p).mod.c $p;)
 	$(foreach p,$(PREPROCH), mv $(basename $p).mod.h $p;)
+	$(PYTHON) $(JOINCLEMAPS) $(REFACTORED)/$(PROG).all.clemap.json $(PREPROCC) $(PREPROCH)
+	mkdir -p jsons/refactored
+	mv $(REFACTORED)/$(PROG).all.clemap.json jsons/refactored
 	touch $(REFACTORED)/preproc.done
 
 $(REFACTORED)/cleancopy.done:

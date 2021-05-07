@@ -136,6 +136,8 @@ $(EDIR)/rpc.done: $(EDIR)/prerpc.done
 	$(foreach p,$(ALL_RPCH), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
 	$(foreach p,$(ALL_RPCC), mv $(basename $p).mod.c $p;)
 	$(foreach p,$(ALL_RPCH), mv $(basename $p).mod.h $p;) 
+	$(foreach enclave,$(ENCLAVES), mkdir -p jsons/$(enclave);)
+	$(foreach enclave,$(ENCLAVES), bash -f .vscode/join.sh $(ODIR)/$(enclave) jsons/$(enclave)/$(PROG).all.clemap.json;)
 	touch $(EDIR)/rpc.done
 
 # after generating RPC, run preprocessor on rpc files and rename; delete all LLs, but keep JSON
