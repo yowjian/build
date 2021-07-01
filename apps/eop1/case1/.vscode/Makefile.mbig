@@ -20,6 +20,7 @@ MA_SRC=./MA_v1.0_src
 deps:
 	mkdir -p $(DEPENDENCIES)/linux/deb
 	mkdir -p $(DEPENDENCIES)/linux/sources
+	sudo apt update
 	cd $(DEPENDENCIES)/linux/deb && apt download $(DEBPKGS)
 
 pkg:
