@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Copy test",
+            "type": "shell",
+            "command": "[[ ! -d annotated ]] && mkdir annotated; cp .tests/${input:test-name}/${input:test-name}.c annotated/",
+            "isBackground": true
+        }
+    ],
+    "inputs": [
+        {
+            "id": "test-name",
+            "description": "Name of the test to copy",
+            "type": "pickString",
+            "options": ["missing-taints-def"]
+        }
+    ]
+}
