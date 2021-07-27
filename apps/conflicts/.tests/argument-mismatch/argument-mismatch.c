@@ -6,6 +6,8 @@
     {"remotelevel":"purple", \
      "direction": "egress", \
      "guarddirective": { "operation": "allow" }, \
+     "argtaints": [["ORANGE"]], \
+     "codtaints": ["ORANGE"], \
      "rettaints": ["ORANGE", "TAG_RESPONSE_FOO"] \
     } \
  ] }

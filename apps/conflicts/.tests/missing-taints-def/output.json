@@ -5,7 +5,7 @@
             "name": "Invalid JSON",
             "description": "Label 'ORANGE' has incorrect JSON. rettaints is provided but argtaints and codtaints are missing.",
             "sources": [{
-                "file": "annotated/invalid-json.c",
+                "file": "annotated/missing-taints-def.c",
                 "range": {
                     "start": {
                         "line": 4,
