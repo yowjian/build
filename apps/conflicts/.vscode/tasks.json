@@ -37,6 +37,7 @@
                 "multiple-taints-3",
                 "taint-conflict",
                 "warning-direct-assignment",
+                "unannotated-cut"
             ]
         }
     ]
