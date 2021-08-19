@@ -19,8 +19,8 @@ int foo() {
 
 #pragma cle begin ORANGE
     static int x = 0;
-#pragma cle begin ORANGE
-    return x; // TODO: write schema for warning
+#pragma cle end ORANGE
+    return x; // TODO: write typescript def for warnings
 }
 
 int bar() {

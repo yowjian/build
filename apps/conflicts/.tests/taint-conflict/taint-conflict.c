@@ -34,7 +34,7 @@ int foo() {
     static int y = 1;
 #pragma cle end ORANGE
     y++;
-    return x + y;
+    return y;
 }
 
 #pragma cle begin XD_ORANGE

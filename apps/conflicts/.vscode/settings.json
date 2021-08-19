@@ -1,3 +1,5 @@
 {
-    "vscle.conflictAnalyzerPath": "~/gaps/cvi/cle-extension/conflict-analyzer/conflict_analyzer.py"
+    "vscle.conflictAnalyzerPath": "~/gaps/cvi/cle-extension/conflict-analyzer/conflict_analyzer.py",
+    "python.linting.mypyEnabled": true,
+    "python.linting.enabled": true
 }
