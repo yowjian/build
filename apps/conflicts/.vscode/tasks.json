@@ -1,0 +1,44 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Copy test",
+            "type": "shell",
+            "command": "[[ ! -d annotated ]] && mkdir annotated; cp .tests/${input:test-name}/${input:test-name}.c annotated/",
+            "isBackground": true,
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Remove test",
+            "type": "shell",
+            "command": "rm -rf annotated",
+            "isBackground": true,
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "test-name",
+            "description": "Name of the test to copy",
+            "type": "pickString",
+            "options": [
+                "argument-mismatch",
+                "missing-taints-def",
+                "global-variable-level-mismatch",
+                "label-duplicate",
+                "missing-cdf",
+                "multiple-levels-fun",
+                "multiple-taints-1",
+                "multiple-taints-2",
+                "multiple-taints-3",
+                "taint-conflict",
+                "warning-direct-assignment",
+                "unannotated-cut"
+            ]
+        }
+    ]
+}
