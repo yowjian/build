@@ -26,8 +26,8 @@ export LIBPDG=${CLOSURE_LIBS}/libpdg.so
 export LIBGEDL=${CLOSURE_LIBS}/libgedl.so
 
 export IDLGENERATOR=${CLOSURE_SCRIPTS}/IDLGenerator.py
-#export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator.py
-export RPCGENERATOR=${CLOSURE_SRC}/capo/gedl/RPCGenerator_rk.py
+export RPCGENERATOR=${CLOSURE_SCRIPTS}/RPCGenerator_rk.py
+#export RPCGENERATOR=${CLOSURE_SRC}/capo/gedl/RPCGenerator_rk.py
 export AUTOGEN=${CLOSURE_SCRIPTS}/autogen.py
 export HALGEN=${CLOSURE_SCRIPTS}/hal_autoconfig.py
 

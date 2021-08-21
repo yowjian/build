@@ -1,0 +1,4 @@
+cmake
+g++
+sqlite3 
+libsqlite3-dev
