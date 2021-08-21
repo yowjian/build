@@ -1,6 +1,5 @@
 numpy
 dlib
-encodings
 face_recognition
 opencv-contrib-python
 opencv-python
