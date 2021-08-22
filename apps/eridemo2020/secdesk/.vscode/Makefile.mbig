@@ -17,7 +17,11 @@ deps:
 	mkdir -p .dependencies/python3
 	mkdir -p .dependencies/linux
 	python3.7 -m pip download -d .dependencies/python3 $(PYPKGS)
+	rm -f .dependencies/python3/dlib*
+	wget https://github.com/gaps-closure/build/releases/download/v1.1/dlib-19.22.0-cp37-cp37m-linux_x86_64.whl
+	mv dlib-19.22.0-cp37-cp37m-linux_x86_64.whl .dependencies/python3
 	cd .dependencies/linux && apt download $(DEBPKGS)
+	
 
 pkg:
 	mkdir -p .dependencies
