@@ -10,7 +10,7 @@ FACILINCL=-I facilio/include
 FACILLIB=facilio/facilio.a
 
 CFLAGS += -g -I/usr/include/python3.8
-PYFLAGS = `python3-config --ldflags --libs` -lpython3.8
+PYFLAGS = `python3-config --ldflags --libs` -lpython3.7
 
 ifdef FACE
 CFLAGS += -DINC_FACE_RECOGNITION=1

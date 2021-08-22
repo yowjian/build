@@ -1,4 +1,4 @@
-MYLIB=-lsqlite3 -lpthread -lssl -lm ../autogen/libcodecs.a -lzmq
+MYLIB=-lsqlite3 -lpthread -lssl -lm ../autogen/libcodecs.a -lzmq -L$(CLOSURE_LIBS) -lxdcomms
 
 APPSRC=$(wildcard *.c)
 APPOBJ=$(patsubst %.c, %.o, $(APPSRC)) 
@@ -11,7 +11,7 @@ FACILLL=$(patsubst %c, %.ll, $(FACILSRC))
 FACILINCL=-I facilio/include
 FACILLIB=facilio/facilio.a
 
-CFLAGS += -g -I/usr/include/python3.7
+CFLAGS += -g -I/usr/include/python3.7 -D__LEGACY_XDCOMMS__=1 -I$(CLOSURE_INCLUDES)
 PYFLAGS = `python3-config --ldflags --libs` -lpython3.7m
 
 ifdef FACE

@@ -16,18 +16,17 @@ PYPKGS=numpy face_recognition scikit-learn imutils opencv-contrib-python opencv-
 deps:
 	mkdir -p .dependencies/python3
 	mkdir -p .dependencies/linux
-	pip3 download -d .dependencies/python3 $(PYPKGS)
-	cp .solution/dependencies/python3/* .dependencies/python3
+	python3.7 -m pip download -d .dependencies/python3 $(PYPKGS)
 	cd .dependencies/linux && apt download $(DEBPKGS)
 
 pkg:
 	mkdir -p .dependencies
-	tar cf $(PROG)-orange-enclave-gw-P.tar .dependencies -C partitioned/$(IPCMODE)/orange/ secdesk www db recognize_local.py
-	tar cf $(PROG)-purple-enclave-gw-O.tar .dependencies -C partitioned/$(IPCMODE)/purple/ secdesk recognize_local.py encodings.pickle.id
+	tar cf $(PROG)-orange-enclave-gw-P.tar .dependencies -C partitioned/$(IPCMODE)/orange/ secdesk www db recognize_local.py -C /opt/closure/lib libxdcomms.so
+	tar cf $(PROG)-purple-enclave-gw-O.tar .dependencies -C partitioned/$(IPCMODE)/purple/ secdesk recognize_local.py encodings.pickle.id -C /opt/closure/lib libxdcomms.so
 	rm -rf $(CLOSURE_DIR)/src/emu/.apps
 	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
 	mv *.tar $(CLOSURE_DIR)/src/emu/.apps/
-	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x $(ODIR)/xdconf.ini -d $(CFG_DIR)/devices.json -p $(PROG)_hal
+	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x $(ODIR)/xdconf.ini -d /opt/closure/etc/devices_socat.json -p $(PROG)_hal
 	cp .vscode/debs.list $(CFG_DIR)/
 	cp .vscode/pips.list $(CFG_DIR)/
 

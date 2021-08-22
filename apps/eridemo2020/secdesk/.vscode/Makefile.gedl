@@ -40,8 +40,8 @@ INURI="ipc:///tmp/${PROG}sub"
 OUTURI="ipc:///tmp/${PROG}pub"
 
 ifdef FACE
-CFLAGS += -DINC_FACE_RECOGNITION=1
-CLANG_FLAGS += -DINC_FACE_RECOGNITION=1
+CFLAGS += -DINC_FACE_RECOGNITION=1 -D__LEGACY_XDCOMMS__=1
+CLANG_FLAGS += -DINC_FACE_RECOGNITION=1 -D__LEGACY_XDCOMMS__=1
 endif
 
 ############################################################################

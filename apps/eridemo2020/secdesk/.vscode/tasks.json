@@ -91,7 +91,7 @@
       {
         "label": "9e BUILD",
         "type": "shell",
-        "command": "make -C partitioned/multithreaded/orange -f ../../../.vscode/Makefile.secdesk FACE=1; make -C partitioned/multithreaded/purple -f ../../../.vscode/Makefile.secdesk FACE=1",
+        "command": "source .vscode/closure_env.sh && make -C partitioned/multithreaded/orange -f ../../../.vscode/Makefile.secdesk FACE=1; make -C partitioned/multithreaded/purple -f ../../../.vscode/Makefile.secdesk FACE=1",
         "args": [],
         "group": "build",
         "problemMatcher": []
