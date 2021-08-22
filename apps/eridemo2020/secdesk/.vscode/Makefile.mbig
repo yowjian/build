@@ -28,7 +28,6 @@ pkg:
 	mv *.tar $(CLOSURE_DIR)/src/emu/.apps/
 	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x $(ODIR)/xdconf.ini -d /opt/closure/etc/devices_socat.json -p $(PROG)_hal
 	cp .vscode/debs.list $(CFG_DIR)/
-	cp .vscode/pips.list $(CFG_DIR)/
 
 cleandeps:
 	rm -rf .dependencies
