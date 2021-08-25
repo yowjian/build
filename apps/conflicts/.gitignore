@@ -1,3 +1,5 @@
 test-runs/
 closure/
 .cle-work/
+__pycache__/
+.mypy_cache/
