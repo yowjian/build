@@ -173,7 +173,7 @@ def build(params: Params) -> Tuple[BuildOutput, BuildTimings]:
     if params.findmus:
         print("Starting minizinc with findmus")
         start_time = datetime.now()
-        args = ['minizinc', '--solver', 'findmus', '--subsolver', 'Gecode', '--output-human', '--depth', '3']
+        args = ['minizinc', '--solver', 'findmus', '--subsolver', 'Gecode', '--output-json', '--depth', '3']
         args.extend([ str(params.minizinc_model_dir / 'conflict_analyzer_constraints.mzn'), str(params.minizinc_model_dir / 'conflict_variable_declerations.mzn')])
         args.extend(['pdg_instance.mzn', 'cle_instance.mzn', 'enclave_instance.mzn'])
         out = subprocess.run(args, cwd=params.temp_dir, capture_output=True)

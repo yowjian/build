@@ -2,12 +2,13 @@
 
 ## Directory structure
 
-The directory follows a similar structure as examples1-3. The `.tests` directory
+The directory follows a similar structure as examples1-3. The `tests` directory
 contains all of the different test directories for the conflict analyzer.
 
 Each test directory contains three files:
 1. A `.c` source file with some errors
 2. A `output.json` which is the expected json output from the conflict analyzer
+3. A `.py` which tests the expected output of building 
 3. A `README.md` file which explains in "plain english" how the error or warning arises
     and suggested refactors
 
@@ -29,7 +30,7 @@ data:
 - [x] start and end date-time of test
 - [x] time taken by each component
 - [x] CLE preprocessing
-- [ ] collation to single file 
+- [x] collation to single file 
 - [x] compilation to IR and linking
 - [x] PDG opt pass
 - [x] rest of input generation (Python)
