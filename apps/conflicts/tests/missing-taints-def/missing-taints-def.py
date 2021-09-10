@@ -16,4 +16,4 @@ def build(temp_dir: Path, src_files: List[Path]) -> Tuple[build_.BuildOutput, bu
 
 def test(out: build_.BuildOutput) -> bool:
     stdout, stderr, retcode = out['clejson2zinc']
-    return retcode != 0
+    return b'function taints' in stdout

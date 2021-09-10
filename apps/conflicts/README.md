@@ -16,7 +16,7 @@ To copy an example, use the vscode tasks.
 
 ## Todos
 
-- [ ] Description of test and expected result
+- [x] Description of test and expected result
 e.g., known conflict calc_ewma multiply tainted should result in unsatisfiable and diagnostic pointing to issue where get_ewma calls calc_ewma 
 - [x] Observed result
 e.g., success, failed to catch known conflict X, partial success but CSV missing source level diagnostic info, PDG pass died

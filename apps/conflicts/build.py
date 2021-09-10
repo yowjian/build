@@ -34,7 +34,7 @@ class Params:
 preprocessor_script = Path('.').resolve() / 'closure' / 'capo' / 'conflict_analyzer' / 'scripts' / 'qd_cle_preprocessor.py'
 collator_script = Path('/opt/closure/scripts/join_clemaps.py') 
 clejson2zinc_script = Path('.').resolve() / 'closure' / 'capo' / 'conflict_analyzer' / 'scripts' / 'CLEJson2zinc.py'
-minizinc_model_dir = Path('.').resolve() / 'closure' / 'capo' / 'conflict_analyzer' / 'constraints'
+minizinc_model_dir = Path('.').resolve() / 'closure' / 'capo' / 'conflict_analyzer' / 'constraints' # / 'experimental-sep9'
 pdg_so = Path('.').resolve() / 'closure' / 'program-dependence-graph' / 'build' / 'libpdg.so'
 
 def build(params: Params) -> Tuple[BuildOutput, BuildTimings]:
@@ -160,7 +160,7 @@ def build(params: Params) -> Tuple[BuildOutput, BuildTimings]:
         print("Starting minizinc")
         start_time = datetime.now()
         args = ['minizinc', '--solver', 'Gecode']
-        args.extend([ str(params.minizinc_model_dir / 'conflict_analyzer_constraints.mzn'), str(params.minizinc_model_dir / 'conflict_variable_declerations.mzn')])
+        args.extend([ str(params.minizinc_model_dir / 'conflict_analyzer_constraints.mzn'), str(params.minizinc_model_dir / 'conflict_variable_declarations.mzn')])
         args.extend(['pdg_instance.mzn', 'cle_instance.mzn', 'enclave_instance.mzn'])
         print(args)
         out = subprocess.run(args, cwd=params.temp_dir, capture_output=True)
@@ -174,7 +174,7 @@ def build(params: Params) -> Tuple[BuildOutput, BuildTimings]:
         print("Starting minizinc with findmus")
         start_time = datetime.now()
         args = ['minizinc', '--solver', 'findmus', '--subsolver', 'Gecode', '--output-json', '--depth', '3']
-        args.extend([ str(params.minizinc_model_dir / 'conflict_analyzer_constraints.mzn'), str(params.minizinc_model_dir / 'conflict_variable_declerations.mzn')])
+        args.extend([ str(params.minizinc_model_dir / 'conflict_analyzer_constraints.mzn'), str(params.minizinc_model_dir / 'conflict_variable_declarations.mzn')])
         args.extend(['pdg_instance.mzn', 'cle_instance.mzn', 'enclave_instance.mzn'])
         out = subprocess.run(args, cwd=params.temp_dir, capture_output=True)
         output('findmus', out)
