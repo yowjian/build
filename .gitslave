@@ -5,3 +5,4 @@
 "../mules.git" "src/mules"
 "../emu.git" "src/emu"
 "../ect.git" "src/ect"
+"../pdg2.git" "src/capo/pdg2"
