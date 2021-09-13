@@ -21,7 +21,7 @@ sudo cp $GAPSSRC/hal/api/xdcomms.h $INSTALLDIR/include \
 && sudo cp $GAPSSRC/hal/log/log.h $INSTALLDIR/include
 
 #lib
-sudo cp $GAPSSRC/capo/pdg/build/libpdg.so $INSTALLDIR/lib \
+sudo cp $GAPSSRC/capo/pdg2/build/libpdg.so $INSTALLDIR/lib \
 && sudo cp $GAPSSRC/capo/gedl/build/libgedl.so $INSTALLDIR/lib \
 && sudo cp $GAPSSRC/hal/api/libxdcomms.so $INSTALLDIR/lib
 
