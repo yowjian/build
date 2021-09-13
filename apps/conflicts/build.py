@@ -102,7 +102,8 @@ def build(params: Params) -> Tuple[BuildOutput, BuildTimings]:
         start_time = datetime.now()
         for file in params.source_files:
             args = ['clang', '-g', '-c', '-emit-llvm', str(params.temp_dir.resolve() / file.name)]
-            # args.extend(params.clang_args.split(' '))
+            if params.clang_args is not None and params.clang_args != '':
+                args.extend(params.clang_args.split(' '))
             print(args)
             out = subprocess.run(args, capture_output=True, cwd=params.temp_dir)
             output(f'{file.name}.clang', out)
