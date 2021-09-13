@@ -14,7 +14,7 @@ int foo() {
 #pragma cle begin ORANGE 
     static int j = 0;
 #pragma cle end ORANGE 
-    j++
+    j++;
     return bar() + j;    
 }
 int main() {
