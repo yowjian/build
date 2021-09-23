@@ -17,6 +17,13 @@
      "argtaints": [], \
      "codtaints": ["ORANGE"], \
      "rettaints": ["TAG_RESPONSE_GET_A"] \
+    }, \
+    {"remotelevel":"orange", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["ORANGE"], \
+     "rettaints": ["TAG_RESPONSE_GET_A"] \
     } \
   ] }
 

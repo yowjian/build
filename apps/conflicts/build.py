@@ -31,11 +31,11 @@ class Params:
     pdg_so: Path
 
 
-preprocessor_script = Path('.').resolve() / 'closure' / 'capo' / 'conflict_analyzer' / 'scripts' / 'qd_cle_preprocessor.py'
+preprocessor_script = Path('/opt/closure/scripts/qd_cle_preprocessor.py')
 collator_script = Path('/opt/closure/scripts/join_clemaps.py') 
-clejson2zinc_script = Path('.').resolve() / 'closure' / 'capo' / 'conflict_analyzer' / 'scripts' / 'CLEJson2zinc.py'
-minizinc_model_dir = Path('.').resolve() / 'closure' / 'capo' / 'conflict_analyzer' / 'constraints' # / 'experimental-sep9'
-pdg_so = Path('.').resolve() / 'closure' / 'program-dependence-graph' / 'build' / 'libpdg.so'
+clejson2zinc_script = Path('/opt/closure/scripts/CLEJson2zinc.py')
+minizinc_model_dir = Path('/opt/closure/scripts/constraints')
+pdg_so = Path('/opt/closure/lib/libpdg.so')
 
 def build(params: Params) -> Tuple[BuildOutput, BuildTimings]:
 

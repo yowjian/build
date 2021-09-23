@@ -1,6 +1,4 @@
 {
 	"name": "conflicts",
-	"build": {
-		"dockerfile": "../Dockerfile"
-	}
+	"image": "closure"
 }
