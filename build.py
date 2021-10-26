@@ -37,10 +37,15 @@ def clean() -> None:
     clean_mules()
     os.chdir('..') 
 
+def submodules() -> None:
+    subprocess.run(['git', 'submodule', 'init'])
+    subprocess.run(['git', 'submodule', 'update'])
+
 def main() -> None: 
     parser = argparse.ArgumentParser('build.py') 
     parser.add_argument('--clean', '-c', action='store_true', default=False)
     args = parser.parse_args(namespace=Args)
+    submodules()
     if args.clean:
         clean()
     else:
