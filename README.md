@@ -1,4 +1,7 @@
 # CLOSURE build
+
+[![build](https://github.com/gaps-closure/build/actions/workflows/main.yml/badge.svg)](https://github.com/gaps-closure/build/actions/workflows/main.yml)
+
 This repository hosts references to all CLOSURE components and the scripts to build CLOSURE or individual components from source. The `master` branch contains the most recent public release software while `develop` contains bleeding-edge updates and work-in-progress features for use by beta testers and early adopters.
 
 This repository is maintained by Perspecta Labs.
