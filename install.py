@@ -26,14 +26,14 @@ def install(args: Type[Args]) -> None:
     os.chdir('mules') 
     mules_env = install_mules(args)
     os.chdir('..') 
-    env_vars = {**capo_env, **hal_env, **mules_env}
+    env_vars = {**mules_env, **hal_env, **capo_env}
     out_etc = Path(args.output) / 'etc'
     out_etc.mkdir(parents=True, exist_ok=True)
     with open(out_etc / 'closureenv', 'w') as env_f:  
         for (k, v) in env_vars.items():
             if k == "PATH" or k == "PYTHONPATH":
-                env_f.write(f"export {k}={v}:${k}")
-        env_f.write(f"export CLOSURE_INSTALL_PATH={args.output}")
+                env_f.write(f"export {k}={v}:${k}\n")
+        env_f.write(f"export CLOSURE_INSTALL_PATH={args.output}\n")
 
 
 def main() -> None: 
