@@ -1,0 +1,12 @@
+[submodule "capo"]
+	path = capo
+	url = https://github.com/gaps-closure/capo.git
+	branch = develop
+[submodule "mules"]
+	path = mules
+	url = https://github.com/gaps-closure/mules.git
+	branch = develop
+[submodule "hal"]
+	path = hal
+	url = https://github.com/gaps-closure/hal.git
+	branch = build-improvements
