@@ -4,8 +4,8 @@ import subprocess
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from capo.build_capo import build as build_capo 
-from capo.build_capo import clean as clean_capo
+from capo.build import build as build_capo 
+from capo.build import clean as clean_capo
 from hal.build import build as build_hal
 from hal.build import clean as clean_hal
 from mules.build import build as build_mules
