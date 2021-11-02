@@ -115,8 +115,13 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 RUN sudo apt update
 RUN sudo apt install -y nodejs
 
-# LLVM config link fix
-RUN ln -s $(which llvm-config-10) /usr/local/bin/llvm-config
+# LLVM install linking
+RUN ln -s $(which clang-10) /usr/local/bin/clang \
+&& ln -s $(which opt-10) /usr/local/bin/opt \
+&& ln -s $(which llvm-link-10) /usr/local/bin/llvm-link \
+&& ln -s $(which llvm-config-10) /usr/local/bin/llvm-config \
+&& ln -s $(which llvm-as-10) /usr/local/bin/llvm-as \
+&& ln -s $(which llvm-dis-10) /usr/local/bin/llvm-dis
 
 # clone and install
 RUN cd ~ \ 
