@@ -32,6 +32,7 @@ def install(args: Type[Args]) -> None:
     os.chdir('..') 
     copytree(str(args.output / 'python' / 'bin-tmp'), str(args.output / 'python' / 'bin'), dirs_exist_ok=True)
     rmtree(str(args.output / 'python' / 'bin-tmp'))
+    copytree('emu', str(args.output / 'emu'))
     env_vars = {**mules_env, **hal_env, **capo_env}
     out_etc = Path(args.output) / 'etc'
     out_etc.mkdir(parents=True, exist_ok=True)
