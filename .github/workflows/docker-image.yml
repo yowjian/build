@@ -9,4 +9,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build -t closuredev:$(date +%s) docker/closuredev 
+      run: docker build -f Dockerfile.dev -t closuredev:$(date +%s) . 
