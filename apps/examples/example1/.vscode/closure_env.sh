@@ -2,7 +2,8 @@
 export PROG=$(eval basename `pwd`)
 export PYTHON="/usr/bin/python3 -u"
 
-CLOSURE_TOOLS=/home/bflin/gaps/build/test-install
+CLOSURE_TOOLS=/opt/closure
+source /opt/closure/etc/closureenv
 export CLOSURE_BINS=${CLOSURE_TOOLS}/bin
 export CLOSURE_INCLUDES=${CLOSURE_TOOLS}/include
 export CLOSURE_LIBS=${CLOSURE_TOOLS}/lib

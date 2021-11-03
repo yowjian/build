@@ -1,6 +1,6 @@
 {
 	"name": "CLOSURE",
-	"image": "closure",
+	"image": "closuredev",
 
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",
