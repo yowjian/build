@@ -123,6 +123,12 @@ RUN ln -s $(which clang-10) /usr/local/bin/clang \
 && ln -s $(which llvm-as-10) /usr/local/bin/llvm-as \
 && ln -s $(which llvm-dis-10) /usr/local/bin/llvm-dis
 
+# minizinc
+RUN cd /opt/ \
+&&  sudo mkdir minizinc \
+&&  sudo wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.5.5/MiniZincIDE-2.5.5-bundle-linux-x86_64.tgz \
+&&  sudo tar -xvzf MiniZinc* -C minizinc --strip-components=1
+
 # clone and install
 RUN cd ~ \ 
 && mkdir gaps && cd gaps \
@@ -130,12 +136,6 @@ RUN cd ~ \
 cd build \
 && mkdir /opt/closure \ 
 && ./install.sh -o /opt/closure
-
-# minizinc
-RUN cd /opt/ \
-&&  sudo mkdir minizinc \
-&&  sudo wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.5.5/MiniZincIDE-2.5.5-bundle-linux-x86_64.tgz \
-&&  sudo tar -xvzf MiniZinc* -C minizinc --strip-components=1
 
 USER closure
 ENV HOME /home/closure
