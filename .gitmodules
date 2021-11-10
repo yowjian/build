@@ -10,3 +10,6 @@
 	path = hal
 	url = https://github.com/gaps-closure/hal.git
 	branch = build-improvements
+[submodule "emu"]
+	path = emu
+	url = https://github.com/gaps-closure/emu.git

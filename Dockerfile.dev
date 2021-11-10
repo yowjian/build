@@ -1,0 +1,144 @@
+FROM ubuntu:focal
+LABEL MAINTAINER="Benjamin Flin"
+ARG DEBIAN_FRONTEND=noninteractive
+
+# general apt dependencies
+RUN apt-get -y update           \
+&&  apt-get -y install			\
+	gcc							\
+	make						\
+	git							\
+	libz3-dev					\
+	libzmq3-dev					\
+	libconfig-dev				\
+	python3-pip					\
+	wget						\
+	libboost-all-dev 			\
+	bc 							\
+	xdot						\
+	sudo						\
+	jq							\
+	z3							\
+	python3-z3					\
+	firefox                     \
+	cmake                       \
+    libtinfo-dev                \
+    libxml2-dev                 \
+    python3.8                   \
+    llvm-10-dev                 \
+    clang-10                    \
+    python3-clang-10            
+
+# python dependencies
+RUN python3 -m pip install		\
+	decorator==4.4.1			\
+	jsonschema==3.2.0			\
+	lark-parser==0.7.8			\
+	libconf==2.0.1				\
+	vstask==1.1.5				\
+	networkx==2.5 				\ 
+	pydot==1.4.1				\
+	genson==1.2.2				\
+	dash==1.18.1				\
+	dash-cytoscape==0.2.0		\
+	pandas==1.2.1				\
+	pyzmq==22.2.1               \
+    zmq                         \
+    mypy                        \
+    inflection  
+
+# make closure user
+RUN useradd -ms /bin/bash closure \
+&& usermod -aG sudo closure \
+&& echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# apt emulation dependencies
+RUN apt-get -y update \
+&&  apt-get -y install \ 
+    bridge-utils \
+    ebtables \
+    iproute2 \
+    xterm \
+    mgen \
+    traceroute \
+    ethtool \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    python3-dev \
+    libev-dev \
+    python3-venv \
+    tcl \
+    tcl8.6 \
+    tk \
+    tk8.6 \
+    libtk-img \
+    quagga \
+    uml-utilities \
+    net-tools \
+    ubuntu-dev-tools \
+    qemu \
+    qemu-efi \
+    qemu-user-static \
+    qemu-system-arm \
+    qemu-system-x86 \
+    qemu-user \
+    netcat \
+    python3-tk \
+    iputils-ping \
+    tcpdump
+
+# core python dependencies
+RUN python3 -m pip install \
+    grpcio==1.27.2 \	
+    grpcio-tools==1.27.2 \
+    lxml==4.6.2 \
+    protobuf==3.9.1 \
+    six==1.14.0 \
+    netaddr==0.8.0 \
+    fabric==2.6.0 \
+    Mako==1.1.4 \
+    pyproj==3.0.0.post1 \
+    pexpect==4.8.0
+
+# core debian package
+RUN cd /tmp \
+&&  wget "https://github.com/coreemu/core/releases/download/release-6.5.0/core_6.5.0_amd64.deb" \
+&&  dpkg -i core_6.5.0_amd64.deb \
+&&  rm core_6.5.0_amd64.deb \
+&&  cp -R /usr/local/lib/python3.6/dist-packages/core /usr/local/lib/python3.8/dist-packages/ 
+
+# cvi dependencies
+RUN sudo apt update
+RUN sudo apt install -y curl default-jre
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+RUN sudo apt update
+RUN sudo apt install -y nodejs
+
+# LLVM install linking
+RUN ln -s $(which clang-10) /usr/local/bin/clang \
+&& ln -s $(which opt-10) /usr/local/bin/opt \
+&& ln -s $(which llvm-link-10) /usr/local/bin/llvm-link \
+&& ln -s $(which llvm-config-10) /usr/local/bin/llvm-config \
+&& ln -s $(which llvm-as-10) /usr/local/bin/llvm-as \
+&& ln -s $(which llvm-dis-10) /usr/local/bin/llvm-dis
+
+# minizinc
+RUN cd /opt/ \
+&&  sudo mkdir minizinc \
+&&  sudo wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.5.5/MiniZincIDE-2.5.5-bundle-linux-x86_64.tgz \
+&&  sudo tar -xvzf MiniZinc* -C minizinc --strip-components=1
+
+# clone and install
+RUN cd ~ \ 
+&& mkdir gaps && cd gaps \
+&& git clone --recurse-submodules https://github.com/gaps-closure/build.git || true; \
+cd build \
+&& mkdir /opt/closure \ 
+&& ./install.sh -o /opt/closure
+
+USER closure
+ENV HOME /home/closure
+ENV PATH=$PATH:/opt/minizinc/bin:$PATH
+RUN echo "source /opt/closure/etc/closureenv" >> /home/closure/.bashrc
+EXPOSE 21 22 6788 6789
