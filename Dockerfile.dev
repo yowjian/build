@@ -129,13 +129,11 @@ RUN cd /opt/ \
 &&  sudo wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.5.5/MiniZincIDE-2.5.5-bundle-linux-x86_64.tgz \
 &&  sudo tar -xvzf MiniZinc* -C minizinc --strip-components=1
 
-# clone and install
-RUN cd ~ \ 
-&& mkdir gaps && cd gaps \
-&& git clone --recurse-submodules https://github.com/gaps-closure/build.git || true; \
-cd build \
-&& mkdir /opt/closure \ 
-&& ./install.sh -o /opt/closure
+# copy and install
+COPY . /tmp/build
+RUN cd /tmp/build \
+    && mkdir /opt/closure \ 
+    && ./install.sh -o /opt/closure
 
 USER closure
 ENV HOME /home/closure

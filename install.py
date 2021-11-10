@@ -4,35 +4,37 @@ from dataclasses import dataclass
 import os
 from shutil import copytree, move, rmtree
 from pathlib import Path
-from typing import Dict, Type
+from typing import Callable, Dict, Type, TypeVar, Union
 import build
 from capo.install import install as install_capo
 from hal.install import install as install_hal
 from mules.install import install as install_mules
 import subprocess
+import sys
 
 @dataclass
 class Args:
     output: Path
 
+A = TypeVar('A')
+
 def install(args: Type[Args]) -> None:
-    args.output = args.output.resolve()
-    os.chdir('capo') 
-    capo_env = install_capo(args)
-    os.chdir('..') 
-    move(str(args.output / 'python' / 'bin'), str(args.output / 'python' / 'bin-tmp'))
-    os.chdir('hal') 
-    hal_env = install_hal(args)
-    os.chdir('..') 
-    copytree(str(args.output / 'python' / 'bin-tmp'), str(args.output / 'python' / 'bin'), dirs_exist_ok=True)
-    rmtree(str(args.output / 'python' / 'bin-tmp'))
-    move(str(args.output / 'python' / 'bin'), str(args.output / 'python' / 'bin-tmp'))
-    os.chdir('mules') 
-    mules_env = install_mules(args)
-    os.chdir('..') 
-    copytree(str(args.output / 'python' / 'bin-tmp'), str(args.output / 'python' / 'bin'), dirs_exist_ok=True)
-    rmtree(str(args.output / 'python' / 'bin-tmp'))
-    copytree('emu', str(args.output / 'emu'))
+    def in_dir(path: Union[Path, str], f: Callable[[], A]) -> A:
+        tmp = os.getcwd()
+        os.chdir(str(path))
+        a = f() 
+        os.chdir(tmp)
+        return a
+
+    # Run install in each subdir (without python package)
+    capo_env = in_dir('capo', lambda: install_capo(args))
+    hal_env = in_dir('hal', lambda: install_hal(args)) 
+    mules_env = in_dir('mules', lambda: install_mules(args))
+
+    # Install python package 
+    subprocess.run([sys.executable, '-m', 'pip', 'install', '.', '--target', args.output / 'python'])   
+
+    # Collect env vars and put in closureenv
     env_vars = {**mules_env, **hal_env, **capo_env}
     out_etc = Path(args.output) / 'etc'
     out_etc.mkdir(parents=True, exist_ok=True)
@@ -47,6 +49,7 @@ def main() -> None:
     parser = argparse.ArgumentParser('install.py') 
     parser.add_argument('--output', '-o', default=False, help="Output directory", type=Path, required=True)
     args = parser.parse_args(namespace=Args)
+    args.output = args.output.resolve()
     args.output.mkdir(parents=True, exist_ok=True)
     build.build()
     install(args)
