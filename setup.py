@@ -14,8 +14,7 @@ setup(
     },
     classifiers=["Programming Language :: Python :: 3"],
     install_requires=[
-        f"capo @ file://localhost/{Path('./capo').resolve()} #egg=capo"
+        f"capo @ file://localhost/{Path('./capo').resolve()} #egg=capo",
         f"hal @ file://localhost/{Path('./hal').resolve()} #egg=hal"
-        f"mules @ file://localhost/{Path('./hal').resolve()} #egg=hal"
     ],
 )
