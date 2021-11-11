@@ -34,5 +34,5 @@ export LLVMDIS=llvm-dis
 
 export HWMODE=emu
 export IPCMODE=multithreaded
-export ENCLAVES="orange_E purple_E"
+export ENCLAVES="orange purple"
 export EXT=c
