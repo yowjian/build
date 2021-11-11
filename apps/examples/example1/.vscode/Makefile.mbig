@@ -20,7 +20,7 @@ endif
 
 pkg:
 	tar cf example1-orange-enclave-gw-P.tar -C partitioned/multithreaded/orange/ . -C $(CLOSURE_LIBS) libxdcomms.so
-	tar cf example1-purple-enclave-gw-P.tar -C partitioned/multithreaded/purple/ . -C $(CLOSURE_LIBS) libxdcomms.so
+	tar cf example1-purple-enclave-gw-O.tar -C partitioned/multithreaded/purple/ . -C $(CLOSURE_LIBS) libxdcomms.so
 	rm -rf $(EMU_DIR)/.apps
 	mkdir -p $(EMU_DIR)/.apps
 	mv *.tar $(EMU_DIR)/.apps/
