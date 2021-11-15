@@ -1,14 +1,25 @@
 #include <stdio.h>
 
 #pragma cle def PURPLE {"level":"purple"}
-
+#pragma cle def PURPLE_SHAREABLE { "level": "purple", \
+  "cdf": [ \
+    {"remotelevel": "orange", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"} } \
+    ]}
 #pragma cle def XDLINKAGE_GET_EWMA {"level":"purple",	\
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
      "guarddirective": { "operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_GET_EWMA"]], \
-     "codtaints": ["PURPLE"], \
+     "codtaints": ["PURPLE", "PURPLE_SHAREABLE"], \
+     "rettaints": ["TAG_RESPONSE_GET_EWMA"] },\
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [["TAG_REQUEST_GET_EWMA"]], \
+     "codtaints": ["PURPLE", "PURPLE_SHAREABLE"], \
      "rettaints": ["TAG_RESPONSE_GET_EWMA"] }\
   ] }
 
@@ -45,8 +56,13 @@ double get_b() {
 #pragma cle begin XDLINKAGE_GET_EWMA
 double get_ewma(double x) {
 #pragma cle end XDLINKAGE_GET_EWMA
-  double y = get_b();
-  return calc_ewma(x,y);
+#pragma cle begin PURPLE_SHAREABLE
+  double x1, y1, z1;
+#pragma cle end PURPLE_SHAREABLE
+  x1 = x;
+  y1 = get_b();
+  z1 = calc_ewma(x1, y1);
+  return z1;
 }
 
 int ewma_main() {
