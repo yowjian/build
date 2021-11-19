@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "*.def": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "*.idl": "c",
+        "random": "c"
     }
 }

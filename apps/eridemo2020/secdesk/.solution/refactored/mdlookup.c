@@ -14,7 +14,7 @@ static sqlite3 *get_database(const char *dbfile) {
   return db;
 }
 
-void stop_database(void) {
+void stop_database() {
   sqlite3 *db = get_database(NULL);
   if (db) sqlite3_close(db);
 }

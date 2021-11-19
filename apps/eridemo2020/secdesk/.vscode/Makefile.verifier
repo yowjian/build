@@ -33,19 +33,21 @@ verify: $(REFACTORED)/preproc.done prep
 	$(VERIFIER) $(REFACTORED) $(PARTITIONED)
 
 prep: $(MODCJC) $(MODCJH)
-	#$(foreach enclave,$(ENCLAVES), $(foreach p,$(shell find $(ODIR)/$(enclave) -name *.c;), $(CLANG) $(CLANG_FLAGS) $(CLANG_INCLUDES) -I $(ODIR)/$(enclave)/facilio/include $p -o $(basename $p).ll;))
 	$(foreach p,$(REF_SRC), $(CLANG) $(CLANG_FLAGS) $(CLANG_INCLUDES) -I plain/facilio/include $p -o $(basename $p).ll;)
-	$(foreach enclave,$(ENCLAVES), $(foreach p,$(shell find $(ODIR)/$(enclave) -name *.c;), $(CLANG) $(CLANG_FLAGS) -D my_xdc_asyn_send=xdc_asyn_send -D my_xdc_blocking_recv=xdc_blocking_recv -D my_tag_write=tag_write $(CLANG_INCLUDES) -I $(ODIR)/$(enclave)/facilio/include $p -o $(basename $p).ll;))
+	$(foreach enclave,$(ENCLAVES), $(foreach p,$(shell find $(ODIR)/$(enclave) -name *.c;), $(CLANG) $(CLANG_FLAGS) $(CLANG_INCLUDES) -D my_xdc_asyn_send=xdc_asyn_send -D my_xdc_blocking_recv=xdc_blocking_recv -D my_tag_write=tag_write $(CLANG_INCLUDES) -I $(ODIR)/$(enclave)/facilio/include $p -o $(basename $p).ll;))
 	echo "Done prep"
 
 # preprocess each C and H file, rename them back
 $(REFACTORED)/preproc.done: $(REFACTORED)/cleancopy.done
 	$(eval PREPROCC += $(shell ls $(REFACTORED)/*.c;))
 	$(eval PREPROCH += $(shell ls $(REFACTORED)/*.h;))
-	$(foreach p,$(PREPROCC), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
-	$(foreach p,$(PREPROCH), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
+	$(foreach p,$(PREPROCC), $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p -o $(dir $(p));)
+	$(foreach p,$(PREPROCH), $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p -o $(dir $(p));)
 	$(foreach p,$(PREPROCC), mv $(basename $p).mod.c $p;)
 	$(foreach p,$(PREPROCH), mv $(basename $p).mod.h $p;)
+	$(JOINCLEMAPS) $(REFACTORED)/$(PROG).all.clemap.json $(PREPROCC) $(PREPROCH)
+	mkdir -p jsons/refactored
+	mv $(REFACTORED)/$(PROG).all.clemap.json jsons/refactored
 	touch $(REFACTORED)/preproc.done
 
 $(REFACTORED)/cleancopy.done:

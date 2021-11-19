@@ -1,6 +1,6 @@
-CLOSURE_DIR=~/gaps/build
+CLOSURE_DIR=/opt/closure/
 ODIR=./partitioned/$(IPCMODE)
-CFG_DIR=$(CLOSURE_DIR)/src/emu/config/$(PROG)
+CFG_DIR=$(CLOSURE_DIR)/emu/config/$(PROG)
 
 autogen_dir := $(ODIR)/autogen
 LIB_OBJ= $(autogen_dir)/float754.o $(autogen_dir)/codec.o 
@@ -27,10 +27,10 @@ pkg:
 	mkdir -p .dependencies
 	tar cf $(PROG)-orange-enclave-gw-P.tar .dependencies -C partitioned/$(IPCMODE)/orange/ secdesk www db recognize_local.py -C /opt/closure/lib libxdcomms.so
 	tar cf $(PROG)-purple-enclave-gw-O.tar .dependencies -C partitioned/$(IPCMODE)/purple/ secdesk recognize_local.py encodings.pickle.id -C /opt/closure/lib libxdcomms.so
-	rm -rf $(CLOSURE_DIR)/src/emu/.apps
-	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
-	mv *.tar $(CLOSURE_DIR)/src/emu/.apps/
-	$(PYTHON) $(HALGEN) -o $(CFG_DIR) -x $(ODIR)/xdconf.ini -d /opt/closure/etc/devices_socat.json -p $(PROG)_hal
+	rm -rf $(CLOSURE_DIR)/emu/.apps
+	mkdir -p $(CLOSURE_DIR)/emu/.apps
+	mv *.tar $(CLOSURE_DIR)/emu/.apps/
+	$(HALGEN) -o $(CFG_DIR) -x $(ODIR)/xdconf.ini -d /opt/closure/etc/devices_socat.json -p $(PROG)_hal
 	cp .vscode/debs.list $(CFG_DIR)/
 
 cleandeps:

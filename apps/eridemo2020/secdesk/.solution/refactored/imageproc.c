@@ -8,6 +8,13 @@
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
      "guarddirective": {"operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": [], \
+     "rettaints": [] \
+    }, \
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guarddirective": {"operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_RECOGNIZE"]], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_RECOGNIZE"] \
@@ -19,7 +26,14 @@
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
      "guarddirective": {"operation": "allow"}, \
-     "argtaints": [["TAG_REQUEST_START_RECOGNIZER"]], \
+     "argtaints": [], \
+     "codtaints": [], \
+     "rettaints": [] \
+    }, \
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guarddirective": {"operation": "allow"}, \
+     "argtaints": [], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_START_RECOGNIZER"] \
     } \
@@ -30,9 +44,27 @@
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
      "guarddirective": {"operation": "allow"}, \
-     "argtaints": [["TAG_REQUEST_STOP_RECOGNIZER"]], \
+     "argtaints": [], \
+     "codtaints": [], \
+     "rettaints": [] \
+    }, \
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guarddirective": {"operation": "allow"}, \
+     "argtaints": [], \
      "codtaints": ["PURPLE"], \
      "rettaints": ["TAG_RESPONSE_STOP_RECOGNIZER"] \
+    } \
+  ] }
+
+#pragma cle def GET_FEATURES {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "bidirectional", \
+     "guarddirective": {"operation": "allow"}, \
+     "argtaints": [["ORANGE"], ["EMBEDDING_SHAREABLE"]], \
+     "codtaints": ["ORANGE", "EMBEDDING_SHAREABLE"], \
+     "rettaints": ["ORANGE", "EMBEDDING_SHAREABLE"] \
     } \
   ] }
 
@@ -45,18 +77,16 @@
 PyObject *data = NULL;
 #pragma cle end PURPLE 
 #endif
-#pragma cle begin ORANGE 
+// #pragma cle begin ORANGE 
 long savedBox[4] = { 0 };
-#pragma cle end ORANGE
+// #pragma cle end ORANGE
 
-#pragma cle begin ORANGE
+// #pragma cle begin ORANGE
 char savedName[32];
-#pragma cle end ORANGE 
+// #pragma cle end ORANGE 
 
 
-#pragma cle begin ORANGE 
-int start_imageprocessor(void) {
-#pragma cle end ORANGE 
+int start_imageprocessor() {
 #ifndef __STUBBED
     if (!Py_IsInitialized()) {
         setenv("PYTHONPATH", ".", 1);
@@ -67,9 +97,7 @@ int start_imageprocessor(void) {
     return 0;
 }
 
-#pragma cle begin ORANGE 
-int stop_imageprocessor(void) {
-#pragma cle end ORANGE 
+int stop_imageprocessor() {
    return 0;
 }
 
@@ -151,9 +179,7 @@ static int getBox(PyObject *boxes) {
 }
 #endif
 
-#pragma cle begin ORANGE 
 int overlay(char *imageFile, char *outFile, int id) {
-#pragma cle end ORANGE
 #ifndef __STUBBED
     Py_BEGIN_ALLOW_THREADS
     PyGILState_STATE state = PyGILState_Ensure();
@@ -208,11 +234,10 @@ int overlay(char *imageFile, char *outFile, int id) {
     return 1;
 }
 
-#pragma cle begin ORANGE 
+#pragma cle begin GET_FEATURES 
 int get_features(char *imagefile, double embedding[static 128]) {
-#pragma cle end ORANGE 
+#pragma cle end GET_FEATURES 
     memset(embedding, 0, 128 * sizeof(double)); /* Cue for GEDL */
-
 #ifndef __STUBBED
     Py_BEGIN_ALLOW_THREADS
     PyGILState_STATE state = PyGILState_Ensure();
@@ -279,7 +304,6 @@ int get_features(char *imagefile, double embedding[static 128]) {
     PyGILState_Release(state);
     Py_END_ALLOW_THREADS
 #endif /* __STUBBED */
-
     return 0;
 }
 

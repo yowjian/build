@@ -6,6 +6,17 @@
      "direction": "egress", \
      "guarddirective": { "operation": "allow"}}\
   ] }
+#pragma cle def PROCESS_SECINPUT {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "egress", \
+     "guarddirective": { "operation": "allow" },\
+     "argtaints": [["ORANGE"], ["ORANGE"]], \
+     "codtaints": ["EMBEDDING_SHAREABLE", "ORANGE"],\
+     "rettaints": ["ORANGE"]}\
+  ] }
+
+
 
 static char *RESPONSE_FORMAT= "<!DOCTYPE html><html><body>%s<br><img height=\"200px\" src=\"%s\" id=\"myImage\" /></body></html>";
 
@@ -77,7 +88,9 @@ static int get_fields(FIOBJ o, void *arg) {
   return 0;
 }
 
+#pragma cle begin PROCESS_SECINPUT
 static int process_secinput(struct secinput *s, char *overlayImageFile) {
+#pragma cle end PROCESS_SECINPUT
   fio_str_info_s tmp = fiobj_obj2cstr(s->filedata);
   char *filename     = fiobj_obj2cstr(s->filename).data;
   #pragma cle begin ORANGE
@@ -145,9 +158,7 @@ static void on_http_request(http_s *h) {
   cleanup: http_finish(h); return;
 }
 
-#pragma cle begin ORANGE 
 void run_secdesk_service(int argc, char const *argv[]) {
-#pragma cle end ORANGE 
   initialize_cli(argc, argv);
   if (http_listen(fio_cli_get("-p"), fio_cli_get("-b"),
                   .on_request    = on_http_request,
@@ -171,6 +182,8 @@ void run_secdesk_service(int argc, char const *argv[]) {
 }
 
 int main(int argc, char const **argv) {
+  #pragma cle begin ORANGE
   run_secdesk_service(argc, argv);
+  #pragma cle end ORANGE
   return 0;
 }

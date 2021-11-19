@@ -28,7 +28,7 @@
 	"runArgs": ["--privileged"],
 	"mounts": [
 		"source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
-		"source=/home/${localEnv:USER}/gaps/build/src/emu,target=/home/closure/gaps/build/src/emu,type=bind",
+		"source=${localWorkspaceFolder}/../../../emu,target=/opt/closure/emu,type=bind",
 		"source=/IMAGES,target=/IMAGES,type=bind"
 	]
 }
