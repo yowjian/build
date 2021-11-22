@@ -30,7 +30,26 @@ All CLOSURE components can be built using the build.sh script:
 
 Adding `-c` will clean each subdirectory
 
-## Installation
+## Getting started with the `devcontainer`
+
+The quickest and easiest way to get the most up to date 
+build of closure is to build the docker image:
+
+```
+docker build -f Dockerfile.dev -t closuredev:latest
+```
+
+or, you can download the cached image from dockerhub
+
+```
+docker pull gapsclosure/closuredev:latest
+docker tag gapsclosure/closuredev:latest closuredev:latest
+```
+
+Then, you can open the examples under `apps/examples`
+using the Remote - Containers extension for vscode.
+
+## Bare Metal Installation
 
 The CLOSURE toolchain can be installed using:
 
@@ -45,9 +64,3 @@ source <install_prefix>/etc/closureenv
 ```
 
 
-## TODOS
-- update dockerfiles
-- setup github actions for dockerfile
-- update examples
-
-by Wednesday
