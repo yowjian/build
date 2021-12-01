@@ -6,7 +6,7 @@ from shutil import copytree, move, rmtree
 from pathlib import Path
 from typing import Callable, Dict, Type, TypeVar, Union
 import build
-from capo.install import install as install_capo
+from capo.C.install import install as install_capo
 from hal.install import install as install_hal
 from mules.install import install as install_mules
 import subprocess
@@ -27,7 +27,7 @@ def install(args: Type[Args]) -> None:
         return a
 
     # Run install in each subdir (without python package)
-    capo_env = in_dir('capo', lambda: install_capo(args))
+    capo_env = in_dir('capo/C', lambda: install_capo(args))
     hal_env = in_dir('hal', lambda: install_hal(args)) 
     mules_env = in_dir('mules', lambda: install_mules(args))
 

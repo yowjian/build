@@ -4,8 +4,8 @@ import subprocess
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from capo.build import build as build_capo 
-from capo.build import clean as clean_capo
+from capo.C.build import build as build_capo 
+from capo.C.build import clean as clean_capo
 from hal.build import build as build_hal
 from hal.build import clean as clean_hal
 from mules.build import build as build_mules
@@ -16,9 +16,9 @@ class Args:
     clean: bool
 
 def build() -> None:
-    os.chdir('capo') 
+    os.chdir('capo/C') 
     build_capo()
-    os.chdir('..') 
+    os.chdir('../..') 
     os.chdir('hal') 
     build_hal()
     os.chdir('..') 
@@ -27,9 +27,9 @@ def build() -> None:
     os.chdir('..') 
 
 def clean() -> None:
-    os.chdir('capo') 
+    os.chdir('capo/C') 
     clean_capo()
-    os.chdir('..') 
+    os.chdir('../..') 
     os.chdir('hal') 
     clean_hal()
     os.chdir('..') 
