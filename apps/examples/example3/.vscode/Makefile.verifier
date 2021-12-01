@@ -39,11 +39,11 @@ prep: $(MODCJC) $(MODCJH)
 $(REFACTORED)/preproc.done: $(REFACTORED)/cleancopy.done
 	$(eval PREPROCC += $(shell ls $(REFACTORED)/*.c;))
 	$(eval PREPROCH += $(shell ls $(REFACTORED)/*.h;))
-	$(foreach p,$(PREPROCC), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
-	$(foreach p,$(PREPROCH), $(PYTHON) $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p;)
+	$(foreach p,$(PREPROCC), $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p -o $(dir $(p));)
+	$(foreach p,$(PREPROCH), $(PREPROCESSOR) -s ${CLOSURE_SCHEMAS}/cle-schema.json -f $p -o $(dir $(p));)
 	$(foreach p,$(PREPROCC), mv $(basename $p).mod.c $p;)
 	$(foreach p,$(PREPROCH), mv $(basename $p).mod.h $p;)
-	$(PYTHON) $(JOINCLEMAPS) $(REFACTORED)/$(PROG).all.clemap.json $(PREPROCC) $(PREPROCH)
+	$(JOINCLEMAPS) $(REFACTORED)/$(PROG).all.clemap.json $(PREPROCC) $(PREPROCH)
 	mkdir -p jsons/refactored
 	mv $(REFACTORED)/$(PROG).all.clemap.json jsons/refactored
 	touch $(REFACTORED)/preproc.done

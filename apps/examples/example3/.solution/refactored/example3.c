@@ -10,16 +10,6 @@
      "argtaints": [["ORANGE"], ["ORANGE"]], \
      "codtaints": [], \
      "rettaints": ["EWMA_SHAREABLE"] } \
- ] }
-
-#pragma cle def XDLINKAGE_GET_EWMA {"level":"orange",\
-  "cdf": [\
-    {"remotelevel":"purple", \
-     "direction": "bidirectional", \
-     "guarddirective": { "operation": "allow"}, \
-     "argtaints": [], \
-     "codtaints": ["ORANGE","EWMA_SHAREABLE"], \
-     "rettaints": ["TAG_RESPONSE_GET_EWMA"] } \
   ] }
 
 #pragma cle begin EWMA_SHAREABLE
@@ -47,21 +37,16 @@ double get_b() {
   return b;
 }
 
-// blessed on orange side
-#pragma cle begin XDLINKAGE_GET_EWMA
-double get_ewma() {
-#pragma cle end XDLINKAGE_GET_EWMA
-  double x = get_a(); 
-  double y = get_b(); 
-  return calc_ewma(x,y);
-}
-
 #pragma cle begin PURPLE
 int ewma_main() {
 #pragma cle end PURPLE
+  double x;
+  double y;
   double ewma;
   for (int i=0; i < 10; i++) {
-    ewma = get_ewma(); // conflict resolveable by wraping in RPC
+    x = get_a();           // conflict with orange 
+    y = get_b();           // conflict with orange
+    ewma = calc_ewma(x,y); // calc_ewma blessed, but x,y conflicts propagate
     printf("%f\n", ewma);
   }
   return 0;
@@ -70,7 +55,4 @@ int ewma_main() {
 int main(int argc, char **argv) {
   return ewma_main();
 }
-
-// purple master: main, ewma_main
-// orange slave: get_a, get_b, calc_ewma, get_ewma
 
