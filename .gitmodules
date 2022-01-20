@@ -9,7 +9,8 @@
 [submodule "hal"]
 	path = hal
 	url = ../hal.git
-	branch = build-improvements
+	branch = develop 
 [submodule "emu"]
 	path = emu
 	url = ../emu.git
+	branch = develop 
