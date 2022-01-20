@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          submodules: true
+          submodules: recursive
       # Build script
       - name: Build
         run: ./build.sh
