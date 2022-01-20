@@ -1,15 +1,15 @@
 [submodule "capo"]
 	path = capo
-	url = git@github.com:gaps-closure/capo.git
+	url = ../capo.git
 	branch = develop
 [submodule "mules"]
 	path = mules
-	url = git@github.com:gaps-closure/mules.git
+	url = ../mules.git
 	branch = develop
 [submodule "hal"]
 	path = hal
-	url = git@github.com:gaps-closure/hal.git
+	url = ../hal.git
 	branch = build-improvements
 [submodule "emu"]
 	path = emu
-	url = git@github.com:gaps-closure/emu.git
+	url = ../emu.git
