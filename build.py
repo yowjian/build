@@ -50,7 +50,7 @@ def main() -> None:
     parser = argparse.ArgumentParser('build.py')
     parser.add_argument('--clean', '-c', action='store_true', default=False)
     args = parser.parse_args(namespace=Args)
-    # submodules()
+    submodules()
     if args.clean:
         clean()
     else:
