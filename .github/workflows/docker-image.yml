@@ -10,6 +10,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        submodules: 'true'
+        submodules: true
     - name: Build the Docker image
       run: docker build -f Dockerfile.dev -t closuredev:$(date +%s) . 
