@@ -1,9 +1,8 @@
 # override PROG in closure_env.sh
 PROG=deploy
 USER=$(shell whoami)
-CLOSURE_DIR=/home/${USER}/gaps/build
 ODIR=./partitioned/$(IPCMODE)
-CFG_DIR=$(CLOSURE_DIR)/src/emu/config/$(PROG)
+CFG_DIR=$(CLOSURE_EMU)/config/$(PROG)
 
 autogen_dir := $(ODIR)/autogen
 LIB_OBJ= $(autogen_dir)/float754.o $(autogen_dir)/codec.o 
@@ -20,8 +19,8 @@ MA_SRC=./MA_v1.0_src
 deps:
 	mkdir -p $(DEPENDENCIES)/linux/deb
 	mkdir -p $(DEPENDENCIES)/linux/sources
-	sudo apt update
-	cd $(DEPENDENCIES)/linux/deb && apt download $(DEBPKGS)
+	#sudo apt update
+	#cd $(DEPENDENCIES)/linux/deb && apt download $(DEBPKGS)
 
 pkg:
 	$(eval CASE = $(shell basename `pwd`))
@@ -30,15 +29,16 @@ pkg:
 	rm -f *.tar
 	tar cf $(PROG)-orange-enclave-gw-G.tar $(DEPENDENCIES) -C ../ ${CASE}.tgz
 	tar cf $(PROG)-green-enclave-gw-O.tar $(DEPENDENCIES)  -C ../ ${CASE}.tgz
+	cp .vscode/debs.list $(CFG_DIR)/
 
 emu:
 	$(eval CASE = $(shell basename `pwd`))
-	rm -rf $(CLOSURE_DIR)/src/emu/.apps
-	mkdir -p $(CLOSURE_DIR)/src/emu/.apps
-	cp *.tar $(CLOSURE_DIR)/src/emu/.apps/
-	rm -f $(CLOSURE_DIR)/src/emu/config/${PROG}/*.cfg
-	cp deploy/hal_${CASE}_orange.cfg $(CLOSURE_DIR)/src/emu/config/${PROG}/${PROG}_hal_orange.cfg
-	cp deploy/hal_${CASE}_green.cfg $(CLOSURE_DIR)/src/emu/config/${PROG}/${PROG}_hal_green.cfg
+	rm -rf ${CLOSURE_EMU}/.apps
+	mkdir -p ${CLOSURE_EMU}/.apps
+	cp *.tar ${CLOSURE_EMU}/.apps/
+	rm -f ${CLOSURE_EMU}/config/${PROG}/*.cfg
+	cp deploy/hal_${CASE}_orange.cfg ${CLOSURE_EMU}/config/${PROG}/${PROG}_hal_orange.cfg
+	cp deploy/hal_${CASE}_green.cfg ${CLOSURE_EMU}/config/${PROG}/${PROG}_hal_green.cfg
 
 cleandeps:
 	rm -rf $(DEPENDENCIES)

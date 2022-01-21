@@ -79,6 +79,6 @@ do
     popd
     pushd ../$CASE/deploy
     runtask "3 HALDEPLOY"
-    python3 /opt/closure/scripts/hal_autoconfig.py -o . -x ./xdconf.ini -d $DEVFILE -p hal_$CASE
+    $HALGEN -o . -x ./xdconf.ini -d $DEVFILE -p hal_$CASE
     popd
 done

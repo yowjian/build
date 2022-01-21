@@ -2,7 +2,7 @@
 set -e
 VALID_COMPONENTS="MPU MPX ISRM RDR EOIR External ISRMshadow"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-LD_LIBRARY_PATH=${PINSTALL}/lib:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/
+LD_LIBRARY_PATH=${PINSTALL}/lib:${PINSTALL}/../gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib/:${PINSTALL}/../install/lib64
 echo "Executing from ${SCRIPT_DIR}"
 
 function start(){
@@ -24,7 +24,7 @@ function start(){
 	    if [[ $c == ${component} ]]; then
 		echo "Running ${component} ..."
 		cd ${SCRIPT_DIR}/../${component}
-		./../lbuild/${component}/${component} & > /dev/null 2>&1
+		LD_LIBRARY_PATH=$LD_LIBRARY_PATH ./../lbuild/${component}/${component} & > /dev/null 2>&1
 		echo $! >> $SCRIPT_DIR/pid
 		echo "Success."
 		break

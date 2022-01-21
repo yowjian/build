@@ -1,5 +1,5 @@
 {
-	"name": "CLOSURE",
+	"name": "CLOSUREDEV",
 	"build": {
 		"dockerfile": "../Dockerfile"
 	},

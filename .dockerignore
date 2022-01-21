@@ -7,3 +7,5 @@
 **/*.md
 **/Dockerfile
 **/Dockerfile.dev
+emu
+apps

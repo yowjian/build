@@ -12,7 +12,7 @@
       {
         "label": "A1 SCHEMA GENERATION",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; mkdir -p design/schema-new; ${CLOSURE_SCRIPTS}/schema_gen.sh -i ../captured-messages -o design/schema-new",
+        "command": "source .vscode/closure_env.sh; mkdir -p design/schema-new; ${CLOSURE_BINS}/schema_gen.sh -i ../captured-messages -o design/schema-new",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -36,7 +36,7 @@
       {
         "label": "A4 DESIGN VALIDATION",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; ${PYTHON} ${FLOW_SOLVER} design/design_spec.json",
+        "command": "source .vscode/closure_env.sh; ${FLOW_SOLVER} design/design_spec.json",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -44,7 +44,7 @@
       {
         "label": "A5 DESIGN VISUALIZATION",
         "type": "shell",
-        "command": "firefox --new-window http://127.0.0.1:8050/",
+        "command": "firefox --new-window http://127.0.0.1:11358/",
         "args": [],
         "group": "build",
         // This task is run before some debug tasks.
@@ -128,7 +128,7 @@
       {                                                                                                 
         "label": "EMULATE",
         "type": "shell",                                                                                
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig emu; cd ~/gaps/build/src/emu/; ./start.sh ${PROG}",    
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig emu; cd ${CLOSURE_EMU}; ./start.sh ${PROG}",    
         "args": [],                                                                                     
         "group": "build",                                                                               
         "problemMatcher": []                                                                            
@@ -137,7 +137,7 @@
         "label": "VIEWER SERVER",
         "type": "shell",
         "isBackground": true,
-        "command": "source .vscode/closure_env.sh; ${PYTHON} ${XDMF_VIEW} -f design/design_spec.json < /dev/null > /dev/null 2>&1 ",
+        "command": "source .vscode/closure_env.sh; ${XDMF_VIEW} -f design/design_spec.json < /dev/null > /dev/null 2>&1 ",
         "args": [],
         "group": "build",
         // This task is run before some debug tasks.
