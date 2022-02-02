@@ -1,6 +1,8 @@
 {
-	"name": "CLOSUREDEV-EOP1DEV",
-	"image": "eop1dev",
+	"name": "CLOSUREDEV",
+    "build": {
+		"dockerfile": "../../Dockerfile"
+	},
 
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",

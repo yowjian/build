@@ -1,6 +1,8 @@
 {
-	"name": "CLOSURE",
-	"image": "eop1dev",
+	"name": "CLOSUREDEV",
+    "build": {
+		"dockerfile": "../../Dockerfile"
+	},
 
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",
@@ -26,8 +28,7 @@
 	"runArgs": ["--privileged"],
 	"mounts": [
 		"source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
+		"source=${localWorkspaceFolder}/../../../emu,target=/opt/closure/emu,type=bind",
 		"source=/IMAGES,target=/IMAGES,type=bind"
-	],
-	"workspaceMount": "source=/home/${localEnv:USER}/gaps/,target=/home/closure/gaps,type=bind",
-	"workspaceFolder": "/home/closure/gaps/build/apps/eop1/delighter"
+	]
 }
