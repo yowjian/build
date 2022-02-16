@@ -1,4 +1,4 @@
-FROM closuredev:latest
+FROM gapsclosure/closuredev:latest
 MAINTAINER mkaplan@peratonlabs.com
 ARG DEBIAN_FRONTEND=noninteractive
 
