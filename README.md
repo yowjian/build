@@ -36,7 +36,7 @@ The quickest and easiest way to get the most up to date
 build of closure is to build the docker image:
 
 ```
-docker build -f Dockerfile.dev -t gapsclosure/closuredev:latest
+docker build -f Dockerfile.dev -t gapsclosure/closuredev:latest .
 ```
 
 or, you can download the cached image from dockerhub
