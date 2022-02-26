@@ -74,7 +74,7 @@
       {
         "label": "9d BUILD",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh && for e in ${ENCLAVES}; do make -C partitioned/multithreaded/$e -f ../../../.vscode/Makefile.${PROG}; done",
+        "command": "source .vscode/closure_env.sh && for e in ${ENCLAVES}; do make -C partitioned/${IPCMODE}/$e -f ../../../.vscode/Makefile.${PROG}; done",
         "args": [],
         "group": "build",
         "problemMatcher": []

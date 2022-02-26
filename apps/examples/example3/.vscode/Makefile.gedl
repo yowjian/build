@@ -25,7 +25,7 @@ LIB_OBJ= $(AUTOGENDIR)/float754.o $(AUTOGENDIR)/codec.o
 INCLUDES=-I$(LLVM_INCLUDE) -I$(CLOSURE_INCLUDES) -I../autogen 
 
 # Different case from IPCMODE, same purpose, sigh!
-IPC_MODE=Multithreaded 
+IPC_MODE=$(IPCMODEGEN)
 
 # Application configuration
 INURI="ipc:///tmp/sock_sub"
