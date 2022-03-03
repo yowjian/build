@@ -18,10 +18,10 @@ DEPENDENCIES=.dependencies
 MA_SRC=./MA_v1.0_src
 
 deps:
-	mkdir -p $(DEPENDENCIES)/linux/deb
-	mkdir -p $(DEPENDENCIES)/linux/sources
+	mkdir -p $(DEPENDENCIES)/debs
+	mkdir -p $(DEPENDENCIES)/pips
 	sudo apt update
-	cd $(DEPENDENCIES)/linux/deb && apt download $(DEBPKGS)
+	cd $(DEPENDENCIES)/debs && apt download $(DEBPKGS)
 
 pkg:
 	$(eval CASE = $(shell basename `pwd`))

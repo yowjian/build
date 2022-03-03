@@ -110,14 +110,6 @@
         "problemMatcher": []
       },
       {
-        "label": "DEPENDENCIES",
-        "type": "shell",
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig deps",
-        "args": [],
-        "group": "build",
-        "problemMatcher": []
-      },
-      {
         "label": "PACKAGE",
         "type": "shell",
         "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.mbig pkg;",

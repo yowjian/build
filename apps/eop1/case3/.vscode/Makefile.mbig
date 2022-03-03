@@ -13,22 +13,14 @@ LIBS=../autogen/libcodecs.a -lpthread
 
 DEBPKGS=$(shell cat .vscode/clean.list)
 PYPKGS=
-DEPENDENCIES=.dependencies
 MA_SRC=./MA_v1.0_src
-
-deps:
-	mkdir -p $(DEPENDENCIES)/linux/deb
-	mkdir -p $(DEPENDENCIES)/linux/sources
-	#sudo apt update
-	#cd $(DEPENDENCIES)/linux/deb && apt download $(DEBPKGS)
 
 pkg:
 	$(eval CASE = $(shell basename `pwd`))
-	mkdir -p $(DEPENDENCIES)
 	cd ../ && ./package.sh ${CASE}
 	rm -f *.tar
-	tar cf $(PROG)-orange-enclave-gw-G.tar $(DEPENDENCIES) -C ../ ${CASE}.tgz
-	tar cf $(PROG)-green-enclave-gw-O.tar $(DEPENDENCIES)  -C ../ ${CASE}.tgz
+	tar cf $(PROG)-orange-enclave-gw-G.tar -C ../ ${CASE}.tgz
+	tar cf $(PROG)-green-enclave-gw-O.tar -C ../ ${CASE}.tgz
 	cp .vscode/debs.list $(CFG_DIR)/
 
 emu:
@@ -39,6 +31,3 @@ emu:
 	rm -f ${CLOSURE_EMU}/config/${PROG}/*.cfg
 	cp deploy/hal_${CASE}_orange.cfg ${CLOSURE_EMU}/config/${PROG}/${PROG}_hal_orange.cfg
 	cp deploy/hal_${CASE}_green.cfg ${CLOSURE_EMU}/config/${PROG}/${PROG}_hal_green.cfg
-
-cleandeps:
-	rm -rf $(DEPENDENCIES)

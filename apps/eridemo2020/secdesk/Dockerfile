@@ -1,4 +1,4 @@
-FROM closuredev:latest
+FROM gapsclosure/closuredev:latest
 
 RUN sudo apt update -y \
 &&  sudo apt install -y cmake software-properties-common
