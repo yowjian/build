@@ -20,7 +20,7 @@ deps:
 	rm -f .dependencies/pips/dlib*
 	wget https://github.com/gaps-closure/build/releases/download/v1.1/dlib-19.22.0-cp37-cp37m-linux_x86_64.whl
 	mv dlib-19.22.0-cp37-cp37m-linux_x86_64.whl .dependencies/pips
-	cd .dependencies/debs && apt download $(DEBPKGS)
+	cd .dependencies/debs && sudo apt update -y && apt download $(DEBPKGS)
 	
 
 pkg:
