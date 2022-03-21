@@ -12,7 +12,7 @@
       {
         "label": "0 CLEAN SOURCE",
         "type": "shell",
-        "command": "rm -rf annotated* partitioned divvied* refactored* *.json *.dot *.log *.ll;",
+        "command": "rm -rf annotated* partitioned divvied* refactored* jsons *.json *.dot *.log *.ll;",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -66,7 +66,7 @@
       {
         "label": "9b AUTOGEN GEDL, RPCs, IDL, Codecs",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh && mkdir -p partitioned && make -f .vscode/Makefile.gedl gedl FACE=1 && make -f .vscode/Makefile.gedl rautogen FACE=1 && make -f .vscode/Makefile.gedl rpc FACE=1;",
+        "command": "source .vscode/closure_env.sh && mkdir -p partitioned  && cp -r $CLOSURE_PYTHON/gedl/heuristics/ ./partitioned && make -f .vscode/Makefile.gedl gedl FACE=1 && make -f .vscode/Makefile.gedl rautogen FACE=1 && make -f .vscode/Makefile.gedl rpc FACE=1;",
         "args": [],
         "group": "build",
         "problemMatcher": []
