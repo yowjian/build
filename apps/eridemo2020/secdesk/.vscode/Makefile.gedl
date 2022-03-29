@@ -27,6 +27,7 @@ INCLUDES=-I$(LLVM_INCLUDE) -I$(CLOSURE_INCLUDES) -I../autogen
 
 # Different case from IPCMODE, same purpose, sigh!
 IPC_MODE=Multithreaded 
+#IPC_MODE=Singlethreaded
 
 # Application configuration
 INURI="ipc:///tmp/${PROG}sub"
