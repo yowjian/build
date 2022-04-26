@@ -23,7 +23,10 @@
      "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints": ["ORANGE"], \
-     "rettaints": ["TAG_RESPONSE_GET_A"] \
+     "rettaints": ["TAG_RESPONSE_GET_A"], \
+     "idempotent": true, \
+     "num_tries": 30, \
+     "timeout": 1000 \
     }, \
     {"remotelevel":"orange", \
      "direction": "bidirectional", \
