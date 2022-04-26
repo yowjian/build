@@ -6,6 +6,16 @@
      "direction": "egress", \
      "guarddirective": { "operation": "allow"}}\
   ] }
+#pragma cle def EWMA_MAIN {"level":"purple",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["PURPLE", "TAG_RESPONSE_GET_A"], \
+     "rettaints": ["PURPLE"] \
+    } \
+  ] }
 #pragma cle def XDLINKAGE_GET_A {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
@@ -45,7 +55,9 @@ double get_b() {
   b += b;
   return b;
 }
+#pragma cle begin EWMA_MAIN 
 int ewma_main() {
+#pragma cle end EWMA_MAIN 
   double x;
   double y;
 #pragma cle begin PURPLE
