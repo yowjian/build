@@ -136,7 +136,8 @@ RUN cd /tmp/build \
     && ./install.sh -o /opt/closure
 
 USER closure
-#ENV HOME /home/closure
+ENV HOME /home/closure
 ENV PATH=$PATH:/opt/minizinc/bin:$PATH
-# RUN echo "source /opt/closure/etc/closureenv" >> /home/closure/.bashrc
+RUN echo "source /opt/closure/etc/closureenv" >> /home/closure/.bashrc
+RUN echo "source /opt/closure/etc/closureenv" >> /home/closure/.bash_profile
 EXPOSE 21 22 6788 6789
