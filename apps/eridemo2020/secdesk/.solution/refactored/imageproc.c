@@ -10,7 +10,9 @@
      "guarddirective": {"operation": "allow"}, \
      "argtaints": [], \
      "codtaints": [], \
-     "rettaints": [] \
+     "rettaints": [], \
+     "num_tries": 3, \
+     "timeout": 2000 \
     }, \
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
@@ -28,7 +30,9 @@
      "guarddirective": {"operation": "allow"}, \
      "argtaints": [], \
      "codtaints": [], \
-     "rettaints": [] \
+     "rettaints": [], \
+     "num_tries": 30, \
+     "timeout": 1000 \
     }, \
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
@@ -46,7 +50,9 @@
      "guarddirective": {"operation": "allow"}, \
      "argtaints": [], \
      "codtaints": [], \
-     "rettaints": [] \
+     "rettaints": [], \
+     "num_tries": 10, \
+     "timeout": 500 \
     }, \
     {"remotelevel":"purple", \
      "direction": "bidirectional", \
