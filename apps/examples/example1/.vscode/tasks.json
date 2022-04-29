@@ -20,7 +20,7 @@
       {
         "label": "2 ANALYZE PARTITION CONFLICTS",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts topology && mkdir -p ./refactored && cp -r ./annotated/* ./refactored",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts assignments && mkdir -p ./refactored && cp -r ./annotated/* ./refactored",
         "args": [],
         "group": {
           "kind": "build",
@@ -66,7 +66,7 @@
       {
         "label": "9c VERIFY",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier verify",
+        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier verify; make -f .vscode/Makefile.verifier assignments",
         "args": [],
         "group": "build",
         "problemMatcher": []
