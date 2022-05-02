@@ -11,7 +11,7 @@ PYFLAGS = `python3-config --ldflags --libs`
 CFLAGS += -D__LEGACY_XDCOMMS__=1 -D__ONEWAY_RPC__=1 -I../../../../../../amqlib -I../../../../xdcc_echo -I$(CLOSURE_INCLUDES) -I../autogen
 
 $(APPEXE): $(APPOBJ)
-	gcc $(CFLAGS) -o $@ $^ $(MYLIB) $(PYFLAGS)
+	clang $(CFLAGS) -o $@ $^ $(MYLIB) $(PYFLAGS)
 
 clean:
 	rm -f $(APPEXE) $(APPOBJ) $(APPLL)
@@ -22,5 +22,5 @@ realclean:
 .SECONDARY:
 
 %.o: %.c
-	gcc -c $(CFLAGS) $< -o $@
+	clang -c $(CFLAGS) $< -o $@
 
