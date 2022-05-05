@@ -1,1 +1,1 @@
-Makefile.example
+example.make

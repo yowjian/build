@@ -17,6 +17,8 @@ enclave_folders_create := $(foreach enclave,$(ENCLAVES), $(shell mkdir -p $(ODIR
 
 CLANG_FLAGS=-emit-llvm -S -g -fno-builtin
 
+JOIN=.make/join.sh
+
 # Build arguments
 LLVM_INCLUDE=$(LLVM10)/lib/clang/10.0.1/include
 
@@ -94,7 +96,7 @@ $(EDIR)/rpc.done: $(EDIR)/prerpc.done
 	$(foreach p,$(ALL_RPCC), mv $(basename $p).mod.c $p;)
 	$(foreach p,$(ALL_RPCH), mv $(basename $p).mod.h $p;) 
 	$(foreach enclave,$(ENCLAVES), mkdir -p jsons/$(enclave);)
-	$(foreach enclave,$(ENCLAVES), bash -f .vscode/join.sh $(ODIR)/$(enclave) jsons/$(enclave)/$(PROG).all.clemap.json;)
+	$(foreach enclave,$(ENCLAVES), bash -f $(JOIN) $(ODIR)/$(enclave) jsons/$(enclave)/$(PROG).all.clemap.json;)
 	touch $(EDIR)/rpc.done
 
 # after generating RPC, run preprocessor on rpc files and rename; delete all LLs, but keep JSON
@@ -107,7 +109,7 @@ $(EDIR)/prerpc.done: rautogen $(AUTOGENDIR)/libcodecs.so $(AUTOGENDIR)/libcodecs
 rautogen: $(EDIR)/rautogen.done
 
 $(ODIR)/$(PROG).all.clemap.json:          
-	bash -f .vscode/join.sh $(EDIR) $(ODIR)/$(PROG).all.clemap.json
+	bash -f $(JOIN) $(EDIR) $(ODIR)/$(PROG).all.clemap.json
 
 $(EDIR)/rautogen.done: idl
 	cd $(AUTOGENDIR) && $(AUTOGEN) -i "$(PROG).idl" -g bw_v1 -d $(PROG)_bw.dfdl -e codec \
