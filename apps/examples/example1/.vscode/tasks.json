@@ -66,7 +66,7 @@
       {
         "label": "9c VERIFY",
         "type": "shell",
-        "command": "source .make/closure_env.sh; make -f .make/verifier.make verify; make -f .make/verifier.make assignments",
+        "command": "source .make/closure_env.sh; make -f .make/verifier.make verify; make -f .make/verifier.make analyze",
         "args": [],
         "group": "build",
         "problemMatcher": []

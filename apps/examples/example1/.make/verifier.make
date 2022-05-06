@@ -1,5 +1,5 @@
 IDIR=./divvied
-ODIR=$(realpath ./partitioned/$(IPCMODE))
+ODIR=$(realpath partitioned)
 
 ENCLAVES=
 enclaves_set := $(foreach enclave,$(sort $(dir $(wildcard $(IDIR)//*/))), $(eval ENCLAVES+=$(notdir $(enclave:%/=%))))
@@ -8,7 +8,6 @@ EDIR=./verifier
 RDIR=./refactored
 REFACTORED=./refactored-working
 PARTITIONED=
-
 CONSTRAINTS=$(CLOSURE_PYTHON)/conflict_analyzer/constraints
 partitioned_set := $(foreach enclave,$(ENCLAVES), $(eval PARTITIONED += $(ODIR)/$(enclave)))
 
@@ -30,23 +29,18 @@ MODCJH=$(patsubst %.h,%.h.clemap.json,$(HDR))
 all: 
 	echo "Nothing to do for all"
 
-assignments: analyze
-	$(foreach enclave, $(ENCLAVES), \
-		minizinc --solver Gecode $(CONSTRAINTS)/*.mzn $(EDIR)/$(enclave)/*.mzn > $(EDIR)/$(enclave)/label_assignments.txt; )
-
 analyze: $(EDIR)
 	$(foreach enclave, $(ENCLAVES), \
 		conflict_analyzer \
-			--clang-args="-I$(ODIR)/$(enclave),-I$(ODIR)/autogen,-I/opt/closure/include,-D__LEGACY_XDCOMMS__=1" \
-			--pdg-lib=$(CLOSURE_LIBS)/libpdg.so \
+			--clang-args="-I$(ODIR)/$(IPCMODE)/$(enclave),-I$(ODIR)/$(IPCMODE)/autogen,-I/opt/closure/include,-D__LEGACY_XDCOMMS__=1" \
+			--pdg-lib=/opt/closure/lib/libpdg.so \
 			--output=$(EDIR)/$(enclave)/topology.json \
-			--temp-dir=$(realpath $(EDIR)/$(enclave)) \
+			--artifact=$(EDIR)/$(enclave)/artifact.json \
 			--source-path=$(ODIR)/$(enclave) \
-			$(ODIR)/$(enclave)/*.c $(ODIR)/$(enclave)/*.h; )
+			$(ODIR)/$(IPCMODE)/$(enclave)/*.c $(ODIR)/$(IPCMODE)/$(enclave)/*.h;)
 
 $(EDIR):
-	mkdir -p $(EDIR)
-	$(foreach enclave, $(ENCLAVES), mkdir -p $(EDIR)/$(enclave))	
+	$(foreach enclave, $(ENCLAVES), $(shell mkdir -p $(EDIR)/$(enclave)))
 
 verify: $(REFACTORED)/preproc.done prep
 	$(VERIFIER) $(REFACTORED) $(PARTITIONED)
