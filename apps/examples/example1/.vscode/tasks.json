@@ -4,7 +4,7 @@
       {
         "label": "0 CLEAN SOURCE",
         "type": "shell",
-        "command": "rm -rf annotated partitioned divvied refactored jsons *working *.json;",
+        "command": "rm -rf annotated partitioned divvied refactored jsons verifier *working *.json;",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -66,7 +66,7 @@
       {
         "label": "9c VERIFY",
         "type": "shell",
-        "command": "source .make/closure_env.sh; make -f .make/verifier.make verify; make -f .make/verifier.make analyze",
+        "command": "source .make/closure_env.sh; make -f .make/verifier.make verify; make -f .make/verifier.make analyze; make -f .make/ect.make ect",
         "args": [],
         "group": "build",
         "problemMatcher": []

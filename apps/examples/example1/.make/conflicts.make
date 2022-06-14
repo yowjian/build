@@ -13,7 +13,7 @@ topology.json: $(EDIR)
 	--output topology.json \
 	--artifact artifact.json \
 	--source-path $(realpath .)/refactored \
-	annotated/example1.c 
+	annotated/$(PROG).c 
 
 $(EDIR):
 	mkdir -p $(EDIR)
