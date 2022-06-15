@@ -1,6 +1,6 @@
 {
 	"name": "CLOSUREDEV",
-	"image": "gapsclosure/closuredev:latest",
+	"image": "gapsclosure/closuredev:ect-integration",
 
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",

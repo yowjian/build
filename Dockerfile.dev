@@ -129,14 +129,20 @@ RUN cd /opt/ \
 &&  sudo wget https://github.com/MiniZinc/MiniZincIDE/releases/download/2.5.5/MiniZincIDE-2.5.5-bundle-linux-x86_64.tgz \
 &&  sudo tar -xvzf MiniZinc* -C minizinc --strip-components=1
 
-# copy and install
-COPY . /tmp/build
-RUN cd /tmp/build \
-    && mkdir /opt/closure \ 
-    && ./install.sh -o /opt/closure
+RUN mkdir /opt/closure && chown closure /opt/closure
 
 USER closure
 ENV HOME /home/closure
+
+# ECT/Haskell dependencies
+RUN sudo apt install -y clang-9 \
+&& curl -sSL https://get.haskellstack.org/ | sh
+
+# copy and install
+COPY --chown=closure . /tmp/build
+RUN cd /tmp/build \
+    && ./install.sh -o /opt/closure
+
 ENV PATH=$PATH:/opt/minizinc/bin:$PATH
 RUN echo "source /opt/closure/etc/closureenv" >> /home/closure/.bashrc
 RUN echo "source /opt/closure/etc/closureenv" >> /home/closure/.bash_profile

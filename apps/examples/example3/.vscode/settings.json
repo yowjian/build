@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "*.def": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "*.make": "makefile"
     },
     "git.ignoreLimitWarning": true
 }
