@@ -1,5 +1,5 @@
 IDIR=./divvied
-ODIR=$(realpath partitioned)
+ODIR=$(realpath partitioned)/$(IPCMODE)
 
 ENCLAVES=
 enclaves_set := $(foreach enclave,$(sort $(dir $(wildcard $(IDIR)//*/))), $(eval ENCLAVES+=$(notdir $(enclave:%/=%))))
@@ -32,12 +32,12 @@ all:
 analyze: $(EDIR)
 	$(foreach enclave, $(ENCLAVES), \
 		conflict_analyzer \
-			--clang-args="-I$(ODIR)/$(IPCMODE)/$(enclave),-I$(ODIR)/$(IPCMODE)/autogen,-I/opt/closure/include,-D__LEGACY_XDCOMMS__=1" \
+			--clang-args="-I$(ODIR)/$(enclave),-I$(ODIR)/autogen,-I/opt/closure/include,-D__LEGACY_XDCOMMS__=1" \
 			--pdg-lib=/opt/closure/lib/libpdg.so \
 			--output=$(EDIR)/$(enclave)/topology.json \
 			--artifact=$(EDIR)/$(enclave)/artifact.json \
 			--source-path=$(ODIR)/$(enclave) \
-			$(ODIR)/$(IPCMODE)/$(enclave)/*.c $(ODIR)/$(IPCMODE)/$(enclave)/*.h;)
+			$(ODIR)/$(enclave)/*.c $(ODIR)/$(enclave)/*.h;)
 
 $(EDIR):
 	$(foreach enclave, $(ENCLAVES), $(shell mkdir -p $(EDIR)/$(enclave)))

@@ -23,7 +23,8 @@ export PARTITIONER=partitioner
 # only used in cutzoom
 export DIV=divider
 export IDLGENERATOR=idl_generator
-export RPCGENERATOR=rpc_generator
+# export RPCGENERATOR=rpc_generator
+export RPCGENERATOR="python3 /workspaces/build/capo/C/gedl/rpc_generator.py"
 export AUTOGEN=hal_autogen
 export HALGEN=hal_autoconfig.py
 
@@ -38,3 +39,5 @@ export IPCMODEGEN=Multithreaded
 #export IPCMODEGEN=Singlethreaded
 export ENCLAVES="orange purple"
 export EXT=c
+export ECT=ect
+export LD_LIBRARY_PATH=ect/z3-4.8.8/lib:$LD_LIBRARY_PATH

@@ -2,14 +2,47 @@
 
 #pragma cle def PURPLE {"level":"purple"}
 #pragma cle def ORANGE {"level":"orange"}
-#pragma cle def EWMA_SHAREABLE {"level":"orange",\
+#pragma cle def ORANGE_SHAREABLE {"level":"orange",\
   "cdf": [\
     {"remotelevel":"purple", \
      "direction": "egress", \
+     "guarddirective": { "operation": "allow"}}\
+  ] }
+#pragma cle def EWMA_SHAREABLE {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "egress", \
      "guarddirective": { "operation": "allow"}, \
      "argtaints": [["ORANGE"], ["ORANGE"]], \
-     "codtaints": [], \
-     "rettaints": ["EWMA_SHAREABLE"] } \
+     "codtaints": ["ORANGE", "ORANGE_SHAREABLE"], \
+     "rettaints": ["ORANGE_SHAREABLE"] } \
+ ] }
+
+#pragma cle def XDLINKAGE_GET_EWMA {"level":"orange",	\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["ORANGE", "ORANGE_SHAREABLE"], \
+     "rettaints": ["TAG_RESPONSE_GET_EWMA"] },\
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["ORANGE", "ORANGE_SHAREABLE"], \
+     "rettaints": ["TAG_RESPONSE_GET_EWMA"] }\
+  ] }
+
+#pragma cle def EWMA_MAIN {"level":"purple",\
+  "cdf": [\
+    {"remotelevel":"purple", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["PURPLE", "TAG_REQUEST_GET_EWMA", "TAG_RESPONSE_GET_EWMA"], \
+     "rettaints": ["PURPLE"] \
+    } \
   ] }
 
 #pragma cle begin EWMA_SHAREABLE
@@ -37,16 +70,20 @@ double get_b() {
   return b;
 }
 
-#pragma cle begin PURPLE
+#pragma cle begin XDLINKAGE_GET_EWMA
+double get_ewma() {
+#pragma cle end XDLINKAGE_GET_EWMA
+  double x = get_a(); 
+  double y = get_b(); 
+  return calc_ewma(x,y);
+}
+
+#pragma cle begin EWMA_MAIN
 int ewma_main() {
-#pragma cle end PURPLE
-  double x;
-  double y;
+#pragma cle end EWMA_MAIN
   double ewma;
   for (int i=0; i < 10; i++) {
-    x = get_a();           // conflict with orange 
-    y = get_b();           // conflict with orange
-    ewma = calc_ewma(x,y); // calc_ewma blessed, but x,y conflicts propagate
+    ewma = get_ewma(); // conflict resolveable by wraping in RPC
     printf("%f\n", ewma);
   }
   return 0;
@@ -56,3 +93,4 @@ int main(int argc, char **argv) {
   return ewma_main();
 }
 
+// purple master: main, ewma_main

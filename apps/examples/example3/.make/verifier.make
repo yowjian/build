@@ -1,12 +1,14 @@
 IDIR=./divvied
-ODIR=./partitioned/$(IPCMODE)
+ODIR=$(realpath partitioned)/$(IPCMODE)
 
 ENCLAVES=
 enclaves_set := $(foreach enclave,$(sort $(dir $(wildcard $(IDIR)//*/))), $(eval ENCLAVES+=$(notdir $(enclave:%/=%))))
 
+EDIR=./verifier
 RDIR=./refactored
 REFACTORED=./refactored-working
 PARTITIONED=
+CONSTRAINTS=$(CLOSURE_PYTHON)/conflict_analyzer/constraints
 partitioned_set := $(foreach enclave,$(ENCLAVES), $(eval PARTITIONED += $(ODIR)/$(enclave)))
 
 SRC=
@@ -26,6 +28,19 @@ MODCJH=$(patsubst %.h,%.h.clemap.json,$(HDR))
 
 all: 
 	echo "Nothing to do for all"
+
+analyze: $(EDIR)
+	$(foreach enclave, $(ENCLAVES), \
+		conflict_analyzer \
+			--clang-args="-I$(ODIR)/$(enclave),-I$(ODIR)/autogen,-I/opt/closure/include,-D__LEGACY_XDCOMMS__=1" \
+			--pdg-lib=/opt/closure/lib/libpdg.so \
+			--output=$(EDIR)/$(enclave)/topology.json \
+			--artifact=$(EDIR)/$(enclave)/artifact.json \
+			--source-path=$(ODIR)/$(enclave) \
+			$(ODIR)/$(enclave)/*.c $(ODIR)/$(enclave)/*.h;)
+
+$(EDIR):
+	$(foreach enclave, $(ENCLAVES), $(shell mkdir -p $(EDIR)/$(enclave)))
 
 verify: $(REFACTORED)/preproc.done prep
 	$(VERIFIER) $(REFACTORED) $(PARTITIONED)
