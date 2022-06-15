@@ -7,6 +7,7 @@
      "direction": "bidirectional", \
      "guarddirective": { "operation": "allow"} } \
     ]}
+
 #pragma cle def XDLINKAGE_GET_EWMA {"level":"purple",	\
   "cdf": [\
     {"remotelevel":"orange", \
@@ -28,6 +29,17 @@
     {"remotelevel":"purple", \
      "direction": "egress", \
      "guarddirective": { "operation": "allow"}}\
+  ] }
+
+#pragma cle def EWMA_MAIN {"level":"orange",\
+  "cdf": [\
+    {"remotelevel":"orange", \
+     "direction": "bidirectional", \
+     "guarddirective": { "operation": "allow"}, \
+     "argtaints": [], \
+     "codtaints": ["ORANGE", "TAG_REQUEST_GET_EWMA", "TAG_RESPONSE_GET_EWMA"], \
+     "rettaints": ["ORANGE"] \
+    } \
   ] }
 
 double calc_ewma(double a, double b) {
@@ -65,15 +77,16 @@ double get_ewma(double x) {
   return z1;
 }
 
+#pragma cle begin EWMA_MAIN
 int ewma_main() {
+#pragma cle end EWMA_MAIN
   double x;
   double y;
-#pragma cle begin ORANGE
   double ewma;
-#pragma cle end ORANGE
   for (int i=0; i < 10; i++) {
     x = get_a();
-    ewma = get_ewma(x);
+    y = x;
+    ewma = get_ewma(y);
     printf("%f\n", ewma);
   }
   return 0;

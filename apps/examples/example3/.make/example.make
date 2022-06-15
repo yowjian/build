@@ -17,7 +17,7 @@ $(APPEXE): $(APPOBJ)
 
 clean:
 	rm -f $(APPEXE) $(APPOBJ) $(APPLL)
-
+	
 realclean:
 	rm -f $(APPEXE) $(APPOBJ) $(APPLL)
 
