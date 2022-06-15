@@ -7,5 +7,6 @@ topology:
 	--clang-args="-I$(realpath $(IDIR)),-I$(realpath $(IDIR)/facilio/include)" \
 	$(shell find $(IDIR) -name *.c) \
 	--output topology.json \
-	--source-path refactored
-	--log-level INFO
+	--source-path refactored \
+	--log-level INFO \
+	--artifact artifact.json

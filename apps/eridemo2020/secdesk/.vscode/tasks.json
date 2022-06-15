@@ -26,6 +26,14 @@
         "problemMatcher": []
       },
       {
+        "label": "1 ANNOTATE(pre-baked)",
+        "type": "shell",
+        "command": "mkdir annotated; cp -R .solution/refactored/* annotated; echo Prepared sources for CLE annotation by developer under ./annotated; echo Move to Conflict Analysis when done annotating",
+        "args": [],
+        "group": "build",
+        "problemMatcher": []
+      },
+      {
         "label": "2 ANALYZE PARTITION CONFLICTS",
         "type": "shell",
         "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts topology && mkdir -p ./refactored && cp -r ./annotated/* ./refactored",
