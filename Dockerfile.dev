@@ -146,4 +146,5 @@ RUN cd /tmp/build \
 ENV PATH=$PATH:/opt/minizinc/bin:$PATH
 RUN echo "source /opt/closure/etc/closureenv" >> /home/closure/.bashrc
 RUN echo "source /opt/closure/etc/closureenv" >> /home/closure/.bash_profile
+RUN echo "if [[ -e '/root/bashrc' ]]; then bash /root/bashrc; fi" >> /home/closure/.bashrc
 EXPOSE 21 22 6788 6789
