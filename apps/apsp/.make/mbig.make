@@ -19,8 +19,8 @@ else ifeq ($(HWMODE), mind)
 endif
 
 pkg:
-	tar cf ${PROG}-orange-enclave-gw-G.tar -C partitioned/${IPCMODE}/orange/ . -C $(CLOSURE_LIBS) libxdcomms.so
-	tar cf ${PROG}-green-enclave-gw-O.tar -C partitioned/${IPCMODE}/green/ . -C $(CLOSURE_LIBS) libxdcomms.so
+	tar cf ${PROG}-green-enclave-gw-O.tar -C partitioned/$(IPCMODE)/green/ . -C $(CLOSURE_LIBS) libxdcomms.so 
+	tar cf ${PROG}-orange-enclave-gw-G.tar -C partitioned/$(IPCMODE)/orange/ . -C $(CLOSURE_LIBS) libxdcomms.so
 	rm -rf $(EMU_DIR)/.apps
 	mkdir -p $(EMU_DIR)/.apps
 	mv *.tar $(EMU_DIR)/.apps/

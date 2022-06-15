@@ -1,5 +1,5 @@
 #!/bin/bash
-export PROG=apsp
+export PROG=$(eval basename `pwd`)
 export PYTHON="/usr/bin/python3 -u"
 
 CLOSURE_TOOLS=/opt/closure
@@ -35,5 +35,8 @@ export LLVMDIS=llvm-dis
 export HWMODE=emu
 export IPCMODE=multithreaded
 export IPCMODEGEN=Multithreaded
+#export IPCMODEGEN=Singlethreaded
 export ENCLAVES="orange green"
 export EXT=c
+export ECT=ect
+export LD_LIBRARY_PATH=ect/z3-4.8.8/lib:$LD_LIBRARY_PATH

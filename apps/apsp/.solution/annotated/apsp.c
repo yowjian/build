@@ -60,7 +60,7 @@
      "direction": "bidirectional", \
      "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
-     "codtaints": ["ORANGE_NONSHAREABLE", "ORANGE_SHAREABLE"], \
+     "codtaints": ["ORANGE_NONSHAREABLE", "ORANGE_SHAREABLE", "TAG_REQUEST_DISTANCEA", "TAG_RESPONSE_DISTANCEA", "TAG_RESPONSE_INIT_A"], \
      "rettaints": [] \
     } \
   ] }
