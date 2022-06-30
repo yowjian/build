@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="CLOSURE+MIND GAPS Demo -standard streaming communications protocol">
+  <meta name="keywords" content="h264 player, Trillium camera control, cross-domain system, jmuxer">
+  <title>CLOSURE+MIND GAPS Demonstration</title>
+</head>
+<body>
+<script type="text/javascript" src="jmuxer.min.js"></script>
+<div id="container" style="margin: 0 auto; text-align: center;">
+  <video style="border: 1px solid #333; max-width: 320px;" controls autoplay poster="loader-thumb.jpg" id="player"></video>
+  <!-- Camera control buttons here -->
+</div>
+
+<script>
+var jmuxer;
+var ws = 0;
+window.onload = function() {
+  var socketURL = 'wss://localhost:8443/ws/video';
+  var vw = document.getElementById('player');
+
+  jmuxer = new JMuxer({
+    node: 'player',
+    mode: 'video',
+    flushingTime: 1000,
+    fps: 25,
+    debug: true,
+  });
+
+  ws = new WebSocket(socketURL);
+  ws.binaryType = 'arraybuffer';
+  ws.addEventListener('message', function(e) { jmuxer.feed({ video: new Uint8Array(e.data) }); });
+  ws.addEventListener('error',   function(e) { console.log('Socket Error'); });
+}
+ 
+</script>
+</body>
+</html>
