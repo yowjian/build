@@ -9,17 +9,6 @@
 #define HTTPS_URL       "https://0.0.0.0:8443"
 #define WWW_ROOT        "./www"
 
-#define MAX_FRAME_BUF   64000
-//#define MAX_MDATA_BUF   1000
-#define MAX_MDATA_BUF   sizeof(struct llat_st)
-
-struct framebuf_st {
-  pthread_mutex_t flk;
-  char            newf;
-  size_t          size;
-  char            data[MAX_FRAME_BUF];
-};
-
 // ------------------------------------------------------------------------------------
 // Video processing that will run on ARM
 // ------------------------------------------------------------------------------------

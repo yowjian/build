@@ -10,8 +10,6 @@ LDFLAGS = -L $(OSDK)/Communications/x86 -lOrionComm -L $(OSDK)/Utils/x86 -lOrion
           -lmbedtls -lmbedcrypto -lmbedx509 \
           -lz -llzma -lbz2 -lpthread -lm 
 
-all: $(PROG)
- 
 $(PROG): $(SRCS)
 	$(CC) $(INCS) $(CFLAGS) -o $(PROG) $^ $(LDFLAGS) 
 
