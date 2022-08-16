@@ -1,5 +1,7 @@
 # CLOSURE build
 
+DEPRECATED. Please refer to [CLOSURE C Toolchain Documentation](https://github.com/gaps-closure/gaps-closure.github.io/)
+
 [![build](https://github.com/gaps-closure/build/actions/workflows/main.yml/badge.svg)](https://github.com/gaps-closure/build/actions/workflows/main.yml)
 [![docker](https://github.com/gaps-closure/build/actions/workflows/docker-image.yml/badge.svg)](https://github.com/gaps-closure/build/actions/workflows/docker-image.yml)
 
