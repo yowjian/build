@@ -1,9 +1,13 @@
 # CLOSURE build
 
-DEPRECATED. Please refer to [CLOSURE C Toolchain Documentation](https://github.com/gaps-closure/gaps-closure.github.io/)
-
 [![build](https://github.com/gaps-closure/build/actions/workflows/main.yml/badge.svg)](https://github.com/gaps-closure/build/actions/workflows/main.yml)
 [![docker](https://github.com/gaps-closure/build/actions/workflows/docker-image.yml/badge.svg)](https://github.com/gaps-closure/build/actions/workflows/docker-image.yml)
+
+
+**DEPRECATED**. Please refer to [CLOSURE C Toolchain Documentation](https://github.com/gaps-closure/gaps-closure.github.io/)
+
+
+
 
 This repository hosts references to all CLOSURE components and the scripts to build CLOSURE or individual components from source. The `master` branch contains the most recent public release software while `develop` contains bleeding-edge updates and work-in-progress features for use by beta testers and early adopters.
 
