@@ -7,6 +7,10 @@ jobs:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.4
+    
       - name: Check out the repo
         uses: actions/checkout@v2
         with:
@@ -30,5 +34,5 @@ jobs:
           context: .
           push: true
           file: Dockerfile.dev 
-          tags: gapsclosure/closuredev:latest 
+          tags: gapsclosure/closuredev:${{ steps.branch-name.outputs.current_branch }} 
           labels: ${{ steps.meta.outputs.labels }}
