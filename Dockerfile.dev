@@ -143,7 +143,8 @@ COPY --chown=closure . /tmp/build
 RUN cd /tmp/build \
     && ./install.sh -o /opt/closure
 
-RUN sudo rm -rf /tmp/build
+# Small fix for ect
+# RUN sudo rm -rf /tmp/build
 
 ENV PATH=$PATH:/opt/minizinc/bin:$PATH
 RUN echo "source /opt/closure/etc/closureenv" >> /home/closure/.bashrc
