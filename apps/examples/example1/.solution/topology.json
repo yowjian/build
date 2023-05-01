@@ -1,35 +1,44 @@
 {
-    "source_path": "./refactored",
-    "levels": [
-        "purple",
-        "orange"
-    ],
-    "global_scoped_vars": [],
-    "functions": [
-        {
-            "name": "calc_ewma",
-            "level": "purple",
-            "line": "12"
-        },
-        {
-            "name": "get_a",
-            "level": "orange",
-            "line": "19"
-        },
-        {
-            "name": "get_b",
-            "level": "purple",
-            "line": "29"
-        },
-        {
-            "name": "ewma_main",
-            "level": "purple",
-            "line": "39"
-        },
-        {
-            "name": "main",
-            "level": "purple",
-            "line": "56"
-        }
-    ]
+  "source_path": "/workspaces/build/apps/examples/example1/refactored",
+  "enclaves": [
+    "orange_E",
+    "purple_E"
+  ],
+  "levels": [
+    "orange",
+    "purple"
+  ],
+  "functions": [
+    {
+      "name": "get_a",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 47
+    },
+    {
+      "name": "ewma_main",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 69
+    },
+    {
+      "name": "get_b",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 58
+    },
+    {
+      "name": "calc_ewma",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 39
+    },
+    {
+      "name": "main",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 87
+    }
+  ],
+  "global_scoped_vars": []
 }

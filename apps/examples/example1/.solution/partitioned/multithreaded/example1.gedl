@@ -1,4 +1,5 @@
-{"gedl": [
+{
+"gedl": [
 	{
 		"caller": "purple",
 		"callee": "orange",
@@ -10,7 +11,7 @@
 				"params": [
 				],
 				"occurs": [
-					{"file": "/home/rkrishnan/gaps/build/apps/examples/example1/./divvied/purple/example1.mod.c", "lines": [50]}
+					{"file": "/workspaces/build/apps/examples/example1/./divvied-working/purple/example1.c", "lines": [67]}
 				]
 			}
 		]

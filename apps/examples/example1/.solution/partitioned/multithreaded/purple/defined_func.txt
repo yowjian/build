@@ -1,4 +1,4 @@
-calc_ewma
-get_b
 ewma_main
+get_b
+calc_ewma
 main

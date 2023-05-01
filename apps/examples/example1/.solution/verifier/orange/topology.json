@@ -1,0 +1,48 @@
+{
+  "source_path": "/workspaces/build/apps/examples/example1/partitioned/multithreaded/orange",
+  "enclaves": [
+    "orange_E"
+  ],
+  "levels": [
+    "orange"
+  ],
+  "functions": [
+    {
+      "name": "get_a",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 43
+    },
+    {
+      "name": "main",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 57
+    },
+    {
+      "name": "_handle_request_get_a",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 19
+    },
+    {
+      "name": "_hal_init",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 5
+    },
+    {
+      "name": "_wrapper_request_get_a",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 115
+    },
+    {
+      "name": "_slave_rpc_loop",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 118
+    }
+  ],
+  "global_scoped_vars": []
+}
