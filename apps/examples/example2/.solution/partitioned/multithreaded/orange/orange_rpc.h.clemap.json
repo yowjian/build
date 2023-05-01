@@ -1,0 +1,142 @@
+[
+  {
+    "cle-label": "RPC_GET_EWMA",
+    "cle-json": {
+      "level": "orange",
+      "cdf": [
+        {
+          "remotelevel": "orange",
+          "direction": "bidirectional",
+          "guarddirective": {
+            "operation": "allow"
+          },
+          "argtaints": [
+            [
+              "TAG_REQUEST_GET_EWMA",
+              "TAG_RESPONSE_GET_EWMA"
+            ],
+            [
+              "TAG_REQUEST_GET_EWMA",
+              "TAG_RESPONSE_GET_EWMA"
+            ]
+          ],
+          "codtaints": [
+            "TAG_REQUEST_GET_EWMA",
+            "TAG_RESPONSE_GET_EWMA"
+          ],
+          "rettaints": [
+            "TAG_RESPONSE_GET_EWMA"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "cle-label": "ERR_HANDLE_RPC_GET_EWMA",
+    "cle-json": {
+      "level": "orange",
+      "cdf": [
+        {
+          "remotelevel": "orange",
+          "direction": "bidirectional",
+          "guarddirective": {
+            "operation": "allow"
+          },
+          "argtaints": [
+            [
+              "TAG_REQUEST_GET_EWMA",
+              "TAG_RESPONSE_GET_EWMA"
+            ]
+          ],
+          "codtaints": [
+            "TAG_REQUEST_GET_EWMA",
+            "TAG_RESPONSE_GET_EWMA"
+          ],
+          "rettaints": [
+            "TAG_RESPONSE_GET_EWMA"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "cle-label": "TAG_NEXTRPC",
+    "cle-json": {
+      "level": "orange",
+      "cdf": [
+        {
+          "remotelevel": "purple",
+          "direction": "egress",
+          "guarddirective": {
+            "operation": "allow",
+            "gapstag": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "cle-label": "TAG_OKAY",
+    "cle-json": {
+      "level": "orange",
+      "cdf": [
+        {
+          "remotelevel": "orange",
+          "direction": "egress",
+          "guarddirective": {
+            "operation": "allow",
+            "gapstag": [
+              2,
+              2,
+              2
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "cle-label": "TAG_REQUEST_GET_EWMA",
+    "cle-json": {
+      "level": "orange",
+      "cdf": [
+        {
+          "remotelevel": "purple",
+          "direction": "egress",
+          "guarddirective": {
+            "operation": "allow",
+            "gapstag": [
+              1,
+              1,
+              3
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "cle-label": "TAG_RESPONSE_GET_EWMA",
+    "cle-json": {
+      "level": "orange",
+      "cdf": [
+        {
+          "remotelevel": "orange",
+          "direction": "egress",
+          "guarddirective": {
+            "operation": "allow",
+            "gapstag": [
+              2,
+              2,
+              4
+            ]
+          }
+        }
+      ]
+    }
+  }
+]

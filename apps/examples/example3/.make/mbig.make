@@ -18,10 +18,13 @@ else ifeq ($(HWMODE), mind)
 	DEVFILE := $(CLOSURE_DEVICES)/devices_eop_mind.json
 endif
 
-pkg:
+pkg: hal
 	tar cf example1-orange-enclave-gw-P.tar -C partitioned/$(IPCMODE)/orange/ . -C $(CLOSURE_LIBS) libxdcomms.so
 	tar cf example1-purple-enclave-gw-O.tar -C partitioned/$(IPCMODE)/purple/ . -C $(CLOSURE_LIBS) libxdcomms.so
 	rm -rf $(EMU_DIR)/.apps
 	mkdir -p $(EMU_DIR)/.apps
 	mv *.tar $(EMU_DIR)/.apps/
-	$(HALGEN) -o $(CFG_DIR) -x $(ODIR)/xdconf.ini -d $(DEVFILE) -p $(PROG)_hal
+	cp $(ODIR)/$(PROG)_hal*.cfg $(CFG_DIR)
+
+hal:
+	$(HALGEN) -o $(ODIR) -x $(ODIR)/xdconf.ini -d $(DEVFILE) -p $(PROG)_hal
