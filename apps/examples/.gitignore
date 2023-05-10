@@ -1,6 +1,4 @@
 *.o
-*.dfdl
-*codec*
 example*/annotated/
 example*/divvied/
 example*/partitioned/
@@ -10,4 +8,6 @@ example*/artifact.json
 example*/verifier
 *-working/
 */jsons/
+*.so
+*.a
 
