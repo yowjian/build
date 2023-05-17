@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is learning
 on: [push]
 jobs:
   check-pytest-version:
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3        
         with:
