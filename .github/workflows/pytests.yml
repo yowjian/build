@@ -1,1 +1,8 @@
 name: pytest examples
+run-name: ${{ github.actor }} is learning
+on: [push]
+jobs:
+  check-pytest-version:
+    run-on: ubuntu-latest
+    steps:
+      - run: pytest -v
