@@ -11,7 +11,7 @@ jobs:
           submodules: true
           
       - name: Get branch name
-        id: branch name
+        id: branch-name
         uses: tj-actions/branch-names@v7
         
       - name: Current branch name
