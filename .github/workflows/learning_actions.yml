@@ -26,6 +26,9 @@ jobs:
       - name: Current branch name
         run: |
           echo "${{ steps.branch-name.outputs.current_branch }}"
+      - name: install pytest
+        run: pip install -U pytest
+      - run: pytest --version
+      
       - name: list directory
-        run: |
-          ls /usr/bin
+        run: ls /usr/bin/py*
