@@ -34,3 +34,6 @@ jobs:
       
       - name: list directory
         run: ls /usr/bin/py*
+        
+      - name: test docker pull
+        run: docker pull gapsclosure/closuredev:develop
