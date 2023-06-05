@@ -31,9 +31,10 @@ jobs:
       - name: install pytest
         run: pip install -U pytest
       - run: pytest --version
-      
-      - name: list directory
-        run: ls /usr/bin/py*
         
       - name: test docker pull
         run: docker pull gapsclosure/closuredev:develop
+      - name: test git clone
+        run: git clone --recurse-submodules https://github.com/gaps-closure/build.git
+      - name: test container up
+        run: devcontainer up --config build/apps/examples/example1/.cicd/devcontainer.json --workspace-folder build/apps/examples example1
