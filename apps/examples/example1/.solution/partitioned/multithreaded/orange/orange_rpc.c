@@ -42,10 +42,14 @@ void _handle_request_get_a() {
     static void *ssocket;
 #endif /* __LEGACY_XDCOMMS__ */
     #pragma cle begin TAG_REQUEST_GET_A
+#pragma clang attribute push (__attribute__((annotate("TAG_REQUEST_GET_A"))), apply_to = any(function,type_alias,record,enum,variable(unless(is_parameter)),field))
     request_get_a_datatype request_get_a;
+#pragma clang attribute pop
     #pragma cle end TAG_REQUEST_GET_A
     #pragma cle begin TAG_RESPONSE_GET_A
+#pragma clang attribute push (__attribute__((annotate("TAG_RESPONSE_GET_A"))), apply_to = any(function,type_alias,record,enum,variable(unless(is_parameter)),field))
     response_get_a_datatype response_get_a;
+#pragma clang attribute pop
     #pragma cle end TAG_RESPONSE_GET_A
 #ifndef __LEGACY_XDCOMMS__
     codec_map  mycmap[DATA_TYP_MAX];
