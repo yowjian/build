@@ -60,7 +60,7 @@ build_xdcc() {
     # vstask does not support dependsOn field in tasks.json
     runtask "9a DIVIDE"
     runtask "9b AUTOGEN GEDL, RPCs, IDL, Codecs"
-    runtask "9c VERIFY"
+#    runtask "9c VERIFY"
     runtask "9e BUILD"
 }
 

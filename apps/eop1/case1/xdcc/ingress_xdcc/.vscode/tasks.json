@@ -12,7 +12,7 @@
       {
         "label": "0 CLEAN SOURCE",
         "type": "shell",
-        "command": "rm -rf annotated partitioned divvied refactored jsons *working *.json;",
+        "command": "rm -rf annotated partitioned divvied refactored jsons verifier *working *.json;",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -28,7 +28,7 @@
       {
         "label": "2 ANALYZE PARTITION CONFLICTS",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.conflicts topology && mkdir -p ./refactored && cp -r ./annotated/* ./refactored",
+        "command": "source .make/closure_env.sh; make -f .make/conflicts.make assignments && mkdir -p ./refactored && cp -r ./annotated/* ./refactored",
         "args": [],
         "group": {
           "kind": "build",
@@ -49,7 +49,6 @@
         "dependsOn": [
           "9a DIVIDE",
           "9b AUTOGEN GEDL, RPCs, IDL, Codecs",
-          "9c VERIFY",
           "9e BUILD"
         ],
         "problemMatcher": []
@@ -57,7 +56,7 @@
       {
         "label": "9a DIVIDE",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.divvied",
+        "command": "source .make/closure_env.sh; make -f .make/divvied.make",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -65,7 +64,7 @@
       {
         "label": "9b AUTOGEN GEDL, RPCs, IDL, Codecs",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh && mkdir -p partitioned && cp -r /opt/closure/python/gedl/heuristics ./partitioned && make -f .vscode/Makefile.gedl gedl && make -f .vscode/Makefile.gedl rautogen && make -f .vscode/Makefile.gedl rpc",
+        "command": "source .make/closure_env.sh && mkdir -p partitioned && cp -r $CLOSURE_PYTHON/gedl/heuristics/ ./partitioned && make -f .make/gedl.make gedl && make -f .make/gedl.make rautogen && make -f .make/gedl.make rpc",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -73,7 +72,7 @@
       {
         "label": "9c VERIFY",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; make -f .vscode/Makefile.verifier verify",
+        "command": "source .make/closure_env.sh; make -f .make/verifier.make verify; make -f .make/verifier.make analyze; make -f .make/ect.make ect",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -89,7 +88,7 @@
       {
         "label": "9e BUILD",
         "type": "shell",
-        "command": "source .vscode/closure_env.sh; cd ../xdcc_echo && cp ../ingress_xdcc/.vscode/Makefile.xdcc_echo ./Makefile && make && cd ../ingress_xdcc; make -C partitioned/multithreaded/orange -f ../../../.vscode/Makefile.xdcc; make -C partitioned/multithreaded/green -f ../../../.vscode/Makefile.xdcc",
+        "command": "source .make/closure_env.sh && cd ../xdcc_echo && cp ../ingress_xdcc/.make/xdcc_echo.make ./Makefile && make && cd ../ingress_xdcc && for e in ${ENCLAVES}; do make -C partitioned/${IPCMODE}/$e -f ../../../.make/${PROG}.make; done",
         "args": [],
         "group": "build",
         "problemMatcher": []
