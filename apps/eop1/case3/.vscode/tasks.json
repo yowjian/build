@@ -88,7 +88,7 @@
       {
         "label": "CLEAN",
         "type": "shell",
-        "command": "rm -f *smt2 *.json *.ini *.tar; rm -rf .dependencies; rm -f deploy/*.cfg; rm -f deploy/*.ini; rm -f design/config.json; rm -rf design/schema-new; cd xdcc/egress_xdcc; rm -rf annotated partitioned divvied refactored jsons *working *.json; cd ../ingress_xdcc; rm -rf annotated partitioned divvied refactored jsons *working *.json;",
+        "command": "rm -f *smt2 *.json *.ini *.tar; rm -rf .dependencies; rm -f deploy/*.cfg; rm -f deploy/*.ini; rm -f design/config.json; rm -rf design/schema-new; cd xdcc/egress_xdcc; rm -rf xdcc_autogen annotated partitioned divvied refactored jsons *working *.json; cd ../ingress_xdcc; rm -rf xdcc_autogen annotated partitioned divvied refactored jsons *working *.json;",
         "args": [],
         "group": "build",
         "problemMatcher": []
