@@ -9,9 +9,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 # Add libraries for linking activeMQ
-include_directories(BEFORE  pinstall/include/activemq-cpp-3.9.5 /usr/include/apr-1.0/)
+include_directories(BEFORE  /opt/eop1/pinstall/include/activemq-cpp-3.9.5 /usr/include/apr-1.0/)
 
-link_directories(BEFORE install/lib64 pinstall/lib gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib)
+link_directories(BEFORE /opt/eop1/install/lib64 /opt/eop1/pinstall/lib /opt/eop1/gaps.ma.dependencies/deps/opencv/ffmpeg/install/lib)
 
 add_subdirectory(EOIR)
 add_subdirectory(ISRM)

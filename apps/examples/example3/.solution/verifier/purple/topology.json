@@ -1,0 +1,48 @@
+{
+  "source_path": "/workspaces/build/apps/examples/example3/partitioned/multithreaded/purple",
+  "enclaves": [
+    "purple_E"
+  ],
+  "levels": [
+    "purple"
+  ],
+  "functions": [
+    {
+      "name": "ewma_main",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 56
+    },
+    {
+      "name": "main",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 68
+    },
+    {
+      "name": "_rpc_get_ewma",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 19
+    },
+    {
+      "name": "_err_handle_rpc_get_ewma",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 167
+    },
+    {
+      "name": "_hal_init",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 5
+    },
+    {
+      "name": "_master_rpc_init",
+      "level": "purple",
+      "enclave": "purple_E",
+      "line": 176
+    }
+  ],
+  "global_scoped_vars": []
+}

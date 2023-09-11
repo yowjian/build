@@ -47,15 +47,9 @@
         "command": "firefox --new-window http://127.0.0.1:11358/",
         "args": [],
         "group": "build",
-        // This task is run before some debug tasks.
-        // Problem is, it's a watch script, and since it never exits, VSCode
-        // complains. All this is needed so VSCode just lets it run.
-        "problemMatcher": [
-        ],
+        "problemMatcher": [],
         "dependsOrder": "sequence",
-        "dependsOn": [
-  
-        ]         
+        "dependsOn": []
       },
       {
         "label": "A6 CODE GENERATION",
@@ -71,7 +65,7 @@
         "command": "",
         "args": [],
         "group": {
-          "kind": "build",
+          "kind": "build"
         },
         "dependsOrder": "sequence",
         "dependsOn": [
@@ -88,7 +82,7 @@
       {
         "label": "CLEAN",
         "type": "shell",
-        "command": "rm -f *smt2 *.json *.ini *.tar; rm -rf .dependencies; rm -f deploy/*.cfg; rm -f deploy/*.ini; rm -f design/config.json; rm -rf design/schema-new; cd xdcc/egress_xdcc; rm -rf annotated partitioned divvied refactored jsons *working *.json; cd ../ingress_xdcc; rm -rf annotated partitioned divvied refactored jsons *working *.json;",
+        "command": "rm -f *smt2 *.json *.ini *.tar; rm -rf .dependencies; rm -f deploy/*.cfg; rm -f deploy/*.ini; rm -f design/config.json; rm -rf design/schema-new; rm -rf xdcc/xdcc_echo; cd xdcc/egress_xdcc; rm -rf xdcc_autogen annotated partitioned divvied refactored jsons *working *.json; cd ../ingress_xdcc; rm -rf xdcc_autogen annotated partitioned divvied refactored jsons *working *.json;",
         "args": [],
         "group": "build",
         "problemMatcher": []
@@ -132,9 +126,6 @@
         "command": "source .vscode/closure_env.sh; ${XDMF_VIEW} -f design/design_spec.json < /dev/null > /dev/null 2>&1 ",
         "args": [],
         "group": "build",
-        // This task is run before some debug tasks.
-        // Problem is, it's a watch script, and since it never exits, VSCode
-        // complains. All this is needed so VSCode just lets it run.
         "problemMatcher": [
           {
             "pattern": [
@@ -148,7 +139,7 @@
             "background": {
               "activeOnStart": true,
               "beginsPattern": ".",
-              "endsPattern": ".",
+              "endsPattern": "."
             }
           }
         ]
@@ -160,6 +151,6 @@
             "description": "egress or ingress",
             "default": "egress",
             "type": "promptString"
-        },
+        }
     ]    
   }

@@ -1,8 +1,6 @@
 {
-	"name": "CLOSUREDEV",
-    "build": {
-		"dockerfile": "../../Dockerfile"
-	},
+	"name": "CLOSUREDEV-EOP1",
+	"image": "gapsclosure/closuredev:eop1",
 
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",

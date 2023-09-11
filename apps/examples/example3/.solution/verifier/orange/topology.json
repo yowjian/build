@@ -1,0 +1,66 @@
+{
+  "source_path": "/workspaces/build/apps/examples/example3/partitioned/multithreaded/orange",
+  "enclaves": [
+    "orange_E"
+  ],
+  "levels": [
+    "orange"
+  ],
+  "functions": [
+    {
+      "name": "calc_ewma",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 52
+    },
+    {
+      "name": "get_ewma",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 89
+    },
+    {
+      "name": "get_a",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 62
+    },
+    {
+      "name": "get_b",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 74
+    },
+    {
+      "name": "main",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 101
+    },
+    {
+      "name": "_handle_request_get_ewma",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 19
+    },
+    {
+      "name": "_hal_init",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 5
+    },
+    {
+      "name": "_wrapper_request_get_ewma",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 115
+    },
+    {
+      "name": "_slave_rpc_loop",
+      "level": "orange",
+      "enclave": "orange_E",
+      "line": 118
+    }
+  ],
+  "global_scoped_vars": []
+}
