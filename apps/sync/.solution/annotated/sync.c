@@ -27,12 +27,12 @@
      "guarddirective": { "operation": "allow"} \
     } \
   ] }
-// Information on the source enclave (level green) that can be shared with source enclave (level orange)
+// Information on the source enclave (level green) that cget_sink_socket(an be shared with source enclave (level orange)
 #pragma cle def GREEN_SHARABLE {"level":"green",\
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"} \ 
+     "guarddirective": { "operation": "allow"} \
     } \
   ] }
 
@@ -56,14 +56,14 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"}, \ 
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints" : ["ORANGE", "ORANGE_SHARABLE"], \
      "rettaints" : ["ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET"] \
     }, \
     {"remotelevel":"green", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"}, \ 
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints" : ["ORANGE", "ORANGE_SHARABLE"], \
      "rettaints" : ["ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET"] \
@@ -76,14 +76,14 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"}, \ 
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_UPDATE_SINK"], ["TAG_REQUEST_UPDATE_SINK"]], \
      "codtaints" : ["ORANGE", "ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
      "rettaints" : ["TAG_RESPONSE_UPDATE_SINK"] \
     }, \
     {"remotelevel":"green", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"}, \ 
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [["TAG_REQUEST_UPDATE_SINK"], ["TAG_REQUEST_UPDATE_SINK"]], \
      "codtaints" : ["ORANGE", "ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
      "rettaints" : ["TAG_RESPONSE_UPDATE_SINK"] \
@@ -96,7 +96,7 @@
   "cdf": [\
     {"remotelevel":"green", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"}, \ 
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints" : ["GREEN", "GREEN_SHARABLE", "TAG_RESPONSE_UPDATE_SINK", "TAG_REQUEST_UPDATE_SINK"], \
      "rettaints" : ["GREEN"] \
@@ -109,14 +109,14 @@
   "cdf": [\
     {"remotelevel":"orange", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"}, \ 
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints" : ["ORANGE", "ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
      "rettaints" : ["TAG_RESPONSE_SHUTDOWN_SYNC"] \
     }, \
     {"remotelevel":"green", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"}, \ 
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints" : ["ORANGE", "ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
      "rettaints" : ["TAG_RESPONSE_SHUTDOWN_SYNC"] \
@@ -129,7 +129,7 @@
   "cdf": [\
     {"remotelevel":"green", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"}, \ 
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [["GREEN"], ["GREEN_SHARABLE"], ["GREEN_SHARABLE"]], \
      "codtaints" : [], \
      "rettaints" : ["GREEN"] \
@@ -141,7 +141,7 @@
   "cdf": [\
     {"remotelevel":"green", \
      "direction": "egress", \
-     "guarddirective": { "operation": "allow"}, \ 
+     "guarddirective": { "operation": "allow"}, \
      "argtaints": [], \
      "codtaints" : ["GREEN", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET", "TAG_RESPONSE_SHUTDOWN_SINK", "TAG_REQUEST_SHUTDOWN_SINK"], \
      "rettaints" : [] \
@@ -389,13 +389,14 @@ void inhint(char* ignored, char* input, int len) { }
 
 //CLE: will be on sink / orange side
 #pragma cle begin UPDATE_SINK
-void update_sink(char* output, int len) {
+int update_sink(char* output, int len) {
 #pragma cle end UPDATE_SINK
     inhint(output, output, BLOCK_SIZE);
     if (send(get_sink_socket(), output, len, 0) < 0) {
         perror("send\n");
         exit(1);
     }
+    return 0;
 }
 
 //CLE: this function makes non-sharable input to sharable return
@@ -453,12 +454,13 @@ void shutdown_source() {
 
 //CLE: sink / orange side
 #pragma cle begin SHUTDOWN_SINK
-void shutdown_sink() {
+int shutdown_sink() {
 #pragma cle end SHUTDOWN_SINK
     int sink_sock = -1;
     if ((sink_sock = get_sink_socket()) != -1) {
         close(sink_sock);
     }
+    return 0;
 }
 
 void run_tests() {
@@ -517,7 +519,7 @@ int main() {
 #pragma cle end MAIN
     init_buffer();
     get_source_socket();
-    get_sink_socket();
+    // get_sink_socket(); //GEDL generator and downstream tools failing: when fixed we can uncomment
     start_recv_thread();
     pop_source_and_update_sink();
     shutdown_source();
