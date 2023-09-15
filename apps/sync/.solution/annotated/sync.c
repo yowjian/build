@@ -385,11 +385,13 @@ void start_recv_thread() {
     pthread_create(&id, NULL, source_receive, NULL);
     // pthread_join(id, NULL);
 }
+void inhint(char* ignored, char* input, int len) { }
 
 //CLE: will be on sink / orange side
 #pragma cle begin UPDATE_SINK
 void update_sink(char* output, int len) {
 #pragma cle end UPDATE_SINK
+    inhint(output, output, BLOCK_SIZE);
     if (send(get_sink_socket(), output, len, 0) < 0) {
         perror("send\n");
         exit(1);
@@ -418,11 +420,14 @@ void pop_source_and_update_sink() {
         memset(output, 0, sizeof(output));
         memset(san_output, 0, sizeof(san_output));
         #pragma cle begin GREEN_SHARABLE
+        // is this thread safe?
         int len = circ_buff.block_lengths[circ_buff.head];
         #pragma cle end GREEN_SHARABLE
         if (len != 0) {
             printf("Len isnt 0\n");
             memcpy(output, head(), head_len());
+            // ensure that pop is the only function modifying head and head_len 
+            // only this thread calls pop
             pop();
             sanitize(output, san_output, len);
             update_sink(san_output, len);
