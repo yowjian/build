@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <time.h>
+#include <pthread.h>
 
 // Data Annotations
 // Circular buffer is on the green side and not shareable
@@ -57,15 +58,15 @@
      "direction": "egress", \
      "guarddirective": { "operation": "allow"}, \ 
      "argtaints": [], \
-     "codtaints" : ["ORANGE"], \
-     "rettaints" : ["TAG_RESPONSE_GET_SINK_SOCKET"] \
+     "codtaints" : ["ORANGE", "ORANGE_SHARABLE"], \
+     "rettaints" : ["ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET"] \
     }, \
     {"remotelevel":"green", \
      "direction": "egress", \
      "guarddirective": { "operation": "allow"}, \ 
      "argtaints": [], \
-     "codtaints" : ["ORANGE"], \
-     "rettaints" : ["TAG_RESPONSE_GET_SINK_SOCKET"] \
+     "codtaints" : ["ORANGE", "ORANGE_SHARABLE"], \
+     "rettaints" : ["ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET"] \
     } \
   ] \
 }
@@ -77,14 +78,14 @@
      "direction": "egress", \
      "guarddirective": { "operation": "allow"}, \ 
      "argtaints": [["TAG_REQUEST_UPDATE_SINK"], ["TAG_REQUEST_UPDATE_SINK"]], \
-     "codtaints" : ["ORANGE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
+     "codtaints" : ["ORANGE", "ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
      "rettaints" : ["TAG_RESPONSE_UPDATE_SINK"] \
     }, \
     {"remotelevel":"green", \
      "direction": "egress", \
      "guarddirective": { "operation": "allow"}, \ 
      "argtaints": [["TAG_REQUEST_UPDATE_SINK"], ["TAG_REQUEST_UPDATE_SINK"]], \
-     "codtaints" : ["ORANGE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
+     "codtaints" : ["ORANGE", "ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
      "rettaints" : ["TAG_RESPONSE_UPDATE_SINK"] \
     } \
   ] \
@@ -110,14 +111,14 @@
      "direction": "egress", \
      "guarddirective": { "operation": "allow"}, \ 
      "argtaints": [], \
-     "codtaints" : ["ORANGE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
+     "codtaints" : ["ORANGE", "ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
      "rettaints" : ["TAG_RESPONSE_SHUTDOWN_SYNC"] \
     }, \
     {"remotelevel":"green", \
      "direction": "egress", \
      "guarddirective": { "operation": "allow"}, \ 
      "argtaints": [], \
-     "codtaints" : ["ORANGE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
+     "codtaints" : ["ORANGE", "ORANGE_SHARABLE", "TAG_RESPONSE_GET_SINK_SOCKET", "TAG_REQUEST_GET_SINK_SOCKET"], \
      "rettaints" : ["TAG_RESPONSE_SHUTDOWN_SYNC"] \
     } \
   ] \
@@ -136,7 +137,6 @@
   ] \
 }
 
-
 #pragma cle def MAIN {"level":"green",\
   "cdf": [\
     {"remotelevel":"green", \
@@ -154,11 +154,12 @@
 #define SINK 8087
 #define SOURCE 8088
 
+#define BLOCK_SIZE 1024 
+#define NUM_BLOCKS 64 
+
 struct circular_buffer {
     pthread_mutex_t lock; // acquire lock before reading or writing any block then release
     char* buffer; //total memory for all blocks = block_size * num_blocks
-    int block_size; //maximum size of a single block
-    int num_blocks; //maximum number of blocks in buffer
     int* block_lengths; //num_blocks sized array containing the length of each block 
     int cur_size; // number of blocks currently used
     int head; //index of the head of the queue in the circular buffer [0:num_blocks - 1]
@@ -166,122 +167,68 @@ struct circular_buffer {
 };
 
 
-//CLE: will be annotated to be on source / green side and not sharable
+// //CLE: will be annotated to be on source / green side and not sharable
 
 #pragma cle begin GREEN
 struct circular_buffer circ_buff = {
     .cur_size = 0,
     .head = 0,
-    .tail = 0 
+    .tail = 0
 };
-struct circular_buffer* cb = &circ_buff;
 #pragma cle end GREEN
 
 // Getters
 
-pthread_mutex_t* get_lock() {
-    return &cb->lock;
+char* head() {
+    return circ_buff.buffer + (circ_buff.head * BLOCK_SIZE);
 }
 
-char* get_buffer() {
-    return cb->buffer;
+char* tail() {
+    return circ_buff.buffer + (circ_buff.tail * BLOCK_SIZE);
 }
 
-int* get_block_lengths() {
-    return cb->block_lengths;
+int head_len() {
+    return circ_buff.block_lengths[circ_buff.head];
 }
 
-int get_block_size() {
-    return cb->block_size;
-}
-
-int get_num_blocks() {
-    return cb->num_blocks;
-}
-
-int get_cur_size() {
-    return cb->cur_size;
-}
-
-int get_head() {
-    return cb->head;
-}
-
-int get_tail() {
-    return cb->tail;
-}
-
-// Setters
-
-void set_block_size(int inp) {
-    cb->block_size = inp;
-}
-
-void set_num_blocks(int inp) {
-    cb->num_blocks = inp;
-}
-
-void set_cur_size(int inp) {
-    cb->cur_size = inp;
-}
-
-void set_head(int inp) {
-    cb->head = inp;
-}
-
-void set_tail(int inp) {
-    cb->tail = inp;
+int tail_len() {
+    return circ_buff.block_lengths[circ_buff.tail];
 }
 
 void init_lock() {
-    pthread_mutex_init(get_lock(), NULL); 
+    pthread_mutex_init(&circ_buff.lock, NULL); 
 }
 
 
 //CLE: source / green side
 void init_buffer() {
     init_lock();
-    set_block_size(1024);
-    set_num_blocks(64);
 
-    cb->buffer = (char*) malloc(get_num_blocks() * get_block_size() * sizeof(char));
-    memset(cb->buffer, 0, get_num_blocks() * get_block_size() * sizeof(char));
+    circ_buff.buffer = (char*) malloc(NUM_BLOCKS * BLOCK_SIZE * sizeof(char));
+    memset(circ_buff.buffer, 0, NUM_BLOCKS * BLOCK_SIZE * sizeof(char));
 
-    cb->block_lengths = (int*) malloc(get_num_blocks() * sizeof(int));
-    memset(cb->block_lengths, 0, get_num_blocks() * sizeof(int));
+    circ_buff.block_lengths = (int*) malloc(NUM_BLOCKS * sizeof(int));
+    memset(circ_buff.block_lengths, 0, NUM_BLOCKS * sizeof(int));
 }
 
 
 void print_details() {
     printf("details start\n");
-    printf("cb pointer: %p\n", cb);
-    printf("buffer pointer: %p\n", get_buffer());
-    printf("cur_size: %d\n", get_cur_size());
-    printf("num_blocks: %d\n", get_num_blocks());
-    printf("head: %d\n", get_head());
-    printf("tail: %d\n", get_tail());
-    printf("block_size: %d\n", get_block_size());
+    printf("buffer pointer: %p\n", circ_buff.buffer);
+    printf("cur_size: %d\n", circ_buff.cur_size);
+    printf("head: %d\n", circ_buff.head);
+    printf("tail: %d\n", circ_buff.tail);
     printf("details end\n");
 }
 
-void better_print(char* s, int start, int length) {
-    printf("%s called\n", __func__);
-    for (int i = start; i < start + length; i++) {
-        printf("%c", s[i]);
-    }
-    printf("\n");
-}
-
 void display() {
-    // printf("%s called\n", __func__);
-    // print_details();
-
-    int i = 0;
-    while (i < cb->cur_size) {
-        printf("======== Item %d start ========\n", i);
-        better_print(get_buffer(), ((get_head() + i) % get_num_blocks()) * get_block_size(), get_block_lengths()[get_head() + i]);
-        printf("========= Item %d end =========\n", i);
-        i++;
+    printf("%s called\n", __func__);
+    print_details();
+    for (size_t i = 0; i < circ_buff.cur_size; i++) {
+        printf("======== Item %zu start ========\n", i);
+        size_t off = (circ_buff.head + i) % NUM_BLOCKS; 
+        printf("%*.s\n", circ_buff.block_lengths[off], circ_buff.buffer + (off * BLOCK_SIZE));
+        printf("========= Item %zu end =========\n", i);
     }
 }
 
@@ -290,59 +237,41 @@ void enqueue(char* input) {
     printf("%s called\n", __func__);
     // print_details();
 
-    pthread_mutex_lock(get_lock());
-    if (strlen(input) > get_block_size()) {
-        printf("Unable to enqueue input greater than block size %d\n", get_block_size());
+    pthread_mutex_lock(&circ_buff.lock);
+    if (strlen(input) > BLOCK_SIZE) {
+        printf("Unable to enqueue input greater than block size %d\n", BLOCK_SIZE);
     }
-    else if (get_cur_size() < get_num_blocks()) {
-        get_block_lengths()[get_tail()] = strlen(input);
-        strncpy(&get_buffer()[get_tail() * get_block_size()], input, get_block_lengths()[get_tail()]);
-        printf("This is added to the buffer: \n");
-        better_print(get_buffer(), get_tail() * get_block_size(), get_block_lengths()[get_tail()]);
-        set_tail((get_tail() + 1) % get_num_blocks());
-        set_cur_size(get_cur_size() + 1);
+    else if (circ_buff.cur_size < NUM_BLOCKS) {
+        circ_buff.block_lengths[circ_buff.tail] = strlen(input);
+        strncpy(tail(), input, tail_len());
+        printf("This is added to the buffer: %.*s\n", 
+            tail_len(),
+            tail()
+        );
+        circ_buff.tail = (circ_buff.tail + 1) % NUM_BLOCKS;
+        circ_buff.cur_size++;
     }
     else {
         printf("Buffer is full. Input not queued.\n");
     }
-    pthread_mutex_unlock(get_lock());
+    pthread_mutex_unlock(&circ_buff.lock);
 }
 
 //CLE: source / green side
-char* pop() {
+void pop() {
     printf("%s called\n", __func__);
-    pthread_mutex_lock(get_lock());
-    if (get_cur_size() == 0) {
+    pthread_mutex_lock(&circ_buff.lock);
+    if (circ_buff.cur_size == 0) {
         printf("empty pop\n");
-        pthread_mutex_unlock(get_lock());
-        return "";
+        pthread_mutex_unlock(&circ_buff.lock);
+        return;
     }
 
-    set_cur_size(get_cur_size() - 1);
-    char *output = (char*) malloc(get_block_size());
-    output = &get_buffer()[get_head() * get_block_size()];
-    cb->block_lengths[get_head()] = 0;
-    set_head((get_head() + 1) % get_num_blocks());
-    printf("popped this %s\n", output);
-    pthread_mutex_unlock(get_lock());
-    return output;
-}
-
-//CLE: source / green side
-char* get_message() {
-    printf("%s : length of buffer now: %d\n", __func__, get_cur_size());
-    char *output = (char*) malloc(get_block_size());
-    memset(output, 0, get_block_size());
-    if(get_cur_size() != 0) {
-        memset(output, 0, get_block_size());
-        int len = get_block_lengths()[get_head()];
-        strncpy(output, pop(), len);
-        return output;
-    }
-    else {
-        printf("Tried to get message from an empty buffer\n");
-        return "\0";
-    }
+    printf("popped %*.s\n", head_len(), head());
+    circ_buff.cur_size = circ_buff.cur_size - 1;
+    circ_buff.block_lengths[circ_buff.head] = 0;
+    circ_buff.head = (circ_buff.head + 1) % NUM_BLOCKS;
+    pthread_mutex_unlock(&circ_buff.lock);
 }
 
 //CLE: source / green side
@@ -411,8 +340,7 @@ int get_sink_socket() {
     return sink_sock;
 }
 
-char* split(char *str, const char *delim)
-{
+char* split(char *str, const char *delim) {
     char *p = strstr(str, delim);
     if (p == NULL) return NULL;     // delimiter not found
     *p = '\0';                      // terminate string after head
@@ -441,11 +369,11 @@ void* source_receive() {
 
         tail = split(server_response, delimiter);
         while (tail) {
-        strcpy(event, server_response);
-        strcat(event, delimiter);
-        enqueue(event);
-        strcpy(server_response, tail);
-        tail = split(server_response, delimiter);
+            strcpy(event, server_response);
+            strcat(event, delimiter);
+            enqueue(event);
+            strcpy(server_response, tail);
+            tail = split(server_response, delimiter);
         }
         usleep(200000);
     }
@@ -475,27 +403,27 @@ void sanitize(char* input, char* output, int len) {
     strncpy(output, input, len); // can do filtering on input here if needed.
 }
 
-
 // ask if this function could result in a thread issue.
 #pragma cle begin POP_SOURCE_AND_UPDATE_SINK
 void pop_source_and_update_sink() {
 #pragma cle end POP_SOURCE_AND_UPDATE_SINK
     // printf("%s called\n", __func__);
     #pragma cle begin GREEN
-    char output[get_block_size()];
+    char output[BLOCK_SIZE];
     #pragma cle end GREEN
     #pragma cle begin GREEN_SHARABLE
-    char san_output[get_block_size()];
+    char san_output[BLOCK_SIZE];
     #pragma cle end GREEN_SHARABLE
     while(1) {
         memset(output, 0, sizeof(output));
         memset(san_output, 0, sizeof(san_output));
         #pragma cle begin GREEN_SHARABLE
-        int len = get_block_lengths()[get_head()];
+        int len = circ_buff.block_lengths[circ_buff.head];
         #pragma cle end GREEN_SHARABLE
         if (len != 0) {
             printf("Len isnt 0\n");
-            strncpy(output, get_message(), len);
+            memcpy(output, head(), head_len());
+            pop();
             sanitize(output, san_output, len);
             update_sink(san_output, len);
         }
@@ -510,10 +438,12 @@ void shutdown_source() {
         close(source_sock);
     }
 
-    for (int i = 0; i < cb->num_blocks; i++) {
-        memset(&cb->buffer[i * cb->block_size], 0, cb->block_size);
-        memset(&cb->block_lengths[i], 0, cb->block_size);
+    for (int i = 0; i < NUM_BLOCKS; i++) {
+        memset(&circ_buff.buffer[i * BLOCK_SIZE], 0, BLOCK_SIZE);
+        memset(&circ_buff.block_lengths[i], 0, BLOCK_SIZE);
     }
+    free(circ_buff.buffer);
+    free(circ_buff.block_lengths);
 }
 
 //CLE: sink / orange side
@@ -544,23 +474,25 @@ void run_tests() {
     pop();
     display();
     char* output = (char*) malloc(1024 * sizeof(char));
-    strncpy(output, pop(), 582);
+    strncpy(output, head(), 582);
+    pop();
 
     printf("pointer output: %p\n", output);
     printf("this is in pop output %s\n", output);
 
+    int len = head_len();
     memset(output, 0, 1024 * sizeof(char));
-    int len = get_block_lengths()[get_head()];
-    strncpy(output, get_message(), len);
+    strncpy(output, head(), len);
 
-    printf("pointer get_message output: %p\n", output);
-    printf("this is in get_message output %s\n", output);
+    printf("pointer head output: %p\n", output);
+    printf("this is in head output %*.s\n", len, output);
     pop();
     display();
     // free_cb(buffer);
     printf("pointer output: %p\n", output);
-    printf("this is in output %s\n", output);
-
+    printf("this is in output %*.s\n", len, output);
+    free(content);
+    free(output);
     printf("end of the program\n");
 }
 
