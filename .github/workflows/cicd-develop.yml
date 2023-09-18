@@ -1,0 +1,77 @@
+name: cicd on branches other than the master
+run-name: ${{ github.actor }} is pushing to branches other than the master
+on:
+  push:
+    branches-ignore:
+      - master
+
+  workflow_run:
+    workflows: [Upload Docker image]
+    types:
+      - completed
+
+jobs:
+  devcontainer-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        
+    container: 
+     image: gapsclosure/closuredev:develop
+     options: --user closure     
+    steps:
+      - name: closureenv
+        run:  source /opt/closure/etc/closureenv; printenv PATH; printenv PYTHONPATH
+      - name: what is home
+        run: echo $HOME
+      - name: test multiline string
+        run: |
+          cHome="/home/closure"
+          source $cHome/.bash_profile
+          printenv PATH
+          printenv PYTHONPATH
+          cd $cHome
+          git clone --recurse-submodules https://github.com/gaps-closure/build.git
+          checkApps=(example1 example2 example3)
+          for cApp in "${checkApps[@]}"; do
+          appName=$cApp
+          find . -name $appName -print
+          echo "### Testing $appName"
+          cd build/apps/examples/$appName
+          vstask "0 CLEAN SOURCE"
+          vstask "1 ANNOTATE"
+          cp .solution/refactored/*.c annotated/
+          ls -ltra annotated/*.c
+          vstask "2 ANALYZE PARTITION CONFLICTS"
+          checkFiles=(topology.json artifact.json)
+          for i in "${checkFiles[@]}"; do [ -f ./$i ] && echo "$i exists" || { echo "$i is not found"; false; } done
+          vstask "9a DIVIDE"
+          myEnclaves=$(grep "export ENCLAVES=" .make/closure_env.sh | sed -ne 's/export ENCLAVES="//p' |sed -ne 's/"//p')
+          echo $myEnclaves
+          IFS=' ' read -ra ArrEc <<< $myEnclaves
+          for i in "${ArrEc[@]}"; do [ -d divvied/$i ] && echo "Directory for $i exists" || { echo "divvied/$i does not exist"; false; } done
+          vstask "9b AUTOGEN GEDL, RPCs, IDL, Codecs"
+          efiles=($(find ./partitioned/multithreaded -type f -not \( -name "*.a" -o -name "*.o" -o -name "*.so" -o -name "*$appName" \) ))
+          for i in ${efiles[@]}; 
+          do j=$(sed 's/./.\/.solution/' <<< $i); md5_i=($(md5sum $i)); 
+          if [[ $i == *".gedl" || $i == *"/gedl.ll" ]]; then md5_j=($(sed "s+/workspaces+$cHome+g" $j | md5sum)); 
+          else md5_j=($(md5sum $j)); fi;
+          echo "${md5_i[0]} ${md5_j[0]} $i $j";
+          if [ ${md5_i[0]} != ${md5_j[0]} ]; then { echo "found an unmatched one ${md5_i[1]}"; diff $i $j; } fi;
+          done
+          vstask "9c VERIFY"
+          vstask "9d BUILD"
+          for k in  "${ArrEc[@]}"; do eName="./partitioned/multithreaded/$k/$appName";
+          [ -x   $eName ] && echo "executable $eName exists" || { echo "executable $eName is not found"; false; } done
+          source .make/closure_env.sh; make -f .make/mbig.make hal
+          ls -ltra
+          efiles2=($(find ./partitioned/multithreaded -type f -name "*hal*.cfg" ))
+          echo "EFILES2 is $efiles2"
+          for i in ${efiles2[@]}; 
+          do j=$(sed 's/./.\/.solution/' <<< $i); md5_i=($(md5sum $i)); md5_j=($(md5sum $j)); 
+          echo "${md5_i[0]} ${md5_j[0]} ${md5_i[1]} ${md5_j[1]}";
+          if [ ${md5_i[0]} != ${md5_j[0]} ]; then { echo "found an unmatched one ${md5_i[1]}"; false; } fi;
+          done
+          cd $cHome
+          done
