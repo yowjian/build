@@ -1,6 +1,6 @@
 {
 	"name": "CLOSUREDEV",
-	"image": "gapsclosure/closuredev:master",
+	"image": "gapsclosure/closuredev:develop",
 
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",
