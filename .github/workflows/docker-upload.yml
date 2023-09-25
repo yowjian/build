@@ -36,13 +36,5 @@ jobs:
           file: Dockerfile.dev 
           tags: gapsclosure/closuredev:${{ steps.branch-name.outputs.current_branch }} 
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build and push EOP1 Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: apps/eop1
-          push: true
-          tags: gapsclosure/eop1:${{ steps.branch-name.outputs.current_branch }}
-          labels: ${{ steps.meta.output.labels }}
     
     
