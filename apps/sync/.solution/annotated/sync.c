@@ -519,7 +519,7 @@ int main() {
 #pragma cle end MAIN
     init_buffer();
     get_source_socket();
-    // get_sink_socket(); //GEDL generator and downstream tools failing: when fixed we can uncomment
+    get_sink_socket(); //GEDL generator and downstream tools failing: when fixed we can uncomment
     start_recv_thread();
     pop_source_and_update_sink();
     shutdown_source();
