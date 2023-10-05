@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gma:GapsPDU xmlns:gma="urn:gma:1.0">
+  <gma:SDHBWPDU>
+    <gma:SDHBWHeader>
+      <tag0>0</tag0>
+      <tagm>1</tagm>
+      <tags>1</tags>
+      <tagt>3</tagt>
+      <len>20</len>
+      <crc>22961</crc>
+    </gma:SDHBWHeader>
+    <gma:ApplicationData>
+      <gma:Request_get_sink_socket>
+        <dummy>0</dummy>
+      </gma:Request_get_sink_socket>
+    </gma:ApplicationData>
+    <gma:GapsTrailer>
+      <seq>1</seq>
+      <rqr>1133896119</rqr>
+      <oid>32731</oid>
+      <mid>256</mid>
+      <crc>0</crc>
+    </gma:GapsTrailer>
+  </gma:SDHBWPDU>
+</gma:GapsPDU>

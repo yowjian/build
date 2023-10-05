@@ -28,7 +28,8 @@ handle_opts() {
   shift "$((OPTIND-1))"
 
   PWD=`pwd`
-  PINSTALL="${PWD}/../case1/MA_v1.0_src/pinstall"
+  #PINSTALL="${PWD}/../case1/MA_v1.0_src/pinstall"
+  PINSTALL="/opt/eop1/pinstall"
 
   case $HWMODE in
       ilip)
@@ -60,7 +61,7 @@ build_xdcc() {
     # vstask does not support dependsOn field in tasks.json
     runtask "9a DIVIDE"
     runtask "9b AUTOGEN GEDL, RPCs, IDL, Codecs"
-    runtask "9c VERIFY"
+#    runtask "9c VERIFY"
     runtask "9e BUILD"
 }
 

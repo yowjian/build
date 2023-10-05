@@ -1,0 +1,52 @@
+name: cicd on eop1
+run-name: ${{ github.actor }} is testing cicd on eop1
+on:
+  push:
+
+  workflow_run:
+    workflows: [Upload Docker image]
+    types:
+      - completed
+
+jobs:
+  devcontainer-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        
+    container: 
+     image: gapsclosure/closuredev:eop1
+     options: --user closure     
+    steps:
+      - name: closureenv
+        run:  source /opt/closure/etc/closureenv; printenv PATH; printenv PYTHONPATH
+      - name: what is home
+        run: echo $HOME
+      - name: test multiline string
+        run: |
+          cHome="/home/closure"
+          source $cHome/.bash_profile
+          printenv PATH
+          printenv PYTHONPATH
+          cd $cHome
+          git clone --recurse-submodules https://github.com/gaps-closure/build.git
+          checkApps=(case1 case2 case3)
+          for cApp in "${checkApps[@]}"; do
+          appName=$cApp
+          find . -name $appName -print
+          echo "### Testing $appName"
+          cd build/apps/eop1/$appName
+          vstask "CLEAN"
+          vstask "A6 CODE GENERATION"
+          vstask "BUILD"
+          in_and_out=(egress_xdcc ingress_xdcc)
+          for io in "${in_and_out[@]}"; do dName="./xdcc/$io";
+          myEnclaves=$(grep "export ENCLAVES=" $dName/.make/closure_env.sh | sed -ne 's/export ENCLAVES="//p' |sed -ne 's/"//p')
+          echo $myEnclaves
+          IFS=' ' read -ra ArrEc <<< $myEnclaves
+          for i in "${ArrEc[@]}"; do iName="$dName/partitioned/multithreaded/$i/$io";
+          [ -x   $iName ] && echo "executable $iName exists" || { echo "executable $iName is not found"; false; } done
+          done
+          cd $cHome
+          done

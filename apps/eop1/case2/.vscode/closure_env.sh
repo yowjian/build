@@ -42,4 +42,4 @@ export EXT=c
 export USER=`whoami`
 export CASE=$(eval basename `pwd`)
 export HWMODE=emu
-export PINSTALL=/home/${USER}/gaps/build/apps/eop1/case1/MA_v1.0_src/pinstall
+export PINSTALL=/opt/eop1/pinstall
